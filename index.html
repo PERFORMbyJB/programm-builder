@@ -77,6 +77,12 @@ header {
 .prog-item-del { opacity:0; color:var(--text2); background:none; border:none; cursor:pointer; font-size:14px; padding:2px 4px; border-radius:4px; transition:all .15s; }
 .prog-item:hover .prog-item-del { opacity:1; }
 .prog-item-del:hover { color:#f87171; background:var(--red); }
+.backup-box { border-top:1px solid var(--border); padding:10px 12px; }
+.backup-btns { display:flex; gap:8px; }
+.backup-btn { flex:1; background:var(--bg3); border:1px solid var(--border); color:var(--text); cursor:pointer; }
+.backup-info { margin-top:7px; font-size:11px; color:var(--text2); line-height:1.4; }
+.backup-info.warn { color:#f59e0b; }
+.backup-info.err { color:#f87171; }
 .sidebar-empty { text-align:center; padding:40px 20px; color:var(--text2); font-size:12px; }
 
 /* ── Main area ── */
@@ -424,6 +430,14 @@ textarea.form-control { resize:vertical; min-height:60px; }
       <button class="btn btn-primary btn-sm" onclick="newProgram()">+ Neu</button>
     </div>
     <div class="prog-list" id="prog-list"></div>
+    <div class="backup-box">
+      <div class="backup-btns">
+        <button class="btn btn-sm backup-btn" onclick="exportPrograms()" title="Alle Programme als Datei sichern">⬇ Backup</button>
+        <button class="btn btn-sm backup-btn" onclick="document.getElementById('import-file').click()" title="Programme aus einer Backup-Datei laden">⬆ Import</button>
+        <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importPrograms(this)">
+      </div>
+      <div class="backup-info" id="backup-info"></div>
+    </div>
   </div>
 
   <!-- ── Main area ── -->
@@ -711,8 +725,8 @@ function renderSidebar() {
     `<div class="prog-item${i===activeProg?' active':''}" onclick="selectProg(${i})">
       <div class="prog-item-dot" style="background:${COLORS[p.category]||'#3b82f6'}"></div>
       <div class="prog-item-info">
-        <div class="prog-item-name">${p.name}</div>
-        <div class="prog-item-meta">${p.category} · ${p.weeks}W · ${p.sessions.length} Einheiten</div>
+        <div class="prog-item-name">${esc(p.name)}</div>
+        <div class="prog-item-meta">${esc(p.category)} · ${p.weeks}W · ${p.sessions.length} Einheiten</div>
       </div>
       <button class="prog-item-del" onclick="event.stopPropagation();deleteProg(${i})" title="Löschen">✕</button>
     </div>`
@@ -1307,6 +1321,98 @@ function updateMetaDatalists() {
   if (levelList) levelList.innerHTML = [...levels].map(l => `<option value="${esc(l)}">`).join('');
 }
 
+// ── Backup: Export / Import aller Programme als Datei ──
+const BACKUP_KEY = 'perform_last_backup';
+let backupMsgTimer = null;
+
+function backupMsg(text, kind) {
+  const el = document.getElementById('backup-info');
+  if (!el) return;
+  el.textContent = text;
+  el.className = 'backup-info' + (kind ? ' ' + kind : '');
+  clearTimeout(backupMsgTimer);
+  backupMsgTimer = setTimeout(renderBackupInfo, 7000);
+}
+
+function renderBackupInfo() {
+  const el = document.getElementById('backup-info');
+  if (!el) return;
+  const t = parseInt(lsGet(BACKUP_KEY, '0'), 10) || 0;
+  if (!t) {
+    el.textContent = programs.length ? 'Noch kein Backup gemacht.' : '';
+    el.className = 'backup-info' + (programs.length ? ' warn' : '');
+    return;
+  }
+  const days = Math.floor((Date.now() - t) / 86400000);
+  el.textContent = 'Letztes Backup: ' + (days <= 0 ? 'heute' : days === 1 ? 'gestern' : 'vor ' + days + ' Tagen');
+  el.className = 'backup-info' + (days >= 7 ? ' warn' : '');
+}
+
+function downloadBlob(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+function exportPrograms() {
+  if (!programs.length) { backupMsg('Nichts zu sichern – noch keine Programme.', 'err'); return; }
+  const payload = { app: 'perform-builder', version: 1, exported: new Date().toISOString(), programs };
+  const name = 'PERFORM_Programme_' + new Date().toISOString().slice(0, 10) + '.json';
+  const blob = new Blob([JSON.stringify(payload, null, 1)], { type: 'application/json' });
+  const done = () => { lsSet(BACKUP_KEY, String(Date.now())); backupMsg(programs.length + ' Programme gesichert.'); };
+  // Auf Touch-Geräten (iPad/Handy) das Teilen-Menü nutzen: dort direkt in iCloud Drive / Dateien speichern
+  const touch = window.matchMedia && matchMedia('(pointer:coarse)').matches;
+  if (touch && navigator.canShare && typeof File === 'function') {
+    const file = new File([blob], name, { type: 'application/json' });
+    if (navigator.canShare({ files: [file] })) {
+      navigator.share({ files: [file], title: name })
+        .then(done)
+        .catch(e => { if (!e || e.name !== 'AbortError') { downloadBlob(blob, name); done(); } });
+      return;
+    }
+  }
+  downloadBlob(blob, name);
+  done();
+}
+
+function importPrograms(input) {
+  const f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  const r = new FileReader();
+  r.onerror = () => backupMsg('Datei konnte nicht gelesen werden.', 'err');
+  r.onload = () => {
+    try {
+      const data = JSON.parse(r.result);
+      const list = Array.isArray(data) ? data : (data && Array.isArray(data.programs) ? data.programs : null);
+      if (!list) throw new Error('format');
+      const ok = list.filter(p => p && typeof p === 'object' && typeof p.name === 'string' && Array.isArray(p.sessions));
+      if (!ok.length) throw new Error('empty');
+      ok.forEach(p => { if (!p.id) p.id = genId(); });
+      const ids = new Set(programs.map(p => p.id));
+      const overlap = ok.filter(p => ids.has(p.id)).length;
+      if (overlap && !confirm(overlap + ' Programm(e) gibt es hier schon und werden mit dem Stand aus der Datei überschrieben.\n\nFortfahren?')) return;
+      let added = 0;
+      ok.forEach(p => {
+        migrateProgramToColumns(p);
+        const idx = programs.findIndex(x => x.id === p.id);
+        if (idx >= 0) programs[idx] = p; else { programs.push(p); added++; }
+      });
+      save();
+      activeProg = programs.findIndex(x => x.id === ok[0].id);
+      selectProg(activeProg);
+      backupMsg(added + ' neu, ' + overlap + ' überschrieben.');
+    } catch (e) {
+      backupMsg('Das ist keine gültige Backup-Datei.', 'err');
+    }
+  };
+  r.readAsText(f);
+}
+
 // ── Log-Link (Plan wird komprimiert in den URL-Hash der Log-Seite gepackt) ──
 // Der Hash (#...) wird nie an einen Server gesendet, der Plan bleibt also im Link selbst.
 const LOG_URL_KEY = 'perform_log_url';
@@ -1435,6 +1541,7 @@ updateMetaDatalists();
 syncLogToggle();
 if (programs.length > 0) activeProg = 0;
 render();
+renderBackupInfo();
 </script>
 
 <div id="print-root"></div>
