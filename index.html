@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERFORM. Programm-Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #1C1F26;
+  --bg2:     #222630;
+  --bg3:     #2a2f3d;
+  --bg4:     #313749;
+  --accent:  #1D4579;
+  --accent2: #2563a8;
+  --accent3: #3b82f6;
+  --text:    #f0f4ff;
+  --text2:   #9ba8c0;
+  --border:  #2e3547;
+  --green:   #166534;
+  --green2:  #4ade80;
+  --red:     #7f1d1d;
+  --red2:    #fca5a5;
+  --orange:  #b45309;
+  --orange2: #fbbf24;
+}
+
+body { font-family:'Montserrat',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg,#111418 0%,var(--accent) 100%);
+  padding:18px 28px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:200;
+}
+.logo { font-size:20px; font-weight:800; letter-spacing:3px; }
+.logo span { color:var(--accent3); }
+.logo-sub { font-size:11px; color:var(--text2); font-weight:600; letter-spacing:2px; margin-top:2px; }
+.header-nav { display:flex; gap:8px; align-items:center; }
+.nav-link {
+  display: inline-block;
+  padding:7px 14px; border-radius:7px; border:1px solid var(--border);
+  background:transparent; color:var(--text2); font-family:'Montserrat',sans-serif;
+  font-size:12px; font-weight:600; cursor:pointer; text-decoration:none; transition:all .15s;
+}
+.nav-link:hover { border-color:var(--accent3); color:var(--text); }
+
+/* ── Layout ── */
+.layout { display:grid; grid-template-columns:280px 1fr; height:calc(100vh - 65px); overflow:hidden; }
+
+/* ── Sidebar ── */
+.sidebar {
+  background:var(--bg2); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.sidebar-head {
+  padding:16px 16px 12px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.sidebar-head h3 { font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:var(--text2); }
+.prog-list { overflow-y:auto; flex:1; padding:8px; }
+.prog-item {
+  padding:11px 13px; border-radius:9px; cursor:pointer; margin-bottom:4px;
+  border:1px solid transparent; transition:all .15s;
+  display:flex; align-items:center; gap:10px;
+}
+.prog-item:hover { background:var(--bg3); border-color:var(--border); }
+.prog-item.active { background:var(--bg3); border-color:var(--accent2); }
+.prog-item-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.prog-item-info { flex:1; overflow:hidden; }
+.prog-item-name { font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.prog-item-meta { font-size:10px; color:var(--text2); margin-top:2px; }
+.prog-item-del { opacity:0; color:var(--text2); background:none; border:none; cursor:pointer; font-size:14px; padding:2px 4px; border-radius:4px; transition:all .15s; }
+.prog-item:hover .prog-item-del { opacity:1; }
+.prog-item-del:hover { color:#f87171; background:var(--red); }
+.sidebar-empty { text-align:center; padding:40px 20px; color:var(--text2); font-size:12px; }
+
+/* ── Main area ── */
+.main-area { display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── Program meta bar ── */
+.prog-meta-bar {
+  padding:16px 24px; background:var(--bg2); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.prog-meta-bar h2 { font-size:18px; font-weight:800; flex:1; min-width:180px; }
+.prog-meta-bar h2[contenteditable]:focus { outline:1px solid var(--accent3); border-radius:4px; padding:2px 6px; }
+
+.prog-notes-bar {
+  padding:10px 24px 16px; background:var(--bg2); border-bottom:1px solid var(--border);
+}
+.prog-notes-label {
+  display:block; font-size:10.5px; font-weight:700; color:var(--text2);
+  margin-bottom:6px; letter-spacing:.3px;
+}
+.prog-notes-bar textarea {
+  width:100%; min-height:44px; resize:vertical;
+  background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  font-family:'Montserrat',sans-serif; font-size:12px; font-weight:500;
+  padding:9px 12px; border-radius:8px; outline:none; transition:border-color .15s;
+  line-height:1.4;
+}
+.prog-notes-bar textarea::placeholder { color:var(--text2); }
+.prog-notes-bar textarea:focus { border-color:var(--accent3); }
+.meta-tag {
+  display:flex; align-items:center; gap:6px;
+  padding:5px 12px; border-radius:20px; background:var(--bg3); border:1px solid var(--border);
+  font-size:11px; font-weight:700; color:var(--text2);
+}
+.meta-tag select, .meta-tag input[type=number] {
+  background:none; border:none; color:var(--text); font-family:'Montserrat',sans-serif;
+  font-size:11px; font-weight:700; outline:none; cursor:pointer; max-width:70px;
+}
+.meta-tag input.meta-input {
+  background:none; border:none; color:var(--text); font-family:'Montserrat',sans-serif;
+  font-size:11px; font-weight:700; outline:none; cursor:text; width:110px;
+}
+.meta-tag input.meta-input::placeholder { color:var(--text2); }
+
+/* ── Sessions tabs ── */
+.sessions-nav {
+  display:flex; align-items:center; gap:4px; padding:10px 24px 0;
+  background:var(--bg2); border-bottom:1px solid var(--border); overflow-x:auto;
+}
+.sess-tab {
+  padding:8px 34px 8px 16px; border-radius:8px 8px 0 0; border:none;
+  background:transparent; color:var(--text2); font-family:'Montserrat',sans-serif;
+  font-size:12px; font-weight:700; cursor:pointer; transition:all .15s;
+  border-bottom:2px solid transparent; white-space:nowrap; position:relative;
+}
+.sess-tab:hover { color:var(--text); background:var(--bg3); }
+.sess-tab.active { color:var(--accent3); border-bottom-color:var(--accent3); background:var(--bg3); }
+.sess-tab-del {
+  display:none; position:absolute; top:2px; right:2px;
+  width:14px; height:14px; border-radius:50%; background:#7f1d1d;
+  color:#fca5a5; font-size:10px; line-height:14px; text-align:center;
+  cursor:pointer; font-weight:900;
+}
+.sess-tab-dup {
+  display:none; position:absolute; top:2px; right:19px;
+  width:14px; height:14px; border-radius:50%; background:#1e3a5f;
+  color:#93c5fd; font-size:10px; line-height:14px; text-align:center;
+  cursor:pointer; font-weight:900;
+}
+.sess-tab:hover .sess-tab-del { display:block; }
+.sess-tab:hover .sess-tab-dup { display:block; }
+.add-sess-btn {
+  padding:6px 12px; border-radius:7px 7px 0 0; border:1px dashed var(--border);
+  background:transparent; color:var(--text2); font-family:'Montserrat',sans-serif;
+  font-size:12px; font-weight:700; cursor:pointer; transition:all .15s; white-space:nowrap;
+}
+.add-sess-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+
+/* ── Session editor ── */
+.session-editor { flex:1; overflow-y:auto; padding:20px 24px; }
+.no-program {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  height:100%; gap:16px; color:var(--text2);
+}
+.no-program .big-icon { font-size:56px; }
+.no-program p { font-size:14px; font-weight:600; }
+
+/* ── Block ── */
+.block {
+  background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+  margin-bottom:16px; overflow:hidden;
+}
+.block-header {
+  padding:12px 16px; display:flex; align-items:center; gap:10px;
+  cursor:pointer; user-select:none; border-bottom:1px solid var(--border);
+}
+.block-color-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.block-name {
+  font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; flex:1;
+}
+.block-name[contenteditable]:focus { outline:1px solid var(--accent3); border-radius:3px; padding:1px 5px; }
+.block-toggle { font-size:12px; color:var(--text2); transition:transform .2s; }
+.block-toggle.open { transform:rotate(90deg); }
+.block-actions { display:flex; gap:6px; }
+.block-body { padding:12px 16px; }
+.block-body.collapsed { display:none; }
+
+/* ── Exercises table ── */
+.ex-table { width:100%; border-collapse:separate; border-spacing:0 4px; margin-bottom:10px; }
+.ex-table th {
+  font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+  color:var(--text2); padding:4px 8px; text-align:left;
+}
+.ex-row { background:var(--bg3); }
+.ex-row td { padding:8px; vertical-align:middle; }
+.ex-row td:first-child { border-radius:8px 0 0 8px; padding-left:12px; }
+.ex-row td:last-child { border-radius:0 8px 8px 0; }
+.ex-input {
+  background:transparent; border:none; color:var(--text);
+  font-family:'Montserrat',sans-serif; font-size:12px; font-weight:600; outline:none; width:100%;
+}
+.ex-input::placeholder { color:var(--text2); }
+.ex-input:focus { background:var(--bg4); border-radius:4px; padding:0 4px; }
+.ex-name-input { font-size:13px !important; font-weight:700 !important; min-width:120px; }
+.ex-video-input {
+  font-size:10.5px !important; font-weight:500 !important; color:var(--accent3) !important;
+  margin-top:2px; display:block;
+}
+.ex-video-input::placeholder { color:var(--text2); opacity:.7; }
+.ex-num-input { width:50px; text-align:center; }
+.ex-del-btn {
+  background:none; border:none; color:var(--text2); cursor:pointer; font-size:14px;
+  padding:3px 6px; border-radius:5px; transition:all .15s; opacity:.5;
+}
+.ex-del-btn:hover { opacity:1; color:#f87171; background:var(--red); }
+.drag-handle { cursor:grab; color:var(--text2); font-size:14px; opacity:.4; padding:0 4px; }
+.drag-handle:hover { opacity:.9; }
+.ex-row { transition:opacity .15s, background .15s; }
+.ex-row.ex-dragging { opacity:.35; }
+.ex-row.ex-drop-target td:first-child { box-shadow:inset 3px 0 0 var(--accent3); }
+.ex-row.ex-drop-target { background:rgba(42,95,168,0.15) !important; }
+.ex-row:active .drag-handle { cursor:grabbing; }
+
+.add-ex-btn {
+  padding:6px 14px; border-radius:7px; border:1px dashed var(--border);
+  background:transparent; color:var(--text2); font-family:'Montserrat',sans-serif;
+  font-size:11px; font-weight:700; cursor:pointer; transition:all .15s;
+}
+.add-ex-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+
+.add-block-btn {
+  width:100%; padding:12px; border-radius:10px; border:1px dashed var(--border);
+  background:transparent; color:var(--text2); font-family:'Montserrat',sans-serif;
+  font-size:12px; font-weight:700; cursor:pointer; transition:all .15s; text-align:center;
+}
+.add-block-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+
+/* ── Print view ── */
+.print-btn {
+  padding:7px 16px; border-radius:8px; background:var(--green); border:none;
+  color:var(--green2); font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700;
+  cursor:pointer; transition:all .15s;
+}
+.print-btn:hover { background:#14532d; }
+
+/* ── Buttons ── */
+.btn { padding:7px 16px; border-radius:8px; border:none; font-family:'Montserrat',sans-serif; font-size:12px; font-weight:700; cursor:pointer; transition:all .15s; }
+.btn-primary { background:var(--accent2); color:#fff; }
+.btn-primary:hover { background:var(--accent3); }
+.btn-sm { padding:5px 11px; font-size:11px; border-radius:7px; }
+
+/* ── Modal ── */
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(3px); }
+.overlay.open { display:flex; }
+.modal { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:26px 30px; width:100%; max-width:460px; box-shadow:0 25px 60px rgba(0,0,0,.5); }
+.modal h3 { font-size:17px; font-weight:800; margin-bottom:20px; }
+.modal-hint { font-size:11px; color:var(--text2); margin:-14px 0 16px; }
+
+.col-row {
+  display:flex; align-items:center; gap:8px; padding:8px 0;
+  border-bottom:1px solid var(--border);
+}
+.col-row:last-child { border-bottom:none; }
+.col-row input[type=text] {
+  flex:1; background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  font-family:'Montserrat',sans-serif; font-size:13px; font-weight:600;
+  padding:7px 10px; border-radius:6px; outline:none;
+}
+.col-row input[type=text]:focus { border-color:var(--accent3); }
+.col-row-actions { display:flex; gap:4px; flex-shrink:0; }
+.col-row-btn {
+  background:var(--bg3); border:1px solid var(--border); color:var(--text2);
+  width:26px; height:26px; border-radius:6px; cursor:pointer; font-size:12px;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+}
+.col-row-btn:hover { color:var(--text); background:var(--bg4); }
+.col-row-btn.col-del:hover { color:#f87171; background:var(--red); }
+.columns-empty-hint { font-size:12px; color:var(--text2); padding:12px 0; text-align:center; }
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; font-size:11px; font-weight:700; color:var(--text2); margin-bottom:5px; letter-spacing:.5px; text-transform:uppercase; }
+.form-control { width:100%; background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:13px; outline:none; transition:border-color .15s; }
+.form-control:focus { border-color:var(--accent3); }
+textarea.form-control { resize:vertical; min-height:60px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.modal-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
+.btn-ghost { background:transparent; color:var(--text2); border:1px solid var(--border); }
+.btn-ghost:hover { border-color:var(--accent3); color:var(--text); }
+
+/* ── Color pills for blocks ── */
+.color-picker { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+.color-pill { width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:all .15s; }
+.color-pill.selected, .color-pill:hover { border-color:#fff; transform:scale(1.15); }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── Print ── */
+#print-root { display:none; }
+
+@media screen {
+  body.printing > *:not(#print-root) { display:none !important; }
+  body.printing #print-root { display:block; }
+}
+
+@media print {
+  header, .sidebar, .sessions-nav, .prog-meta-bar,
+  .add-block-btn, .add-ex-btn, .block-actions, .ex-del-btn,
+  .drag-handle, .add-sess-btn, .sess-tab-del,
+  .header-nav, .block-toggle { display:none !important; }
+
+  body { background:#fff !important; color:#000 !important; }
+  .layout { display:none !important; }
+
+  #print-root { display:block !important; }
+  .print-page { break-after:page; page-break-after:always; padding:0; }
+  .print-page:last-child { break-after:auto; page-break-after:auto; }
+
+  .block { border:1px solid #ccc !important; background:#fff !important; margin-bottom:12px !important; break-inside:avoid; }
+  .block-header { border-bottom:1px solid #ccc !important; background:#f5f5f5 !important; }
+  .block-body { display:block !important; }
+  .block-name, .ex-input, .prog-meta-bar h2, .meta-tag { color:#000 !important; }
+  .ex-row { background:#f9f9f9 !important; color:#000 !important; }
+  .ex-row td { border-bottom:1px solid #eee; color:#000 !important; }
+  .ex-table th { color:#333 !important; }
+  .ex-video-link-print a { color:#1D4579 !important; }
+
+  /* Fixed column widths so long coaching cues wrap instead of overflowing off the page */
+  .ex-table { table-layout:fixed !important; width:100% !important; }
+  .ex-table col.col-ex   { width:22% !important; }
+  .ex-table col.col-sets { width:8% !important; }
+  .ex-table col.col-reps { width:9% !important; }
+  .ex-table col.col-load { width:9% !important; }
+  .ex-table col.col-rpe  { width:7% !important; }
+  .ex-table col.col-rest { width:8% !important; }
+  .ex-table col.col-cue  { width:37% !important; }
+  .ex-table td, .ex-table th {
+    word-wrap:break-word !important; overflow-wrap:break-word !important;
+    white-space:normal !important; hyphens:auto !important;
+    vertical-align:top !important;
+  }
+}
+.ex-cue-print { line-height:1.4; }
+.ex-video-link-print {
+  font-size:10.5px; color:#1D4579; margin-top:3px; font-weight:600;
+}
+.ex-video-link-print a { color:#1D4579; text-decoration:underline; }
+.print-header { padding:0 0 10px; border-bottom:2px solid #000; margin-bottom:16px; }
+.print-header-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px; }
+.print-logo { font-size:16px; font-weight:800; letter-spacing:2px; color:#000; }
+.print-logo span { color:#1D4579; }
+.print-meta { font-size:11px; color:#555; font-weight:600; }
+.print-prog-name { font-size:20px; font-weight:800; color:#000; }
+.print-log-link-wrap { margin-top:10px; }
+.print-log-link {
+  display:inline-block; background:#1D4579; color:#fff !important; font-weight:700; font-size:12.5px;
+  padding:8px 16px; border-radius:6px; text-decoration:none;
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+.print-log-hint { display:inline-block; margin-left:10px; font-size:10.5px; color:#555; font-weight:600; }
+.print-prog-notes {
+  font-size:11.5px; color:#333; background:#f0f0f0; border-left:3px solid #1D4579;
+  padding:8px 12px; margin-bottom:18px; line-height:1.5; border-radius:0 4px 4px 0;
+  white-space:pre-wrap;
+}
+.print-prog-notes strong { color:#000; }
+.sess-name-print { font-size:16px; font-weight:800; color:#000; }
+.sess-focus-print { font-size:12px; color:#555; margin-top:2px; }
+
+/* ── Session info ── */
+.sess-info-bar {
+  display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap;
+}
+.sess-info-bar input {
+  background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  padding:6px 12px; border-radius:8px; font-family:'Montserrat',sans-serif;
+  font-size:13px; font-weight:700; outline:none; transition:border-color .15s;
+}
+.sess-info-bar input:focus { border-color:var(--accent3); }
+.sess-info-bar input.sess-name { flex:1; min-width:140px; font-size:15px; }
+.sess-info-bar input.sess-focus { min-width:160px; }
+
+.sess-note {
+  display:block; width:100%; margin:-8px 0 16px;
+  background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  padding:8px 12px; border-radius:8px; font-family:'Montserrat',sans-serif;
+  font-size:12px; font-weight:500; outline:none; transition:border-color .15s;
+  resize:vertical; min-height:36px; line-height:1.4;
+}
+.sess-note::placeholder { color:var(--text2); }
+.sess-note:focus { border-color:var(--accent3); }
+.sess-note-print {
+  font-size:11px; color:#555; margin:-8px 0 16px; padding:8px 10px;
+  background:#f7f7f7; border:1px solid #ddd; border-radius:6px; line-height:1.4;
+}
+.sess-note-print strong { color:#333; }
+
+/* volume badge */
+.vol-badge {
+  padding:4px 10px; border-radius:20px; background:var(--bg3); border:1px solid var(--border);
+  font-size:11px; font-weight:700; color:var(--text2); white-space:nowrap;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">PERFORM<span>.</span></div>
+    <div class="logo-sub">Programm-Builder</div>
+  </div>
+  <div class="header-nav">
+    <a class="nav-link" href="content-kalender.html">📅 Kalender</a>
+    <a class="nav-link" href="kanban.html">📋 Kanban</a>
+    <a class="nav-link" href="aufgaben.html">✅ Aufgaben</a>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- ── Sidebar: Program list ── -->
+  <div class="sidebar">
+    <div class="sidebar-head">
+      <h3>Programme</h3>
+      <button class="btn btn-primary btn-sm" onclick="newProgram()">+ Neu</button>
+    </div>
+    <div class="prog-list" id="prog-list"></div>
+  </div>
+
+  <!-- ── Main area ── -->
+  <div class="main-area">
+    <!-- Program meta bar -->
+    <div class="prog-meta-bar" id="prog-meta-bar" style="display:none">
+      <h2 id="prog-name" contenteditable="true" spellcheck="false" onblur="saveProgName()">Programmname</h2>
+      <div class="meta-tag">🏋️ <input type="text" class="meta-input" id="prog-category" list="cat-list" onchange="saveMeta()"></div>
+      <div class="meta-tag">📅 <input type="number" id="prog-weeks" min="1" max="52" value="4" style="width:36px" onchange="saveMeta()"> Wochen</div>
+      <div class="meta-tag">🎯 <input type="text" class="meta-input" id="prog-level" list="level-list" onchange="saveMeta()"></div>
+      <div id="prog-vol-badge" class="vol-badge"></div>
+      <button class="print-btn" onclick="openColumnsModal()" title="Kennzahlen-Spalten umbenennen, entfernen oder hinzufügen" style="background:#3a2f6b">⚙ Spalten</button>
+      <button class="print-btn" onclick="openLogSettings()" title="Adresse der Log-Seite und WhatsApp-Nummer einstellen" style="background:#0f5132">🔗 Log-Link</button>
+      <label class="meta-tag" title="Fügt jeder exportierten Einheit einen Link zum Loggen am Handy hinzu" style="cursor:pointer"><input type="checkbox" id="log-link-toggle" onchange="setLogLinkOn(this.checked)"> Log-Link im PDF</label>
+      <button class="print-btn" onclick="printProgram(false)" title="Nur die aktuell geöffnete Einheit exportieren">🖨 Diese Einheit</button>
+      <button class="print-btn" onclick="printProgram(true)" title="Alle Einheiten des Programms exportieren, jede auf eigener Seite" style="background:#1e3a8a">🖨 Alle Einheiten</button>
+    </div>
+    <div class="prog-notes-bar" id="prog-notes-bar" style="display:none">
+      <span class="prog-notes-label">📌 Allgemeine Hinweise (erscheinen am Anfang des PDF-Exports)</span>
+      <textarea id="prog-notes" placeholder="z.B. grundsätzliche Durchführungshinweise, Ausrüstung, Sicherheitshinweise, Gruppengröße…" onchange="saveMeta()"></textarea>
+    </div>
+
+    <!-- Sessions tabs -->
+    <div class="sessions-nav" id="sessions-nav" style="display:none">
+      <div id="sess-tabs"></div>
+      <button class="add-sess-btn" onclick="addSession()">＋ Einheit</button>
+      <button class="add-sess-btn" onclick="openCopyModal()" title="Aktuelle Einheit in ein anderes Programm kopieren">⧉ Kopieren nach…</button>
+    </div>
+
+    <!-- Session editor -->
+    <div class="session-editor" id="session-editor">
+      <div class="no-program">
+        <div class="big-icon">🏗</div>
+        <p>Wähle ein Programm oder erstelle ein neues.</p>
+        <button class="btn btn-primary" onclick="newProgram()">+ Neues Programm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Program Modal -->
+<div class="overlay" id="overlay" onclick="closeOverlay(event)">
+  <div class="modal">
+    <h3>Neues Programm</h3>
+    <div class="form-group">
+      <label>Programmname</label>
+      <input type="text" class="form-control" id="f-name" placeholder="z.B. Explosiveness Block A">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Kategorie</label>
+        <input type="text" class="form-control" id="f-cat" list="cat-list" placeholder="z.B. Explosiveness, Athletik, Reha…" value="Athletik">
+        <datalist id="cat-list"></datalist>
+      </div>
+      <div class="form-group">
+        <label>Wochen</label>
+        <input type="number" class="form-control" id="f-weeks" value="4" min="1" max="52">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Level</label>
+      <input type="text" class="form-control" id="f-level" list="level-list" placeholder="z.B. Anfänger, Fortgeschritten, Elite…" value="Fortgeschritten">
+      <datalist id="level-list"></datalist>
+    </div>
+    <div class="form-group">
+      <label>Beschreibung (optional)</label>
+      <textarea class="form-control" id="f-desc" placeholder="Kurze Beschreibung des Programmziels…"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="createProgram()">Erstellen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Copy Session to Program Modal -->
+<div class="overlay" id="copy-overlay" onclick="closeCopyOverlay(event)">
+  <div class="modal">
+    <h3>Einheit kopieren nach…</h3>
+    <div class="form-group">
+      <label>Zu kopierende Einheit</label>
+      <input type="text" class="form-control" id="copy-source-label" disabled>
+    </div>
+    <div class="form-group">
+      <label>Zielprogramm</label>
+      <select class="form-control" id="copy-target-prog" onchange="onCopyTargetProgChange()"></select>
+    </div>
+    <div class="form-group">
+      <label>Ziel</label>
+      <select class="form-control" id="copy-target-mode" onchange="onCopyTargetModeChange()">
+        <option value="new">Als neue Einheit anhängen</option>
+        <option value="overwrite">Bestehende Einheit überschreiben</option>
+      </select>
+    </div>
+    <div class="form-group" id="copy-target-sess-group" style="display:none">
+      <label>Zu überschreibende Einheit</label>
+      <select class="form-control" id="copy-target-sess"></select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeCopyModal()">Abbrechen</button>
+      <button class="btn btn-primary" onclick="confirmCopySession()">Kopieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Columns Config Modal -->
+<div class="overlay" id="columns-overlay" onclick="closeColumnsOverlay(event)">
+  <div class="modal">
+    <h3>Kennzahlen-Spalten</h3>
+    <p class="modal-hint">Gilt nur für dieses Programm — andere Programme sind nicht betroffen.</p>
+    <div id="columns-list"></div>
+    <div class="form-group" style="margin-top:14px">
+      <label>Neue Spalte hinzufügen</label>
+      <div style="display:flex; gap:8px">
+        <input type="text" class="form-control" id="new-col-label" placeholder="z.B. Tempo, Distanz, Höhe…" style="flex:1">
+        <button class="btn btn-primary" onclick="addColumn()" style="white-space:nowrap">＋ Hinzufügen</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeColumnsModal()">Fertig</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ────────────────────────────────────────────────────────
+// Data model
+// ────────────────────────────────────────────────────────
+const KEY = 'perform_programs_v1';
+let programs = [];
+let activeProg = null;  // index
+let activeSess = 0;     // session index
+
+const BLOCK_COLORS = ['#3b82f6','#7c3aed','#be185d','#b45309','#166534','#0891b2','#9333ea','#dc2626'];
+const BLOCK_PRESETS = [
+  { name:'Warm-Up',      color:'#b45309', collapsed:false },
+  { name:'Main Work',    color:'#3b82f6', collapsed:false },
+  { name:'Accessory',   color:'#7c3aed', collapsed:false },
+  { name:'Cool-Down',   color:'#166534', collapsed:true  },
+];
+
+// Default metric columns for a new program. Each program stores its OWN copy
+// of this array (p.columns), so renaming/removing/adding columns in one
+// program never affects any other program.
+function defaultColumns() {
+  return [
+    { key:'sets', label:'Sets',      width:52 },
+    { key:'reps', label:'Wdh / Zeit', width:64 },
+    { key:'load', label:'Last / %',  width:70 },
+    { key:'rpe',  label:'RPE',       width:52 },
+    { key:'rest', label:'Pause',     width:60 },
+  ];
+}
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+// Exercise metrics are now stored generically in ex.metrics = { columnKey: value }
+// instead of fixed properties (sets/reps/load/rpe/rest), so any set of columns works.
+function emptyExercise(columns) {
+  const cols = columns || defaultColumns();
+  const metrics = {};
+  cols.forEach(c => { metrics[c.key] = ''; });
+  return { id:genId(), name:'', metrics, notes:'', videoUrl:'' };
+}
+function emptyBlock(preset, columns) {
+  const p = preset || { name:'Block', color:BLOCK_COLORS[0], collapsed:false };
+  return { id:genId(), name:p.name, color:p.color, collapsed:p.collapsed,
+           exercises:[emptyExercise(columns)] };
+}
+function emptySession(num, columns) {
+  return {
+    id: genId(), name:`Einheit ${num}`, focus:'', note:'',
+    blocks: BLOCK_PRESETS.map(p => emptyBlock(p, columns))
+  };
+}
+function emptyProgram(name, cat, weeks, level, desc) {
+  const columns = defaultColumns();
+  return {
+    id: genId(), name, category:cat, weeks:+weeks, level, description:desc, notes:'',
+    columns,
+    sessions:[ emptySession(1, columns) ]
+  };
+}
+
+// Migrates an old-format program (fixed sets/reps/load/rpe/rest properties)
+// to the new generic columns+metrics format. Safe to call on already-migrated
+// programs (it's a no-op for them). Called once on load() for backward compatibility.
+function migrateProgramToColumns(p) {
+  if (!p.columns) p.columns = defaultColumns();
+  if (p.notes === undefined) p.notes = '';
+  p.sessions?.forEach(sess => {
+    sess.blocks?.forEach(bl => {
+      bl.exercises?.forEach(ex => {
+        if (!ex.metrics) {
+          ex.metrics = {
+            sets: ex.sets ?? '',
+            reps: ex.reps ?? '',
+            load: ex.load ?? '',
+            rpe:  ex.rpe  ?? '',
+            rest: ex.rest ?? '',
+          };
+          delete ex.sets; delete ex.reps; delete ex.load; delete ex.rpe; delete ex.rest;
+        }
+      });
+    });
+  });
+}
+
+// ────────────────────────────────────────────────────────
+// Persistence
+// ────────────────────────────────────────────────────────
+function save() { localStorage.setItem(KEY, JSON.stringify(programs)); }
+function load() {
+  const raw = localStorage.getItem(KEY);
+  if (raw) {
+    programs = JSON.parse(raw);
+    programs.forEach(migrateProgramToColumns);
+    return;
+  }
+  // Demo program
+  programs = [{
+    id: genId(), name:'Explosiveness Block A', category:'Explosiveness',
+    weeks:4, level:'Fortgeschritten', description:'Fokus auf Schnellkraft, Reaktivkraft und Bodensteifigkeit.',
+    sessions:[
+      {
+        id:genId(), name:'Einheit 1 — Lower', focus:'Explosive Kraft',
+        blocks:[
+          { id:genId(), name:'Warm-Up', color:'#b45309', collapsed:false, exercises:[
+            { id:genId(), name:'Mobilitätsroutine (Hüfte/T-Spine)', sets:'1', reps:'5 min', load:'', rest:'–', notes:'' },
+            { id:genId(), name:'Bandenaktivierung Gluteus', sets:'2', reps:'15', load:'Band', rest:'30s', notes:'' },
+            { id:genId(), name:'Sprungvorbereitung (Ankle Hops)', sets:'3', reps:'8', load:'BW', rest:'45s', notes:'Fokus: schnelle Bodenreaktion' },
+          ]},
+          { id:genId(), name:'Main Work', color:'#3b82f6', collapsed:false, exercises:[
+            { id:genId(), name:'Hang Power Clean', sets:'5', reps:'3', load:'70–80 %', rest:'3 min', notes:'Maximale Beschleunigung in der 2. Zugphase' },
+            { id:genId(), name:'Box Jump', sets:'5', reps:'4', load:'BW', rest:'2 min', notes:'Kein Wiederholungs-SSC — vollständige Landung abwarten' },
+            { id:genId(), name:'Trap Bar Deadlift', sets:'4', reps:'4', load:'80 %', rest:'3 min', notes:'Konzentrische Phase maximal explosiv' },
+          ]},
+          { id:genId(), name:'Accessory', color:'#7c3aed', collapsed:false, exercises:[
+            { id:genId(), name:'Nordic Curl', sets:'3', reps:'6', load:'BW', rest:'2 min', notes:'Exzentrischer Fokus — 4 Sek. runter' },
+            { id:genId(), name:'Single Leg Hip Thrust', sets:'3', reps:'10', load:'BW', rest:'60s', notes:'' },
+          ]},
+          { id:genId(), name:'Cool-Down', color:'#166534', collapsed:true, exercises:[
+            { id:genId(), name:'Statisches Dehnen (Hüftbeuger)', sets:'1', reps:'2×60s', load:'', rest:'–', notes:'' },
+          ]},
+        ]
+      },
+      {
+        id:genId(), name:'Einheit 2 — Upper', focus:'Kraft & Stabilität',
+        blocks:[
+          { id:genId(), name:'Warm-Up', color:'#b45309', collapsed:false, exercises:[
+            { id:genId(), name:'Schulter-Mobilisation', sets:'1', reps:'5 min', load:'', rest:'–', notes:'' },
+          ]},
+          { id:genId(), name:'Main Work', color:'#3b82f6', collapsed:false, exercises:[
+            { id:genId(), name:'Bench Press', sets:'4', reps:'5', load:'80 %', rest:'3 min', notes:'' },
+            { id:genId(), name:'Weighted Pull-Up', sets:'4', reps:'5', load:'+10 kg', rest:'3 min', notes:'' },
+          ]},
+          { id:genId(), name:'Accessory', color:'#7c3aed', collapsed:false, exercises:[
+            { id:genId(), name:'DB Lateral Raise', sets:'3', reps:'12', load:'leicht', rest:'60s', notes:'' },
+            { id:genId(), name:'Face Pull', sets:'3', reps:'15', load:'Kabel', rest:'60s', notes:'' },
+          ]},
+          { id:genId(), name:'Cool-Down', color:'#166534', collapsed:true, exercises:[
+            { id:genId(), name:'Thoraxdehnung', sets:'1', reps:'2×60s', load:'', rest:'–', notes:'' },
+          ]},
+        ]
+      },
+    ]
+  }];
+  programs.forEach(migrateProgramToColumns);
+  save();
+}
+
+// ────────────────────────────────────────────────────────
+// Render
+// ────────────────────────────────────────────────────────
+function render() { renderSidebar(); if (activeProg !== null) renderEditor(); }
+
+function renderSidebar() {
+  const list = document.getElementById('prog-list');
+  if (programs.length === 0) {
+    list.innerHTML = '<div class="sidebar-empty">Noch keine Programme.<br>Klicke "+ Neu".</div>';
+    return;
+  }
+  const COLORS = {'Explosiveness':'#f59e0b','Reactivity':'#06b6d4','Force Transfer':'#8b5cf6','ORM':'#ec4899','Allgemein':'#3b82f6','Athletik':'#22c55e','Reha':'#f97316'};
+  list.innerHTML = programs.map((p,i) =>
+    `<div class="prog-item${i===activeProg?' active':''}" onclick="selectProg(${i})">
+      <div class="prog-item-dot" style="background:${COLORS[p.category]||'#3b82f6'}"></div>
+      <div class="prog-item-info">
+        <div class="prog-item-name">${p.name}</div>
+        <div class="prog-item-meta">${p.category} · ${p.weeks}W · ${p.sessions.length} Einheiten</div>
+      </div>
+      <button class="prog-item-del" onclick="event.stopPropagation();deleteProg(${i})" title="Löschen">✕</button>
+    </div>`
+  ).join('');
+}
+
+function selectProg(i) {
+  activeProg = i; activeSess = 0;
+  renderSidebar(); renderEditor();
+}
+
+function renderEditor() {
+  const p = programs[activeProg];
+  // Show meta bar & nav
+  document.getElementById('prog-meta-bar').style.display = 'flex';
+  document.getElementById('prog-notes-bar').style.display = 'block';
+  document.getElementById('sessions-nav').style.display = 'flex';
+
+  // Meta bar
+  document.getElementById('prog-name').textContent = p.name;
+  document.getElementById('prog-category').value = p.category;
+  document.getElementById('prog-weeks').value = p.weeks;
+  document.getElementById('prog-level').value = p.level;
+  document.getElementById('prog-notes').value = p.notes || '';
+
+  // Volume badge (uses the same robust logic as updateVolBadge, which handles flexible/renamed columns)
+  updateVolBadge();
+
+  // Session tabs
+  const tabsEl = document.getElementById('sess-tabs');
+  tabsEl.innerHTML = p.sessions.map((s,i)=>
+    `<button class="sess-tab${i===activeSess?' active':''}" onclick="selectSess(${i})">
+      ${s.name}
+      <span class="sess-tab-dup" onclick="event.stopPropagation();duplicateSess(${i})" title="Einheit duplizieren">⧉</span>
+      <span class="sess-tab-del" onclick="event.stopPropagation();deleteSess(${i})">✕</span>
+    </button>`
+  ).join('');
+
+  // Session editor
+  const sess = p.sessions[activeSess] || p.sessions[0];
+  if (!sess) { document.getElementById('session-editor').innerHTML='<div class="no-program"><div class="big-icon">📋</div><p>Noch keine Einheiten. Klicke "＋ Einheit".</p></div>'; return; }
+
+  document.getElementById('session-editor').innerHTML = renderSessionHTML(sess, true, p.columns);
+}
+
+// Renders one session (info bar + blocks + exercise tables).
+// editable=true -> normal in-app editor with inputs/buttons.
+// editable=false -> static print/export markup (values baked in as text, no inputs).
+// columns: the program's column configuration (array of {key,label,width}).
+function renderSessionHTML(sess, editable, columns) {
+  const cols = columns || defaultColumns();
+
+  let html = `<div class="sess-info-bar">
+    ${editable
+      ? `<input class="sess-name" type="text" value="${esc(sess.name)}" placeholder="Einheitsname" onchange="sessProp('name',this.value)">
+         <input class="sess-focus" type="text" value="${esc(sess.focus)}" placeholder="Fokus / Thema (optional)" onchange="sessProp('focus',this.value)">`
+      : `<div class="sess-name-print">${esc(sess.name)}</div>
+         ${sess.focus ? `<div class="sess-focus-print">${esc(sess.focus)}</div>` : ''}`
+    }
+  </div>
+  ${editable
+    ? `<textarea class="sess-note" placeholder="Notiz zur Einheit (optional) — z.B. Besonderheiten, Anpassungen, Hinweise…" onchange="sessProp('note',this.value)">${esc(sess.note||'')}</textarea>`
+    : (sess.note ? `<div class="sess-note-print"><strong>Notiz:</strong> ${esc(sess.note)}</div>` : '')
+  }`;
+
+  html += sess.blocks.map((bl,bi) => `
+    <div class="block" id="${editable?'bl-'+bl.id:''}">
+      <div class="block-header" ${editable?`onclick="toggleBlock('${bl.id}')"`:''}>
+        <div class="block-color-dot" style="background:${bl.color}"></div>
+        ${editable
+          ? `<div class="block-name" contenteditable="true" spellcheck="false"
+               onclick="event.stopPropagation()"
+               onblur="blockProp('${bl.id}','name',this.textContent.trim())">${esc(bl.name)}</div>`
+          : `<div class="block-name">${esc(bl.name)}</div>`
+        }
+        <div style="flex:1"></div>
+        <div style="font-size:10px;color:var(--text2);margin-right:8px">${bl.exercises.length} Übungen</div>
+        ${editable ? `
+        <div class="block-actions" onclick="event.stopPropagation()">
+          ${bi>0?`<button class="btn btn-sm btn-ghost" onclick="moveBlock('${bl.id}',-1)" title="Hoch">↑</button>`:''}
+          ${bi<sess.blocks.length-1?`<button class="btn btn-sm btn-ghost" onclick="moveBlock('${bl.id}',1)" title="Runter">↓</button>`:''}
+          <button class="btn btn-sm" style="background:#450a0a;color:#f87171" onclick="deleteBlock('${bl.id}')" title="Block löschen">✕</button>
+        </div>
+        <span class="block-toggle${bl.collapsed?'':' open'}">▶</span>` : ''}
+      </div>
+      <div class="block-body${(editable && bl.collapsed)?' collapsed':''}">
+        <table class="ex-table">
+          ${!editable ? `<colgroup>
+            <col class="col-ex">${cols.map(()=> '<col class="col-metric">').join('')}<col class="col-cue">
+          </colgroup>` : ''}
+          <thead><tr>
+            ${editable?'<th style="width:28px"></th>':''}
+            <th>Übung</th>
+            ${cols.map(c => `<th style="width:${c.width||60}px">${esc(c.label)}</th>`).join('')}
+            <th>Coaching-Cue</th>
+            ${editable?'<th style="width:34px"></th>':''}
+          </tr></thead>
+          <tbody ${editable?`id="ex-body-${bl.id}"`:''}>
+            ${bl.exercises.map(ex => editable ? renderExRow(bl.id, ex, cols) : renderExRowPrint(ex, cols)).join('')}
+          </tbody>
+        </table>
+        ${editable ? `<button class="add-ex-btn" onclick="addExercise('${bl.id}')">＋ Übung hinzufügen</button>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  if (editable) html += `<button class="add-block-btn" onclick="addBlock()">＋ Block hinzufügen</button>`;
+  return html;
+}
+
+// Static (non-input) exercise row for export/print
+function renderExRowPrint(ex, columns) {
+  const cols = columns || defaultColumns();
+  return `<tr class="ex-row">
+    <td>
+      ${esc(ex.name)}
+      ${ex.videoUrl && safeUrl(ex.videoUrl) ? `<div class="ex-video-link-print">▶ <a href="${esc(safeUrl(ex.videoUrl))}" target="_blank" rel="noopener noreferrer">Video ansehen</a></div>` : ''}
+    </td>
+    ${cols.map(c => `<td>${esc((ex.metrics && ex.metrics[c.key]) || '')}</td>`).join('')}
+    <td class="ex-cue-print">${esc(ex.notes)}</td>
+  </tr>`;
+}
+
+function renderExRow(blId, ex, columns) {
+  const cols = columns || defaultColumns();
+  return `<tr class="ex-row" id="ex-${ex.id}"
+      ondragover="exDragOver(event)"
+      ondragleave="exDragLeave(event)"
+      ondrop="exDrop(event,'${blId}','${ex.id}')">
+    <td><span class="drag-handle" draggable="true"
+        ondragstart="exDragStart(event,'${blId}','${ex.id}')"
+        ondragend="exDragEnd(event)">⠿</span></td>
+    <td>
+      <input class="ex-input ex-name-input" type="text" value="${esc(ex.name)}" placeholder="Übungsname…" onchange="exProp('${blId}','${ex.id}','name',this.value)">
+      <input class="ex-input ex-video-input" type="text" value="${esc(ex.videoUrl||'')}" placeholder="🔗 YouTube-Link (optional)" onchange="exProp('${blId}','${ex.id}','videoUrl',this.value)">
+    </td>
+    ${cols.map(c => `<td><input class="ex-input ex-num-input" type="text" value="${esc((ex.metrics&&ex.metrics[c.key])||'')}" placeholder="${esc(c.label)}" onchange="exMetric('${blId}','${ex.id}','${c.key}',this.value)"></td>`).join('')}
+    <td><input class="ex-input" type="text" value="${esc(ex.notes)}" placeholder="Cue / Hinweis…" onchange="exProp('${blId}','${ex.id}','notes',this.value)"></td>
+    <td><button class="ex-del-btn" onclick="deleteExercise('${blId}','${ex.id}')">✕</button></td>
+  </tr>`;
+}
+
+// Only allow http/https URLs to be rendered as clickable links (blocks javascript:, data:, etc.)
+function safeUrl(url) {
+  if (!url) return '';
+  const trimmed = String(url).trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return '';
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ────────────────────────────────────────────────────────
+// Actions
+// ────────────────────────────────────────────────────────
+function selectSess(i) { activeSess = i; renderEditor(); }
+
+function addSession() {
+  const p = programs[activeProg];
+  p.sessions.push(emptySession(p.sessions.length + 1));
+  activeSess = p.sessions.length - 1;
+  save(); renderEditor();
+}
+
+function deleteSess(i) {
+  const p = programs[activeProg];
+  if (p.sessions.length === 1) { alert('Mindestens eine Einheit muss vorhanden sein.'); return; }
+  if (!confirm(`"${p.sessions[i].name}" löschen?`)) return;
+  p.sessions.splice(i, 1);
+  activeSess = Math.min(activeSess, p.sessions.length - 1);
+  save(); renderEditor();
+}
+
+// Deep-clones a session and assigns fresh IDs to session/blocks/exercises,
+// so the copy is fully independent from the original (no shared references).
+function cloneSessionWithFreshIds(sess, newName) {
+  return {
+    id: genId(),
+    name: newName !== undefined ? newName : sess.name,
+    focus: sess.focus,
+    note: sess.note || '',
+    blocks: sess.blocks.map(bl => ({
+      id: genId(),
+      name: bl.name,
+      color: bl.color,
+      collapsed: bl.collapsed,
+      exercises: bl.exercises.map(ex => ({ ...ex, id: genId(), metrics: { ...(ex.metrics||{}) } }))
+    }))
+  };
+}
+
+function duplicateSess(i) {
+  const p = programs[activeProg];
+  const copy = cloneSessionWithFreshIds(p.sessions[i], p.sessions[i].name + ' (Kopie)');
+  p.sessions.splice(i + 1, 0, copy);
+  activeSess = i + 1;
+  save(); renderEditor();
+}
+
+// ── Copy session to another program ─────────────────────────────────────
+function openCopyModal() {
+  const p = programs[activeProg];
+  const sess = p.sessions[activeSess];
+  if (!sess) return;
+
+  document.getElementById('copy-source-label').value = `${p.name} — ${sess.name}`;
+
+  const progSel = document.getElementById('copy-target-prog');
+  progSel.innerHTML = programs.map((prog, i) =>
+    `<option value="${i}">${esc(prog.name)}</option>`
+  ).join('');
+  // Default target: a different program if one exists, else the same one (overwrite makes sense there too)
+  const defaultTarget = programs.length > 1 ? (activeProg === 0 ? 1 : 0) : activeProg;
+  progSel.value = defaultTarget;
+
+  document.getElementById('copy-target-mode').value = 'new';
+  document.getElementById('copy-target-sess-group').style.display = 'none';
+  onCopyTargetProgChange();
+
+  document.getElementById('copy-overlay').classList.add('open');
+}
+
+function onCopyTargetProgChange() {
+  const progIdx = +document.getElementById('copy-target-prog').value;
+  const targetProg = programs[progIdx];
+  const sessSel = document.getElementById('copy-target-sess');
+  sessSel.innerHTML = targetProg.sessions.map((s, i) =>
+    `<option value="${i}">${esc(s.name)}</option>`
+  ).join('');
+}
+
+function onCopyTargetModeChange() {
+  const mode = document.getElementById('copy-target-mode').value;
+  document.getElementById('copy-target-sess-group').style.display = mode === 'overwrite' ? 'block' : 'none';
+}
+
+function confirmCopySession() {
+  const sourceProg = programs[activeProg];
+  const sourceSess = sourceProg.sessions[activeSess];
+  if (!sourceSess) { closeCopyModal(); return; }
+
+  const targetProgIdx = +document.getElementById('copy-target-prog').value;
+  const targetProg = programs[targetProgIdx];
+  const mode = document.getElementById('copy-target-mode').value;
+
+  // Warn if source and target programs use different column configurations —
+  // metric values are preserved in the data, but won't be visible in the target
+  // program until its columns match (or are configured to include the same keys).
+  const sourceCols = (sourceProg.columns||[]).map(c=>c.key).sort().join(',');
+  const targetCols = (targetProg.columns||[]).map(c=>c.key).sort().join(',');
+  if (sourceProg.id !== targetProg.id && sourceCols !== targetCols) {
+    const proceed = confirm(
+      `Hinweis: "${targetProg.name}" hat andere Kennzahlen-Spalten als "${sourceProg.name}".\n\n` +
+      `Die Werte werden mitkopiert, sind aber in "${targetProg.name}" evtl. nicht sichtbar, bis die Spalten übereinstimmen.\n\n` +
+      `Trotzdem fortfahren?`
+    );
+    if (!proceed) { closeCopyModal(); return; }
+  }
+
+  if (mode === 'overwrite') {
+    const targetSessIdx = +document.getElementById('copy-target-sess').value;
+    const targetSessName = targetProg.sessions[targetSessIdx].name; // keep the existing name on overwrite
+    if (!confirm(`"${targetSessName}" in "${targetProg.name}" wirklich mit "${sourceSess.name}" überschreiben?`)) return;
+    targetProg.sessions[targetSessIdx] = cloneSessionWithFreshIds(sourceSess, targetSessName);
+    if (targetProgIdx === activeProg) activeSess = targetSessIdx;
+  } else {
+    const copy = cloneSessionWithFreshIds(sourceSess);
+    targetProg.sessions.push(copy);
+    if (targetProgIdx === activeProg) activeSess = targetProg.sessions.length - 1;
+  }
+
+  save();
+  if (targetProgIdx !== activeProg) {
+    // Switch to the target program so the user immediately sees the result
+    activeProg = targetProgIdx;
+    activeSess = mode === 'overwrite' ? +document.getElementById('copy-target-sess').value : targetProg.sessions.length - 1;
+  }
+  closeCopyModal();
+  renderSidebar();
+  renderEditor();
+}
+
+function closeCopyModal() { document.getElementById('copy-overlay').classList.remove('open'); }
+function closeCopyOverlay(e) { if (e.target === document.getElementById('copy-overlay')) closeCopyModal(); }
+
+// ── Columns configuration (per-program metric columns like Sets/Wdh/RPE) ──
+function openColumnsModal() {
+  const p = programs[activeProg];
+  if (!p) return;
+  if (!p.columns) p.columns = defaultColumns();
+  renderColumnsList();
+  document.getElementById('new-col-label').value = '';
+  document.getElementById('columns-overlay').classList.add('open');
+}
+
+function closeColumnsModal() {
+  document.getElementById('columns-overlay').classList.remove('open');
+  // Refresh the editor so any renames/adds/removals are reflected immediately
+  renderEditor();
+  updateVolBadge();
+}
+
+function closeColumnsOverlay(e) {
+  if (e.target === document.getElementById('columns-overlay')) closeColumnsModal();
+}
+
+function renderColumnsList() {
+  const p = programs[activeProg];
+  if (!p) return;
+  const list = document.getElementById('columns-list');
+  if (!p.columns.length) {
+    list.innerHTML = '<div class="columns-empty-hint">Keine Spalten mehr — füge unten mindestens eine hinzu.</div>';
+    return;
+  }
+  list.innerHTML = p.columns.map((c, i) => `
+    <div class="col-row">
+      <input type="text" value="${esc(c.label)}" onchange="renameColumn(${i}, this.value)" placeholder="Spaltenname">
+      <div class="col-row-actions">
+        ${i>0 ? `<button class="col-row-btn" onclick="moveColumn(${i},-1)" title="Nach links">←</button>` : ''}
+        ${i<p.columns.length-1 ? `<button class="col-row-btn" onclick="moveColumn(${i},1)" title="Nach rechts">→</button>` : ''}
+        <button class="col-row-btn col-del" onclick="deleteColumn(${i})" title="Spalte entfernen">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renameColumn(idx, newLabel) {
+  const p = programs[activeProg];
+  if (!p || !p.columns[idx]) return;
+  const trimmed = newLabel.trim();
+  p.columns[idx].label = trimmed || p.columns[idx].label; // ignore empty rename, keep old label
+  save();
+}
+
+function moveColumn(idx, dir) {
+  const p = programs[activeProg];
+  if (!p) return;
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= p.columns.length) return;
+  [p.columns[idx], p.columns[newIdx]] = [p.columns[newIdx], p.columns[idx]];
+  save();
+  renderColumnsList();
+}
+
+function deleteColumn(idx) {
+  const p = programs[activeProg];
+  if (!p || !p.columns[idx]) return;
+  const col = p.columns[idx];
+  if (!confirm(`Spalte "${col.label}" wirklich entfernen?\n\nBereits eingetragene Werte in dieser Spalte gehen für alle Übungen in diesem Programm verloren.`)) return;
+  p.columns.splice(idx, 1);
+  // Also remove the now-orphaned metric value from every exercise in this program,
+  // so deleted columns don't silently linger as invisible dead data.
+  p.sessions.forEach(sess => sess.blocks.forEach(bl => bl.exercises.forEach(ex => {
+    if (ex.metrics) delete ex.metrics[col.key];
+  })));
+  save();
+  renderColumnsList();
+}
+
+function addColumn() {
+  const p = programs[activeProg];
+  if (!p) return;
+  const input = document.getElementById('new-col-label');
+  const label = input.value.trim();
+  if (!label) { alert('Bitte einen Spaltennamen eingeben.'); return; }
+  // Generate a safe, unique key from the label (lowercase, alphanumeric, fallback to genId if needed)
+  let key = label.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (!key || p.columns.some(c => c.key === key)) key = 'col_' + genId();
+  p.columns.push({ key, label, width: 60 });
+  save();
+  input.value = '';
+  renderColumnsList();
+}
+
+function sessProp(key, val) {
+  programs[activeProg].sessions[activeSess][key] = val;
+  save();
+  if (key === 'name') { renderSidebar(); renderEditor(); }
+}
+
+function toggleBlock(blId) {
+  const bl = findBlock(blId);
+  if (bl) { bl.collapsed = !bl.collapsed; save(); renderEditor(); }
+}
+
+function blockProp(blId, key, val) {
+  const bl = findBlock(blId);
+  if (bl) { bl[key] = val; save(); }
+}
+
+function moveBlock(blId, dir) {
+  const sess = programs[activeProg].sessions[activeSess];
+  const i = sess.blocks.findIndex(b => b.id === blId);
+  const j = i + dir;
+  if (j < 0 || j >= sess.blocks.length) return;
+  [sess.blocks[i], sess.blocks[j]] = [sess.blocks[j], sess.blocks[i]];
+  save(); renderEditor();
+}
+
+function deleteBlock(blId) {
+  const sess = programs[activeProg].sessions[activeSess];
+  if (sess.blocks.length === 1) { alert('Mindestens ein Block muss vorhanden sein.'); return; }
+  if (!confirm('Block löschen?')) return;
+  sess.blocks = sess.blocks.filter(b => b.id !== blId);
+  save(); renderEditor();
+}
+
+function addBlock() {
+  const sess = programs[activeProg].sessions[activeSess];
+  const colorIdx = sess.blocks.length % BLOCK_COLORS.length;
+  sess.blocks.push(emptyBlock({ name:'Neuer Block', color:BLOCK_COLORS[colorIdx], collapsed:false }));
+  save(); renderEditor();
+  setTimeout(() => document.querySelector('.block:last-of-type .block-name')?.focus(), 100);
+}
+
+function exProp(blId, exId, key, val) {
+  const bl = findBlock(blId);
+  if (!bl) return;
+  const ex = bl.exercises.find(e => e.id === exId);
+  if (ex) { ex[key] = val; save(); updateVolBadge(); }
+}
+
+// Writes a value into an exercise's generic metrics object (e.g. ex.metrics.sets = '3').
+function exMetric(blId, exId, metricKey, val) {
+  const bl = findBlock(blId);
+  if (!bl) return;
+  const ex = bl.exercises.find(e => e.id === exId);
+  if (ex) {
+    if (!ex.metrics) ex.metrics = {};
+    ex.metrics[metricKey] = val;
+    save(); updateVolBadge();
+  }
+}
+
+function addExercise(blId) {
+  const bl = findBlock(blId);
+  if (!bl) return;
+  const cols = programs[activeProg]?.columns || defaultColumns();
+  const ex = emptyExercise(cols);
+  bl.exercises.push(ex);
+  save();
+  const tbody = document.getElementById('ex-body-' + blId);
+  if (tbody) {
+    tbody.insertAdjacentHTML('beforeend', renderExRow(blId, ex, cols));
+    tbody.querySelector(`#ex-${ex.id} .ex-name-input`)?.focus();
+  }
+  updateVolBadge();
+}
+
+function deleteExercise(blId, exId) {
+  const bl = findBlock(blId);
+  if (!bl) return;
+  if (bl.exercises.length === 1) { alert('Mindestens eine Übung pro Block.'); return; }
+  bl.exercises = bl.exercises.filter(e => e.id !== exId);
+  save();
+  document.getElementById('ex-' + exId)?.remove();
+  updateVolBadge();
+}
+
+// ── Drag-and-drop reordering of exercises within a block ────────────────
+let dragState = null; // { blId, exId }
+
+function exDragStart(e, blId, exId) {
+  dragState = { blId, exId };
+  e.dataTransfer.effectAllowed = 'move';
+  // Some browsers require setData to enable drag; value itself is unused
+  e.dataTransfer.setData('text/plain', exId);
+  document.getElementById('ex-' + exId)?.classList.add('ex-dragging');
+}
+
+function exDragOver(e) {
+  if (!dragState) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const row = e.currentTarget;
+  if (row.dataset.exDropTarget !== '1') {
+    document.querySelectorAll('.ex-drop-target').forEach(r => r.classList.remove('ex-drop-target'));
+    row.classList.add('ex-drop-target');
+  }
+}
+
+function exDragLeave(e) {
+  e.currentTarget.classList.remove('ex-drop-target');
+}
+
+function exDrop(e, targetBlId, targetExId) {
+  e.preventDefault();
+  document.querySelectorAll('.ex-drop-target').forEach(r => r.classList.remove('ex-drop-target'));
+  if (!dragState) return;
+
+  const { blId: sourceBlId, exId: sourceExId } = dragState;
+  dragState = null;
+
+  // Only allow reordering within the same block (cross-block move is out of scope here)
+  if (sourceBlId !== targetBlId) return;
+  if (sourceExId === targetExId) return;
+
+  const bl = findBlock(sourceBlId);
+  if (!bl) return;
+
+  const fromIdx = bl.exercises.findIndex(ex => ex.id === sourceExId);
+  const toIdx = bl.exercises.findIndex(ex => ex.id === targetExId);
+  if (fromIdx === -1 || toIdx === -1) return;
+
+  const [moved] = bl.exercises.splice(fromIdx, 1);
+  bl.exercises.splice(toIdx, 0, moved);
+
+  save();
+  renderEditor();
+}
+
+function exDragEnd(e) {
+  if (dragState) document.getElementById('ex-' + dragState.exId)?.classList.remove('ex-dragging');
+  document.querySelectorAll('.ex-drop-target').forEach(r => r.classList.remove('ex-drop-target'));
+  dragState = null;
+}
+
+function findBlock(blId) {
+  const sess = programs[activeProg]?.sessions[activeSess];
+  return sess?.blocks.find(b => b.id === blId);
+}
+
+function updateVolBadge() {
+  const p = programs[activeProg];
+  if (!p) return;
+  const totalEx = p.sessions.reduce((s,se)=>s+se.blocks.reduce((b,bl)=>b+bl.exercises.length,0),0);
+  // 'Sets' is no longer guaranteed to exist as a column (user can rename/remove it),
+  // so only show a sets-total if the program still has a column literally keyed 'sets'.
+  const hasSetsColumn = (p.columns||[]).some(c => c.key === 'sets');
+  let badgeText = `${p.sessions.length} Einh · ${totalEx} Übungen`;
+  if (hasSetsColumn) {
+    const totalSets = p.sessions.reduce((s,se)=>s+se.blocks.reduce((b,bl)=>b+bl.exercises.reduce((e,ex)=>e+(+((ex.metrics&&ex.metrics.sets))||0),0),0),0);
+    badgeText += ` · ${totalSets} Sets`;
+  }
+  document.getElementById('prog-vol-badge').textContent = badgeText;
+}
+
+// ── Program CRUD ──────────────────────────────────────────────────────
+function newProgram() { document.getElementById('f-name').value=''; document.getElementById('overlay').classList.add('open'); setTimeout(()=>document.getElementById('f-name').focus(),50); }
+function createProgram() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Bitte einen Namen eingeben.'); return; }
+  const p = emptyProgram(name, document.getElementById('f-cat').value, document.getElementById('f-weeks').value, document.getElementById('f-level').value, document.getElementById('f-desc').value);
+  programs.push(p);
+  activeProg = programs.length - 1;
+  activeSess = 0;
+  save(); closeModal(); render(); updateMetaDatalists();
+}
+function deleteProg(i) {
+  if (!confirm(`"${programs[i].name}" wirklich löschen?`)) return;
+  programs.splice(i, 1);
+  if (activeProg >= programs.length) activeProg = programs.length - 1;
+  save(); render();
+  if (programs.length === 0) {
+    document.getElementById('prog-meta-bar').style.display = 'none';
+    document.getElementById('prog-notes-bar').style.display = 'none';
+    document.getElementById('sessions-nav').style.display = 'none';
+    document.getElementById('session-editor').innerHTML = '<div class="no-program"><div class="big-icon">🏗</div><p>Wähle ein Programm oder erstelle ein neues.</p><button class="btn btn-primary" onclick="newProgram()">+ Neues Programm</button></div>';
+  }
+}
+
+// ── Meta ──────────────────────────────────────────────────────────────
+function saveProgName() {
+  const p = programs[activeProg];
+  if (!p) return;
+  p.name = document.getElementById('prog-name').textContent.trim() || 'Unbenannt';
+  save(); renderSidebar();
+}
+function saveMeta() {
+  const p = programs[activeProg];
+  if (!p) return;
+  p.category = document.getElementById('prog-category').value;
+  p.weeks    = +document.getElementById('prog-weeks').value;
+  p.level    = document.getElementById('prog-level').value;
+  p.notes    = document.getElementById('prog-notes').value;
+  save(); renderSidebar(); updateMetaDatalists();
+}
+
+// Populates the <datalist> suggestions for Kategorie/Level from all values
+// already used across every program — so autocomplete grows with actual usage
+// instead of being hardcoded, while still allowing any free-text entry.
+function updateMetaDatalists() {
+  const cats = new Set(['Explosiveness','Reactivity','Force Transfer','ORM','Allgemein','Athletik','Reha']);
+  const levels = new Set(['Anfänger','Fortgeschritten','Elite']);
+  programs.forEach(p => {
+    if (p.category) cats.add(p.category);
+    if (p.level) levels.add(p.level);
+  });
+  const catList = document.getElementById('cat-list');
+  const levelList = document.getElementById('level-list');
+  if (catList) catList.innerHTML = [...cats].map(c => `<option value="${esc(c)}">`).join('');
+  if (levelList) levelList.innerHTML = [...levels].map(l => `<option value="${esc(l)}">`).join('');
+}
+
+// ── Log-Link (Plan wird komprimiert in den URL-Hash der Log-Seite gepackt) ──
+// Der Hash (#...) wird nie an einen Server gesendet, der Plan bleibt also im Link selbst.
+const LOG_URL_KEY = 'perform_log_url';
+const LOG_PHONE_KEY = 'perform_log_phone';
+const LOG_ON_KEY = 'perform_log_on';
+const DEFAULT_PHONE = '491605951455';
+
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+function getLogUrl() { return lsGet(LOG_URL_KEY, '').trim(); }
+function logLinkOn() { return lsGet(LOG_ON_KEY, '1') === '1' && !!getLogUrl(); }
+function setLogLinkOn(on) { lsSet(LOG_ON_KEY, on ? '1' : '0'); }
+function syncLogToggle() {
+  const t = document.getElementById('log-link-toggle');
+  if (t) { t.checked = lsGet(LOG_ON_KEY, '1') === '1' && !!getLogUrl(); t.disabled = !getLogUrl(); }
+}
+function openLogSettings() {
+  const cur = getLogUrl();
+  const url = prompt('Adresse der Log-Seite (perform-log.html), z. B. https://…/perform-log.html\n\nLeer lassen = kein Log-Link im PDF.', cur);
+  if (url === null) return;
+  const clean = url.trim();
+  if (clean && !/^https:\/\//i.test(clean)) { alert('Die Adresse muss mit https:// beginnen.'); return; }
+  lsSet(LOG_URL_KEY, clean.split('#')[0]);
+  const ph = prompt('WhatsApp-Nummer, an die der Spieler sendet (nur Ziffern, mit Ländervorwahl):', lsGet(LOG_PHONE_KEY, DEFAULT_PHONE));
+  if (ph !== null) {
+    const digits = ph.replace(/\D/g, '');
+    lsSet(LOG_PHONE_KEY, digits || DEFAULT_PHONE);
+  }
+  if (clean) lsSet(LOG_ON_KEY, '1');
+  syncLogToggle();
+}
+
+function bytesToB64url(bytes) {
+  let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function buildLogPayload(p, sess) {
+  const cols = p.columns || defaultColumns();
+  return {
+    v: 1, pr: p.name || '', s: sess.name || '', f: sess.focus || '', nt: sess.note || '',
+    ph: lsGet(LOG_PHONE_KEY, DEFAULT_PHONE),
+    c: cols.map(c => [c.key, c.label]),
+    b: sess.blocks.map(bl => ({
+      n: bl.name,
+      e: bl.exercises.filter(ex => (ex.name || '').trim()).map(ex => ({
+        n: ex.name.trim(),
+        m: cols.map(c => String((ex.metrics && ex.metrics[c.key]) || '')),
+        c: ex.notes || '',
+        u: safeUrl(ex.videoUrl) || ''
+      }))
+    })).filter(bl => bl.e.length)
+  };
+}
+async function encodeLogPayload(obj) {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  if (typeof CompressionStream !== 'undefined') {
+    try {
+      const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      const packed = new Uint8Array(await new Response(stream).arrayBuffer());
+      return 'v1.d.' + bytesToB64url(packed);
+    } catch (e) { /* Fallback unten */ }
+  }
+  return 'v1.r.' + bytesToB64url(bytes);
+}
+async function buildLogUrl(p, sess) {
+  const base = getLogUrl();
+  if (!base) return '';
+  return base + '#' + await encodeLogPayload(buildLogPayload(p, sess));
+}
+
+// ── Print ──────────────────────────────────────────────────────────────
+async function printProgram(allSessions) {
+  const p = programs[activeProg];
+  if (!p) return;
+
+  const printRoot = document.getElementById('print-root');
+  printRoot.innerHTML = '';
+
+  const sessionsToPrint = allSessions ? p.sessions : [p.sessions[activeSess]];
+  const withLink = logLinkOn();
+  const logUrls = withLink ? await Promise.all(sessionsToPrint.map(s => s ? buildLogUrl(p, s) : '')) : [];
+
+  sessionsToPrint.forEach((sess, idx) => {
+    if (!sess) return;
+    const page = document.createElement('div');
+    page.className = 'print-page';
+    // General program notes appear once, at the very top of the first exported page only —
+    // not repeated on every session page.
+    const notesBlock = (idx === 0 && p.notes && p.notes.trim())
+      ? `<div class="print-prog-notes"><strong>Allgemeine Hinweise:</strong> ${esc(p.notes)}</div>`
+      : '';
+    page.innerHTML = `
+      <div class="print-header">
+        <div class="print-header-top">
+          <div class="print-logo">PERFORM<span>.</span></div>
+          <div class="print-meta">${esc(p.category)} · ${esc(p.level)} · ${p.weeks} Wochen</div>
+        </div>
+        <div class="print-prog-name">${esc(p.name)}</div>
+        ${logUrls[idx] ? `<div class="print-log-link-wrap"><a class="print-log-link" href="${esc(logUrls[idx])}" target="_blank" rel="noopener noreferrer">▶ Einheit am Handy loggen</a><span class="print-log-hint">Antippen · Sätze abhaken · Gewicht eintragen · per WhatsApp senden</span></div>` : ''}
+      </div>
+      ${notesBlock}
+      ${renderSessionHTML(sess, false, p.columns)}
+    `;
+    printRoot.appendChild(page);
+  });
+
+  document.body.classList.add('printing');
+  setTimeout(() => {
+    window.print();
+    document.body.classList.remove('printing');
+  }, 200);
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────
+function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+function closeOverlay(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCopyModal(); closeColumnsModal(); }
+  if (e.key === 'Enter' && e.ctrlKey && document.getElementById('overlay').classList.contains('open')) createProgram();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────
+load();
+updateMetaDatalists();
+syncLogToggle();
+if (programs.length > 0) activeProg = 0;
+render();
+</script>
+
+<div id="print-root"></div>
+
+</body>
+</html>
