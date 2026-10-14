@@ -302,10 +302,11 @@ function editTask(t) {
   var isNew = !t; t = t || { id: uid(), title: '', due: '', done: false, group: '', note: '' };
   openSheet({ title: isNew ? 'Neue Aufgabe' : 'Aufgabe', values: t, fields: [
     { key: 'title', label: 'Aufgabe', type: 'text', req: true, ph: 'Was ist zu tun?' },
-    { key: 'due', label: 'Fällig am', type: 'date', chips: [{ l: 'Heute', n: 0 }, { l: 'Morgen', n: 1 }, { l: 'In 3 Tagen', n: 3 }, { l: 'In 1 Woche', n: 7 }] }
+    { key: 'due', label: 'Fällig am', type: 'date', chips: [{ l: 'Heute', n: 0 }, { l: 'Morgen', n: 1 }, { l: 'In 3 Tagen', n: 3 }, { l: 'In 1 Woche', n: 7 }] },
+    { key: 'note', label: 'Notiz', type: 'area', ph: 'Details, Links, Gedanken …', hint: 'Keine Gesundheits- oder Vertragsdaten.' }
   ], actions: isNew ? [] : [{ label: 'Löschen', danger: true, run: function () { state.tasks = state.tasks.filter(function (x) { return x.id !== t.id; }); changed(); } }],
     onSave: function (v) {
-      t.title = str(v.title, 200); t.due = isoOk(v.due) ? v.due : '';
+      t.title = str(v.title, 200); t.note = str(v.note, 400); t.due = isoOk(v.due) ? v.due : '';
       if (isNew) state.tasks.push(normTask(t)); else Object.assign(t, normTask(t));
       changed();
     } });
@@ -387,7 +388,8 @@ function taskCard(t, quiet) {
     h('div', { class: 'row' }, chk(t.done, function () { toggleTask(t); }, 'Erledigt: ' + t.title),
       h('div', { class: 'grow', onclick: function () { editTask(t); } },
         h('div', { class: 'title' }, t.title, t.group ? h('span', { class: 'tag', text: t.group }) : null),
-        t.due ? h('div', { class: 'meta' + (late ? ' red' : ''), text: 'Fällig ' + fmt(t.due) + ' · ' + rel(t.due) }) : null)));
+        t.due ? h('div', { class: 'meta' + (late ? ' red' : ''), text: 'Fällig ' + fmt(t.due) + ' · ' + rel(t.due) }) : null,
+        t.note ? h('div', { class: 'meta', style: 'white-space:pre-wrap;margin-top:4px', text: t.note.length > 140 ? t.note.slice(0, 140) + ' …' : t.note }) : null)));
 }
 function postCard(p, quiet) {
   var late = p.date < today() && !p.done;
@@ -449,7 +451,7 @@ function viewToday() {
 }
 
 function viewPipe() {
-  var out = [h('h1', { text: 'Pipeline' }), h('div', { class: 'sub', text: state.pipeline.length + (state.pipeline.length === 1 ? ' Kontakt' : ' Kontakte') })];
+  var out = [h('h1', { text: 'Kontakte' }), h('div', { class: 'sub', text: state.pipeline.length + (state.pipeline.length === 1 ? ' Kontakt' : ' Kontakte') })];
   var cnt = {}; STATUSES.forEach(function (s) { cnt[s] = state.pipeline.filter(function (c) { return c.status === s; }).length; });
   out.push(h('div', { class: 'chips' }, ['Alle'].concat(STATUSES).map(function (s) {
     return h('button', { class: 'chip' + (pFilter === s ? ' on' : ''), type: 'button', text: s + ' ' + (s === 'Alle' ? state.pipeline.length : cnt[s]), onclick: function () { pFilter = s; render(); } });
@@ -501,7 +503,7 @@ function viewWinter() {
     h('div', { class: 'kv' }, h('span', { text: 'Ansprachen' }), h('b', { text: ans + ' / 15' })),
     h('div', { class: 'kv' }, h('span', { text: 'Erstgespräche' }), h('b', { text: gesp + ' / 5' })),
     h('div', { class: 'kv' }, h('span', { text: 'Neue Klienten (Zusagen)' }), h('b', { text: zus + ' / 2' }))));
-  out.push(h('div', { class: 'note', text: 'Aus der Pipeline berechnet. Die Zielwerte sind Annahmen, keine Prognose.' }));
+  out.push(h('div', { class: 'note', text: 'Aus den Kontakten berechnet. Die Zielwerte sind Annahmen, keine Prognose.' }));
   return out;
 }
 
@@ -579,7 +581,7 @@ function viewMore() {
 }
 
 /* ───────── Render ───────── */
-var TABS = [['today', 'Heute', IC.today], ['pipe', 'Pipeline', IC.pipe], ['winter', 'Winter', IC.winter], ['cal', 'Content', IC.cal], ['more', 'Mehr', IC.more]];
+var TABS = [['today', 'Heute', IC.today], ['pipe', 'Kontakte', IC.pipe], ['winter', 'Coaching', IC.winter], ['cal', 'Content', IC.cal], ['more', 'Mehr', IC.more]];
 function render() {
   var app = document.getElementById('app'), views = { today: viewToday, pipe: viewPipe, winter: viewWinter, cal: viewCal, more: viewMore };
   var y = window.scrollY; app.textContent = ''; views[tab]().forEach(function (n) { app.appendChild(n); });
