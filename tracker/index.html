@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tracker">
+<meta name="theme-color" content="#1C1F26">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>PERFORM. Tracker</title>
+<style>
+@font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
+:root{
+  color-scheme:dark;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
+  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#9BA8C0; --dim:#6C7890;
+  --red:#F87171; --amber:#F5B041; --green:#4ADE80;
+  --tab:68px; --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",-apple-system,system-ui,sans-serif;font-size:15px;line-height:1.4;-webkit-text-size-adjust:100%}
+body{min-height:100dvh;overscroll-behavior-y:none}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{max-width:560px;margin:0 auto;padding:calc(var(--st) + 18px) 16px calc(var(--tab) + var(--sb) + 96px)}
+h1{font-size:26px;font-weight:700;margin:0;letter-spacing:-.2px}
+.sub{color:var(--muted);font-size:13px;margin:2px 0 18px}
+h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc);margin:22px 2px 10px}
+.card{background:var(--card);border-radius:14px;padding:14px 14px;margin-bottom:10px;border-left:3px solid var(--acc)}
+.card.quiet{border-left-color:var(--line)}
+.card.late{border-left-color:var(--red)}
+.card.done{opacity:.55}
+.row{display:flex;gap:12px;align-items:flex-start}
+.grow{flex:1;min-width:0}
+.title{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.meta{font-size:12px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}
+.meta.red{color:var(--red)} .meta.amber{color:var(--amber)}
+.chk{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;margin:-4px 0 -4px -4px}
+.chk svg{width:22px;height:22px;stroke:var(--bg);opacity:0}
+.chk.on{background:var(--acc);border-color:var(--acc)} .chk.on svg{opacity:1}
+.pill{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:5px 10px;border-radius:99px;background:var(--card2);color:var(--muted)}
+.pill.s-antwortet{background:#22385c;color:#9cc0f7}
+.pill.s-Gespräch{background:#4a3a14;color:var(--amber)}
+.pill.s-Zusage{background:#14412a;color:var(--green)}
+.pill.s-Absage{background:#4a2227;color:#f4a3a3}
+.pill.s-kalt{background:#2a2f3a;color:var(--dim)}
+.pill.fmt{background:#22385c;color:#9cc0f7}
+button.pill{min-height:40px;padding:0 12px}
+.tag{font-size:10.5px;font-weight:600;color:var(--muted);background:var(--card2);padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:1px}
+.actions{display:flex;gap:8px;margin-top:12px}
+.btn{min-height:46px;border-radius:12px;padding:0 16px;font-weight:700;font-size:14px;background:var(--card2);color:var(--text)}
+.btn.pri{background:var(--acc);color:#0f1218}
+.btn.blue{background:var(--blue)}
+.btn.ghost{background:none;color:var(--muted)}
+.btn.flex{flex:1}
+.btn.danger{color:var(--red)}
+.empty{color:var(--muted);text-align:center;padding:34px 10px;font-size:14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 12px;margin:0 -16px;padding-left:16px;padding-right:16px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;min-height:40px;padding:0 14px;border-radius:99px;background:var(--card);color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
+.chip.on{background:var(--blue);color:#fff}
+.seg{display:flex;background:var(--card);border-radius:12px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;min-height:42px;border-radius:9px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button.on{background:var(--blue);color:#fff}
+.big{font-size:56px;font-weight:700;line-height:1;letter-spacing:-1px}
+.big small{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:6px}
+.stepper{display:flex;align-items:center;gap:6px;margin-top:14px}
+.stepper button{width:56px;height:56px;border-radius:16px;background:var(--card2);font-size:26px;font-weight:700}
+.stepper .lbl{flex:1;text-align:center;font-size:13px;color:var(--muted)}
+.prog{height:8px;border-radius:99px;background:var(--card2);overflow:hidden;margin-top:8px}
+.prog i{display:block;height:100%;background:var(--acc);border-radius:99px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.kv:last-child{border-bottom:0}
+.kv b{font-weight:700}
+.week{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);margin:18px 2px 8px}
+textarea,input[type=text],input[type=date],input[type=number]{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:12px 14px;font-size:16px;min-height:48px;outline:none;-webkit-appearance:none;appearance:none}
+textarea:focus,input:focus{border-color:var(--acc)}
+textarea{resize:vertical;min-height:84px}
+label.f{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:16px 2px 7px}
+.hint{font-size:12px;color:var(--amber);margin:6px 2px 0}
+.mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mini button{min-height:36px;padding:0 12px;border-radius:99px;background:var(--card2);font-size:12.5px;font-weight:600;color:var(--muted)}
+.opts{display:grid;gap:8px}
+.opts.c3{grid-template-columns:repeat(3,1fr)} .opts.c2{grid-template-columns:repeat(2,1fr)}
+.opts button{min-height:48px;border-radius:12px;background:var(--card2);font-weight:600;font-size:13.5px;color:var(--muted)}
+.opts button.on{background:var(--blue);color:#fff}
+/* Tab bar */
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(28,31,38,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding-bottom:var(--sb)}
+nav .in{max-width:560px;margin:0 auto;display:flex;height:var(--tab)}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--dim);font-size:10.5px;font-weight:700;letter-spacing:.3px;position:relative}
+nav button svg{width:24px;height:24px}
+nav button.on{color:var(--acc)}
+nav .badge{position:absolute;top:6px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#0f1218;font-size:10.5px;display:grid;place-items:center;padding:0 5px}
+svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fab{position:fixed;right:max(18px,calc(50% - 262px));bottom:calc(var(--tab) + var(--sb) + 18px);z-index:19;width:60px;height:60px;border-radius:20px;background:var(--acc);color:#0f1218;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.fab svg{width:28px;height:28px;stroke-width:2.6}
+/* Sheet */
+.ov{position:fixed;inset:0;z-index:50;background:rgba(8,10,14,.62);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:90dvh;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;padding:10px 16px calc(var(--sb) + 18px);border-top:1px solid var(--line);-webkit-overflow-scrolling:touch}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.sheet h3{margin:4px 2px 4px;font-size:18px;font-weight:700}
+.foot{display:flex;gap:10px;margin-top:22px}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(var(--tab) + var(--sb) + 90px);max-width:528px;margin:0 auto;z-index:60;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:13.5px}
+.toast span{flex:1}
+.toast button{color:var(--acc);font-weight:700;min-height:40px;padding:0 6px}
+.banner{background:#4a3a14;color:var(--amber);border-radius:12px;padding:11px 14px;font-size:13px;margin-bottom:14px;width:100%;text-align:left}
+.banner.red{background:#4a2227;color:#f4a3a3}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;flex:none}
+.swrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.sw{width:40px;height:40px;border-radius:50%;border:3px solid transparent;flex:none}
+.sw.on{border-color:#fff}
+.opts button .dot{vertical-align:0}
+details summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--muted);font-weight:700;font-size:13px}
+details summary::-webkit-details-marker{display:none}
+pre.out{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(--card2);padding:12px;border-radius:12px;max-height:200px;overflow:auto;color:var(--muted)}
+.note{font-size:12.5px;color:var(--muted);margin:8px 2px}
+
+/* Tracker */
+select{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:0 14px;font-size:16px;min-height:48px;outline:none;-webkit-appearance:none;appearance:none;color:var(--text);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239BA8C0' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+select:focus{border-color:var(--acc)}
+.rate{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.rate button{min-height:48px;border-radius:12px;background:var(--card2);font-weight:700;font-size:16px;color:var(--muted)}
+.rate button.on{background:var(--blue);color:#fff}
+.cta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;text-align:left;background:var(--blue);color:#fff;border-radius:14px;padding:14px;margin-bottom:10px;min-height:56px}
+.cta span{font-size:12.5px;color:#cfe0fb}
+.two{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.tap{cursor:pointer}
+.lab{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.amp{font-size:22px;font-weight:700;display:flex;align-items:center}
+.tip{font-size:13px;font-weight:600;margin-top:12px}
+.live{min-height:24px;display:flex;align-items:center;margin-top:14px;font-size:15px}
+.score{font-size:28px;font-weight:700;flex:none}
+.spark{width:100%;height:auto;display:block}
+.sets{display:grid;gap:8px;margin-top:10px}
+.sethead,.setrow{display:grid;grid-template-columns:28px 1fr 1fr 1fr;gap:8px;align-items:center}
+.sethead{margin-top:12px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:center}
+.sn{font-weight:700;color:var(--dim);text-align:center}
+.setrow input{text-align:center;padding:0 4px;min-width:0}
+.card.ex{padding-bottom:12px}
+.exh{display:flex;gap:8px;align-items:flex-start}
+.ibtn{flex:none;width:44px;height:44px;margin:-8px -8px 0 0;display:grid;place-items:center;color:var(--muted)}
+.ibtn svg{width:22px;height:22px}
+.last{font-size:12px;color:var(--acc);margin-top:6px}
+.addex{width:100%;margin-top:4px}
+.btn.done{background:var(--green);color:#0f1218}
+.btn.small{min-height:40px;font-size:13px}
+.rowbtn{display:block;width:100%;text-align:left;color:var(--text)}
+.chev{color:var(--dim)}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.detail{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.cmt{font-size:13px;color:var(--muted);font-style:italic;margin-bottom:6px}
+.exr{padding:6px 0}
+.exn{font-weight:600;font-size:14px}
+</style>
+<body>
+<div id="app"></div>
+<nav aria-label="Hauptnavigation"><div class="in" id="tabs"></div></nav>
+<div id="layer"></div>
+<script>
+(function () {
+'use strict';
+
+/* ───────── Konstanten (hier anpassbar) ───────── */
+var KEY = 'perform_tracker_v2', TAB_KEY = 'perform_tracker_tab', BK_KEY = 'perform_tracker_last_backup';
+// Ampel: ab welchem Readiness-Schnitt welche Farbe gilt, und die Anpassung fürs Training.
+// GELB stammt aus dem alten Tracker. GRÜN und ROT sind Platzhalter von mir und sollten geprüft werden.
+var AMPEL = [
+  { min: 7.5, label: 'GRÜN', color: '#4ADE80', tip: 'Plan wie geplant' },
+  { min: 6.0, label: 'GELB', color: '#F5B041', tip: 'Volumen −20 % · RPE −0,5 · Sprint kürzen' },
+  { min: 0, label: 'ROT', color: '#F87171', tip: 'Volumen −40 % · RPE −1 · keine Sprints' }
+];
+var WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+var MON = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+
+/* ───────── Helfer ───────── */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function pad(n) { return String(n).padStart(2, '0'); }
+function iso(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function parse(s) { var p = s.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function isoOk(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && iso(parse(s)) === s; }
+function today() { return iso(new Date()); }
+function addDays(s, n) { var d = parse(s); d.setDate(d.getDate() + n); return iso(d); }
+function diff(a, b) { return Math.round((parse(a) - parse(b)) / 86400000); }
+function fmt(s) { if (!s) return ''; var d = parse(s); return WD[d.getDay()] + ' ' + pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.'; }
+function fmtS(s) { if (!s) return ''; var d = parse(s); return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.'; }
+function monday(s) { var d = parse(s), k = (d.getDay() + 6) % 7; d.setDate(d.getDate() - k); return iso(d); }
+function str(v, max) { return typeof v === 'string' ? v.trim().slice(0, max) : ''; }
+function num(v, lo, hi) { var n = parseFloat(String(v).replace(',', '.')); return isFinite(n) && n >= lo && n <= hi ? n : null; }
+function rate(v) { var n = parseInt(v, 10); return n >= 1 && n <= 10 ? n : null; }
+function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+function dayOf(ts) { var d = new Date(ts); return isNaN(d) ? today() : iso(d); }
+function avg(r) { var v = [r.sleep, r.energy, r.soreness].filter(function (x) { return x != null; }); return v.length === 3 ? Math.round(v.reduce(function (a, b) { return a + b; }, 0) / 3 * 10) / 10 : null; }
+function ampel(a) { for (var i = 0; i < AMPEL.length; i++) if (a >= AMPEL[i].min) return AMPEL[i]; return AMPEL[AMPEL.length - 1]; }
+function f1(n) { return n == null ? '–' : n.toFixed(1); }
+
+function h(tag, props) {
+  var e = document.createElement(tag);
+  if (props) for (var k in props) {
+    var v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'value') e.value = v;
+    else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  (function add(list) {
+    for (var j = 0; j < list.length; j++) {
+      var c = list[j];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(c);
+      else e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+  })(Array.prototype.slice.call(arguments, 2));
+  return e;
+}
+function svg(inner, cls) { var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 24 24'); s.setAttribute('class', 'i ' + (cls || '')); s.innerHTML = inner; return s; }
+var IC = {
+  today: '<path d="M4 13a8 8 0 0116 0"/><path d="M12 13l4-4"/><path d="M4 17h16"/>',
+  train: '<path d="M3 9v6M6 6v12M18 6v12M21 9v6M6 12h12"/>',
+  ready: '<path d="M3 12h4l3-7 4 14 3-7h4"/>',
+  game: '<circle cx="12" cy="12" r="9"/><path d="M12 8l3.5 2.5-1.3 4h-4.4l-1.3-4z"/>',
+  hist: '<path d="M4 5v6h6"/><path d="M4.5 11A8 8 0 1112 20"/><path d="M12 8v4l3 2"/>',
+  more: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>'
+};
+
+/* ───────── Mojibake-Reparatur (altes Format enthält teils kaputte Umlaute) ───────── */
+function fixMoji(s) {
+  if (typeof s !== 'string' || !/[Â-ô]/.test(s)) return s;
+  return s.replace(/[Â-ô][\u0080-¿]+/g, function (seg) {
+    try {
+      var b = new Uint8Array(seg.length);
+      for (var i = 0; i < seg.length; i++) { var c = seg.charCodeAt(i); if (c > 255) return seg; b[i] = c; }
+      return new TextDecoder('utf-8', { fatal: true }).decode(b);
+    } catch (e) { return seg; }
+  });
+}
+function deepFix(o) {
+  if (typeof o === 'string') return fixMoji(o);
+  if (Array.isArray(o)) return o.map(deepFix);
+  if (o && typeof o === 'object') { var r = {}; for (var k in o) r[k] = deepFix(o[k]); return r; }
+  return o;
+}
+
+/* ───────── Datenmodell ───────── */
+function normSet(s) { s = s && typeof s === 'object' ? s : {}; return { kg: str(String(s.kg == null ? '' : s.kg), 8), reps: str(String(s.reps == null ? '' : s.reps), 8), rpe: str(String(s.rpe == null ? '' : s.rpe), 6) }; }
+function normExEntry(x) { x = x && typeof x === 'object' ? x : {}; return { n: str(x.n, 80), t: str(x.t, 120), sets: (Array.isArray(x.sets) ? x.sets : []).slice(0, 20).map(normSet), note: str(x.note, 400) }; }
+function normTplEx(x) { x = x && typeof x === 'object' ? x : {}; var s = parseInt(x.sets, 10); return { id: str(x.id, 60) || uid(), n: str(x.n, 80), t: str(x.t, 120), sets: s >= 1 && s <= 20 ? s : 3 }; }
+function normSession(s) {
+  s = s && typeof s === 'object' ? s : {};
+  var blocks = (Array.isArray(s.blocks) ? s.blocks : []).slice(0, 12).map(function (b) { b = b || {}; return { name: str(b.name, 60), ex: (Array.isArray(b.ex) ? b.ex : []).slice(0, 40).map(normTplEx).filter(function (e) { return e.n; }) }; });
+  if (!blocks.length) blocks = [{ name: '', ex: [] }];
+  return { id: str(s.id, 60) || uid(), name: str(s.name, 60), blocks: blocks };
+}
+function normLog(l) {
+  l = l && typeof l === 'object' ? l : {};
+  var ts = typeof l.ts === 'string' && !isNaN(new Date(l.ts)) ? l.ts : new Date().toISOString();
+  return { id: str(l.id, 60) || uid(), ts: ts, date: isoOk(l.date) ? l.date : dayOf(ts), sid: str(l.sid, 60), sname: str(l.sname, 60), comment: str(l.comment, 1500), ex: (Array.isArray(l.ex) ? l.ex : []).slice(0, 80).map(normExEntry) };
+}
+function normReady(r) {
+  r = r && typeof r === 'object' ? r : {};
+  var o = { id: str(r.id, 60) || uid(), date: isoOk(r.date) ? r.date : today(), sleep: rate(r.sleep), energy: rate(r.energy), soreness: rate(r.soreness), bj: num(r.bj, 50, 500), kl: rate(r.kl), kr: rate(r.kr), note: str(r.note, 600) };
+  o.avg = avg(o); return o;
+}
+function normGame(g) {
+  g = g && typeof g === 'object' ? g : {};
+  return { id: str(g.id, 60) || uid(), date: isoOk(g.date) ? g.date : today(), opp: str(g.opp, 80), res: str(g.res, 20), spr: rate(g.spr), zwei: rate(g.zwei), fit: rate(g.fit), ges: rate(g.ges), note: str(g.note, 1500) };
+}
+function normDraft(d) {
+  if (!d || typeof d !== 'object' || !d.sid) return null;
+  var data = {}; if (d.data && typeof d.data === 'object') for (var k in d.data) { if (Object.keys(data).length > 200) break; data[str(k, 80)] = { sets: (Array.isArray(d.data[k].sets) ? d.data[k].sets : []).slice(0, 20).map(normSet), note: str(d.data[k].note, 400) }; }
+  return { sid: str(d.sid, 60), data: data, comment: str(d.comment, 1500) };
+}
+function defaults() { return { v: 2, sessions: [], logs: [], ready: [], games: [], draft: null, sel: '', legacy: null }; }
+function sanitize(d) {
+  d = d && typeof d === 'object' ? d : {};
+  function arr(a, f, key) { return (Array.isArray(a) ? a : []).filter(function (x) { return x && typeof x === 'object'; }).map(f).filter(function (x) { return x[key]; }); }
+  var st = { v: 2, sessions: arr(d.sessions, normSession, 'name'), logs: arr(d.logs, normLog, 'id'), ready: arr(d.ready, normReady, 'id'), games: arr(d.games, normGame, 'opp'), draft: normDraft(d.draft), sel: str(d.sel, 60), legacy: d.legacy && typeof d.legacy === 'object' ? d.legacy : null };
+  return st;
+}
+function load() {
+  try { var r = localStorage.getItem(KEY); if (r) return sanitize(JSON.parse(r)); } catch (e) { storageOK = false; }
+  return defaults();
+}
+var storageOK = true, state = load();
+function save() { var ok = false; try { ok = lsSet(KEY, JSON.stringify(state)); } catch (e) { ok = false; } if (!ok) storageOK = false; }
+function changed() { save(); render(); }
+
+/* ───────── Import des alten Trackers ───────── */
+var BUILTIN = { vb_do_gymB: 'Vorbereitung Do · Gym B', s_mo_gymA: 'Saison Mo · Gym A', s_di_sprint: 'Saison Di · Sprint', s_do_gymB: 'Saison Do · Gym B' };
+function isLegacy(d) { return d && typeof d === 'object' && (d.sets || d.rlog || d.log || d.spiel || d.eigene) && !d.sessions; }
+function legacyToV2(raw) {
+  var d = deepFix(raw), sets = d.sets || {}, ov = d.overrides || {};
+  var eig = {}; (d.eigene || []).forEach(function (e) { if (e && e.key) eig[e.key] = e; });
+  var keys = {}; Object.keys(eig).forEach(function (k) { keys[k] = 1; }); (d.log || []).forEach(function (l) { if (l && l.key) keys[l.key] = 1; });
+  var sessions = [], exData = {}; // exData[sessionKey][exId] = {sets,note}
+  Object.keys(keys).forEach(function (K) {
+    var pre = K + '_', slots = {}, added = {}, sections = [];
+    var base = eig[K];
+    if (base) (base.uebungen || []).forEach(function (u, i) { slots['0_' + i] = { n: u.n, t: u.t, sets: u.sets, id: K + '_0_' + i }; });
+    function rest(obj, cb) { Object.keys(obj).forEach(function (k) { if (k.indexOf(pre) === 0) cb(k.slice(pre.length), obj[k], k); }); }
+    rest(sets, function (r, v) { var m = r.match(/^(\d+)_(\d+)$/); if (m && !slots[r]) slots[r] = { n: '', t: '', sets: 3, id: K + '_' + r }; });
+    rest(ov, function (r, v) {
+      var m = r.match(/^(\d+)_(\d+)_meta$/);
+      if (m) { var sk = m[1] + '_' + m[2], s = slots[sk] || (slots[sk] = { n: '', t: '', sets: 3, id: K + '_' + sk }); if (v.deleted) s.deleted = true; if (v.n) s.n = v.n; if (v.t != null) s.t = v.t; if (v.sets) s.sets = v.sets; }
+      m = r.match(/^(\d+)_added$/); if (m && Array.isArray(v)) added[m[1]] = v;
+      if (r === 'added_sections' && Array.isArray(v)) sections = v;
+    });
+    var blocks = {}; function blk(b) { return blocks[b] || (blocks[b] = { name: b === '0' ? '' : 'Block ' + (+b + 1), ex: [] }); }
+    Object.keys(slots).sort(function (a, b) { var x = a.split('_').map(Number), y = b.split('_').map(Number); return x[0] - y[0] || x[1] - y[1]; }).forEach(function (sk) {
+      var s = slots[sk]; if (s.deleted) return;
+      var b = sk.split('_')[0], e = +sk.split('_')[1];
+      blk(b).ex.push({ id: s.id, n: s.n || ('Übung ' + (+b + 1) + '.' + (e + 1)), t: s.t || '', sets: s.sets || 3 });
+    });
+    Object.keys(added).forEach(function (b) { added[b].forEach(function (a, i) { blk(b).ex.push({ id: a._key || (K + '_' + b + '_a' + i), n: a.n, t: a.t, sets: a.sets || 3 }); }); });
+    var order = Object.keys(blocks).sort(function (a, b) { return a - b; }), list = order.map(function (b) { return blocks[b]; });
+    sections.forEach(function (sec, si) { list.push({ name: sec.name || 'Abschnitt', ex: (sec.ex || []).map(function (a, i) { return { id: a._key || (K + '_s' + si + '_' + i), n: a.n, t: a.t, sets: a.sets || 3 }; }) }); });
+    var name = (eig[K] && eig[K].name) || BUILTIN[K] || 'Einheit (ohne Vorlage)';
+    var sess = { id: K, name: name, blocks: list }; sessions.push(sess);
+    var map = {}; sess.blocks.forEach(function (bl) { bl.ex.forEach(function (x) {
+      var s = sets[x.id], arrS = s && typeof s === 'object' ? Object.keys(s).sort(function (a, b) { return a - b; }).map(function (i) { return s[i]; }) : [];
+      var note = typeof sets[x.id + '_note'] === 'string' ? sets[x.id + '_note'] : '';
+      if (arrS.length || note) map[x.id] = { sets: arrS, note: note };
+    }); });
+    exData[K] = map;
+  });
+  var logs = (d.log || []).filter(function (l) { return l && l.key && l.date; }).map(function (l) { return { id: 'L' + l.date + l.key, ts: l.date, key: l.key, comment: l.comment || '' }; });
+  var newest = {}; logs.forEach(function (l) { if (!newest[l.key] || l.ts > newest[l.key].ts) newest[l.key] = l; });
+  var sById = {}; sessions.forEach(function (s) { sById[s.id] = s; });
+  var outLogs = logs.map(function (l) {
+    var s = sById[l.key], ex = [];
+    if (newest[l.key] === l && s) s.blocks.forEach(function (bl) { bl.ex.forEach(function (x) { var dd = exData[l.key][x.id]; if (dd) ex.push({ n: x.n, t: x.t, sets: dd.sets, note: dd.note }); }); });
+    return { id: l.id, ts: l.ts, sid: l.key, sname: s ? s.name : '', comment: l.comment, ex: ex };
+  });
+  var draft = null, cand = Object.keys(exData).filter(function (K) { return !newest[K] && Object.keys(exData[K]).length; });
+  if (cand.length) { cand.sort(function (a, b) { return ((eig[b] && eig[b].created) || '') < ((eig[a] && eig[a].created) || '') ? -1 : 1; }); draft = { sid: cand[0], data: exData[cand[0]], comment: '' }; }
+  var ready = (d.rlog || []).map(function (r) { return { id: 'R' + r.date, date: dayOf(r.date), sleep: r.sleep, energy: r.energy, soreness: r.soreness, bj: r.bj, kl: r.kLeft, kr: r.kRight, note: r.notiz }; });
+  var games = (d.spiel || []).map(function (g) { return { id: 'G' + g.date, date: isoOk(g.datum) ? g.datum : dayOf(g.date), opp: g.gegner, res: g.ergebnis, spr: g.spritzigkeit, zwei: g.zweikampf, fit: g.fitness, ges: g.gesamt, note: g.kommentar }; });
+  var sel = draft ? draft.sid : (outLogs.length ? outLogs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; })[0].sid : '');
+  return { sessions: sessions, logs: outLogs, ready: ready, games: games, draft: draft, sel: sel, legacy: raw };
+}
+
+/* ───────── Export / Import ───────── */
+function exportJson() { return JSON.stringify({ app: 'perform-tracker', version: 2, exported: new Date().toISOString(), sessions: state.sessions, logs: state.logs, ready: state.ready, games: state.games, draft: state.draft, sel: state.sel, legacy: state.legacy }, null, 1); }
+function applyImport(text, replace) {
+  var data = JSON.parse(text);
+  if (!data || typeof data !== 'object') throw new Error('format');
+  var legacy = isLegacy(data);
+  if (!legacy && !(data.sessions || data.logs || data.ready || data.games)) throw new Error('format');
+  var inc = sanitize(legacy ? legacyToV2(data) : data);
+  function merge(cur, add, key) { var ids = {}; add.forEach(function (x) { ids[x[key]] = 1; }); return cur.filter(function (x) { return !ids[x[key]]; }).concat(add); }
+  ['sessions', 'logs', 'ready', 'games'].forEach(function (k) { if (legacy || Array.isArray(data[k])) state[k] = replace ? inc[k] : merge(state[k], inc[k], 'id'); });
+  if (legacy || data.draft) state.draft = inc.draft || (replace ? null : state.draft);
+  if (inc.sel && (replace || !state.sel)) state.sel = inc.sel;
+  if (legacy) state.legacy = inc.legacy || state.legacy;
+  return (legacy ? 'Altes Format erkannt: ' : '') + inc.sessions.length + ' Einheiten, ' + inc.logs.length + ' Trainings, ' + inc.ready.length + ' Readiness, ' + inc.games.length + ' Spiele';
+}
+
+/* ───────── UI-Zustand ───────── */
+var tab = lsGet(TAB_KEY, 'today');
+if (['today', 'train', 'ready', 'game', 'hist', 'more'].indexOf(tab) < 0) tab = 'today';
+var histMode = 'train', toastTimer = null, openLog = {};
+function setTab(t) { tab = t; lsSet(TAB_KEY, t); render(); window.scrollTo(0, 0); }
+function sessionById(id) { for (var i = 0; i < state.sessions.length; i++) if (state.sessions[i].id === id) return state.sessions[i]; return null; }
+function currentSession() { return sessionById(state.sel) || state.sessions[0] || null; }
+function readyFor(date) { for (var i = 0; i < state.ready.length; i++) if (state.ready[i].date === date) return state.ready[i]; return null; }
+function readySorted() { return state.ready.slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; }); }
+function latestReady() { return readySorted().filter(function (r) { return r.avg != null; })[0] || null; }
+function toast(msg) {
+  var old = document.getElementById('toast'); if (old) old.remove(); clearTimeout(toastTimer);
+  var el = h('div', { class: 'toast', id: 'toast', role: 'status' }, h('span', { text: msg })); document.body.appendChild(el);
+  toastTimer = setTimeout(function () { el.remove(); }, 3000);
+}
+
+/* ───────── Bausteine ───────── */
+function rating(value, onChange, label) {
+  var cur = value, wrap = h('div', { class: 'rate', role: 'group', 'aria-label': label || 'Bewertung' });
+  function paint() { Array.prototype.forEach.call(wrap.children, function (b, i) { b.classList.toggle('on', cur === i + 1); b.setAttribute('aria-pressed', cur === i + 1 ? 'true' : 'false'); }); }
+  for (var i = 1; i <= 10; i++) (function (n) { wrap.appendChild(h('button', { type: 'button', text: String(n), onclick: function () { cur = cur === n ? null : n; paint(); onChange(cur); } })); })(i);
+  paint(); return wrap;
+}
+function field(label, node, hint) { return [h('label', { class: 'f', text: label }), node, hint ? h('div', { class: 'hint', text: hint }) : null]; }
+function spark(vals, w, hgt, color) {
+  var pts = vals.filter(function (v) { return v != null; });
+  if (pts.length < 2) return h('div', { class: 'note', text: 'Noch zu wenige Werte für einen Verlauf.' });
+  var min = 1, max = 10, step = w / (vals.length - 1), d = [];
+  vals.forEach(function (v, i) { if (v != null) d.push((i * step).toFixed(1) + ',' + (hgt - 4 - (v - min) / (max - min) * (hgt - 8)).toFixed(1)); });
+  var s = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); s.setAttribute('viewBox', '0 0 ' + w + ' ' + hgt); s.setAttribute('class', 'spark'); s.setAttribute('role', 'img'); s.setAttribute('aria-label', 'Verlauf der Readiness');
+  s.innerHTML = '<polyline fill="none" stroke="' + (color || '#4B8EF0') + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" points="' + d.join(' ') + '"/>';
+  return s;
+}
+function lastTime(name, beforeId) {
+  var n = name.toLowerCase(), logs = state.logs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; });
+  for (var i = 0; i < logs.length; i++) {
+    var ex = logs[i].ex.filter(function (x) { return x.n.toLowerCase() === n && x.sets.some(function (s) { return s.reps || s.kg; }); })[0];
+    if (ex) return { date: logs[i].date, sets: ex.sets };
+  }
+  return null;
+}
+function setTxt(s) { return (s.kg ? s.kg + ' kg × ' : '') + (s.reps || '–') + (s.rpe ? ' @' + s.rpe : ''); }
+
+/* ───────── Heute ───────── */
+function viewToday() {
+  var t = today(), d = new Date(), out = [];
+  var r = readyFor(t), last = r && r.avg != null ? r : latestReady(), a = last ? ampel(last.avg) : null;
+  out.push(h('h1', { text: 'Heute' }), h('div', { class: 'sub', text: WD[d.getDay()] + ', ' + d.getDate() + '. ' + MON[d.getMonth()] }));
+  if (!storageOK) out.push(h('div', { class: 'banner red', text: 'Speichern im Browser nicht möglich. Daten gehen verloren – sichere sie unter „Mehr“.' }));
+  var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, has = state.logs.length + state.ready.length + state.games.length > 0;
+  if (has && (!lb || Date.now() - lb > 7 * 86400000)) out.push(h('button', { class: 'banner', onclick: function () { setTab('more'); }, text: lb ? 'Letztes Backup ist über 7 Tage her. Jetzt sichern →' : 'Noch kein Backup gemacht. Jetzt sichern →' }));
+  if (!r) out.push(h('button', { class: 'cta', onclick: function () { setTab('ready'); } }, h('b', { text: 'Readiness-Check eintragen' }), h('span', { text: 'Heute noch nichts erfasst' })));
+  if (a) out.push(h('div', { class: 'card', style: 'border-left-color:' + a.color },
+    h('div', { class: 'two' },
+      h('div', null, h('div', { class: 'lab', text: 'Readiness' + (r ? '' : ' · ' + fmt(last.date)) }), h('div', { class: 'big', style: 'color:' + a.color, text: f1(last.avg) })),
+      h('div', null, h('div', { class: 'lab', text: 'Ampel' }), h('div', { class: 'amp', style: 'color:' + a.color }, h('span', { class: 'dot', style: 'background:' + a.color }), a.label))),
+    h('div', { class: 'tip', style: 'color:' + a.color, text: a.tip })));
+  var s = currentSession(), dr = state.draft;
+  out.push(h('h2', { text: 'Einheit' }));
+  if (s) {
+    var n = dr && dr.sid === s.id ? Object.keys(dr.data).reduce(function (c, k) { return c + dr.data[k].sets.filter(function (x) { return x.reps || x.kg; }).length; }, 0) : 0;
+    out.push(h('div', { class: 'card quiet' }, h('div', { class: 'title', text: s.name }), h('div', { class: 'meta', text: n ? 'Läuft: ' + n + (n === 1 ? ' Satz' : ' Sätze') + ' erfasst' : s.blocks.reduce(function (c, b) { return c + b.ex.length; }, 0) + ' Übungen' }),
+      h('div', { class: 'actions' }, h('button', { class: 'btn pri flex', type: 'button', text: n ? 'Weiter trainieren' : 'Training starten', onclick: function () { setTab('train'); } }))));
+  } else out.push(h('div', { class: 'empty', text: 'Noch keine Einheit. Lege unter „Mehr“ eine an oder importiere deine Sicherung.' }));
+  var mon = monday(t), wk = state.logs.filter(function (l) { return l.date >= mon && l.date <= addDays(mon, 6); }).length, wg = state.games.filter(function (g) { return g.date >= mon && g.date <= addDays(mon, 6); }).length;
+  var days = []; for (var i = 13; i >= 0; i--) { var rr = readyFor(addDays(t, -i)); days.push(rr ? rr.avg : null); }
+  var w7 = days.slice(7).filter(function (v) { return v != null; }), a7 = w7.length ? w7.reduce(function (x, y) { return x + y; }, 0) / w7.length : null;
+  out.push(h('h2', { text: 'Diese Woche' }), h('div', { class: 'card quiet' },
+    h('div', { class: 'kv' }, h('span', { text: 'Trainings' }), h('b', { text: String(wk) })),
+    h('div', { class: 'kv' }, h('span', { text: 'Spiele' }), h('b', { text: String(wg) })),
+    h('div', { class: 'kv' }, h('span', { text: 'Ø Readiness, 7 Tage' }), h('b', { text: f1(a7) })),
+    h('div', { style: 'margin-top:10px' }, spark(days, 300, 56))));
+  var bj = readySorted().filter(function (x) { return x.bj; })[0], an = readySorted().filter(function (x) { return x.kl || x.kr; })[0];
+  if (bj || an) out.push(h('h2', { text: 'Zuletzt gemessen' }), h('div', { class: 'card quiet' },
+    bj ? h('div', { class: 'kv' }, h('span', { text: 'Broad Jump · ' + fmtS(bj.date) }), h('b', { text: bj.bj + ' cm' })) : null,
+    an ? h('div', { class: 'kv' }, h('span', { text: 'Knöchel L / R · ' + fmtS(an.date) }), h('b', { text: (an.kl || '–') + ' / ' + (an.kr || '–') })) : null));
+  return out;
+}
+
+/* ───────── Training ───────── */
+function exState(x) { var dr = state.draft; if (!dr.data[x.id]) dr.data[x.id] = { sets: [], note: '' }; return dr.data[x.id]; }
+function viewTrain() {
+  var out = [h('h1', { text: 'Training' })], s = currentSession();
+  if (!s) { out.push(h('div', { class: 'empty', text: 'Noch keine Einheit. Lege unter „Mehr“ eine an oder importiere deine Sicherung.' })); return out; }
+  if (!state.draft || state.draft.sid !== s.id) state.draft = { sid: s.id, data: {}, comment: '' };
+  var dr = state.draft, rd = readyFor(today()), a = rd && rd.avg != null ? ampel(rd.avg) : null;
+  var sel = h('select', { 'aria-label': 'Einheit wählen', onchange: function () { state.sel = sel.value; state.draft = null; save(); render(); } }, state.sessions.map(function (x) { return h('option', { value: x.id, text: x.name, selected: x.id === s.id ? true : null }); }));
+  out.push(h('div', { class: 'sub', text: 'Werte werden laufend gespeichert' }), sel);
+  if (a && a.label !== 'GRÜN') out.push(h('div', { class: 'banner', style: 'margin-top:12px;color:' + a.color, text: a.label + ' heute: ' + a.tip }));
+  s.blocks.forEach(function (bl, bi) {
+    if (bl.name) out.push(h('h2', { text: bl.name }));
+    bl.ex.forEach(function (x) {
+      var st = exState(x), cnt = Math.max(x.sets, st.sets.length), lt = lastTime(x.n);
+      while (st.sets.length < cnt) st.sets.push({ kg: '', reps: '', rpe: '' });
+      var rows = h('div', { class: 'sets' });
+      function paintRows() {
+        rows.textContent = '';
+        st.sets.forEach(function (set, i) {
+          function inp(k, ph, mode) { var el = h('input', { type: 'text', inputmode: mode, placeholder: ph, value: set[k], maxlength: 8, autocomplete: 'off', 'aria-label': x.n + ' Satz ' + (i + 1) + ' ' + ph }); el.addEventListener('input', function () { set[k] = el.value.replace(',', '.'); save(); }); return el; }
+          rows.appendChild(h('div', { class: 'setrow' }, h('span', { class: 'sn', text: String(i + 1) }), inp('kg', 'kg', 'decimal'), inp('reps', 'Wdh', 'decimal'), inp('rpe', 'RPE', 'decimal')));
+        });
+      }
+      paintRows();
+      var note = h('input', { type: 'text', placeholder: 'Notiz (z. B. links schwächer)', value: st.note, maxlength: 400, 'aria-label': 'Notiz ' + x.n }); note.addEventListener('input', function () { st.note = note.value; save(); });
+      out.push(h('div', { class: 'card ex' },
+        h('div', { class: 'exh' }, h('div', { class: 'grow' }, h('div', { class: 'title', text: x.n }), x.t ? h('div', { class: 'meta', text: x.t }) : null),
+          h('button', { class: 'ibtn', type: 'button', 'aria-label': 'Übung bearbeiten', onclick: function () { editExercise(s, x); } }, svg('<circle cx="12" cy="5" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="12" cy="19" r="1.4"/>'))),
+        lt ? h('div', { class: 'last', text: 'Zuletzt ' + fmtS(lt.date) + ': ' + lt.sets.filter(function (z) { return z.reps || z.kg; }).map(setTxt).join(' · ') }) : null,
+        h('div', { class: 'sethead' }, h('span'), h('span', { text: 'kg' }), h('span', { text: 'Wdh' }), h('span', { text: 'RPE' })),
+        rows,
+        h('div', { class: 'actions', style: 'margin-top:8px' }, h('button', { class: 'btn flex', type: 'button', text: '+ Satz', onclick: function () { st.sets.push({ kg: st.sets.length ? st.sets[st.sets.length - 1].kg : '', reps: '', rpe: '' }); save(); paintRows(); } })),
+        note));
+    });
+    out.push(h('button', { class: 'btn ghost addex', type: 'button', text: '+ Übung' + (bl.name ? ' zu ' + bl.name : ''), onclick: function () { editExercise(s, null, bi); } }));
+  });
+  out.push(h('button', { class: 'btn ghost addex', type: 'button', text: '+ Neuen Block', onclick: function () { s.blocks.push({ name: 'Neuer Block', ex: [] }); changed(); } }));
+  var com = h('textarea', { placeholder: 'Wie lief die Einheit? Besonderheiten?', maxlength: 1500, 'aria-label': 'Kommentar zur Einheit' }); com.value = dr.comment; com.addEventListener('input', function () { dr.comment = com.value; save(); });
+  out.push(field('Kommentar', com));
+  var armed = false, reset = h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:10px', text: 'Werte zurücksetzen' });
+  reset.addEventListener('click', function () { if (!armed) { armed = true; reset.textContent = 'Nochmal tippen. Eingaben dieser Einheit gehen verloren'; setTimeout(function () { armed = false; reset.textContent = 'Werte zurücksetzen'; }, 4000); return; } state.draft = null; changed(); });
+  out.push(h('button', { class: 'btn done', type: 'button', style: 'width:100%;margin-top:16px', text: '✓ Einheit abschließen', onclick: finishSession }), reset);
+  return out;
+}
+function finishSession() {
+  var s = currentSession(), dr = state.draft; if (!s || !dr) return;
+  var ex = []; s.blocks.forEach(function (bl) { bl.ex.forEach(function (x) { var d = dr.data[x.id]; if (!d) return; var sets = d.sets.filter(function (z) { return z.kg || z.reps || z.rpe; }); if (sets.length || d.note) ex.push({ n: x.n, t: x.t, sets: sets, note: d.note }); }); });
+  if (!ex.length && !dr.comment.trim() && !confirmEmpty()) return;
+  var ts = new Date().toISOString();
+  state.logs.push(normLog({ id: uid(), ts: ts, sid: s.id, sname: s.name, comment: dr.comment, ex: ex }));
+  state.draft = null; save(); toast('Einheit gespeichert'); setTab('hist'); histMode = 'train'; render();
+}
+function confirmEmpty() { toast('Nichts erfasst. Trage Sätze oder einen Kommentar ein.'); return false; }
+
+/* ───────── Sheets ───────── */
+function closeSheet() { document.getElementById('layer').innerHTML = ''; }
+function sheet(title, body, foot) {
+  closeSheet();
+  var ov = h('div', { class: 'ov', onclick: function (e) { if (e.target === ov) closeSheet(); } }, h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true' }, h('div', { class: 'grab' }), h('h3', { text: title }), body, foot));
+  document.getElementById('layer').appendChild(ov); return ov;
+}
+function editExercise(s, x, blockIdx) {
+  var isNew = !x, n = h('input', { type: 'text', value: x ? x.n : '', maxlength: 80, placeholder: 'z. B. Beinpresse einbeinig', autocapitalize: 'sentences' }), t = h('input', { type: 'text', value: x ? x.t : '', maxlength: 120, placeholder: 'z. B. 8 Wdh · RPE 8 · Pause 90 s' }), c = h('input', { type: 'text', inputmode: 'numeric', value: x ? x.sets : 3, maxlength: 2 });
+  var err = h('div', { class: 'hint', style: 'color:var(--red)', role: 'alert' });
+  var foot = [err, h('div', { class: 'foot' }, h('button', { class: 'btn flex', type: 'button', text: 'Abbrechen', onclick: closeSheet }), h('button', { class: 'btn pri flex', type: 'button', text: 'Speichern', onclick: function () {
+    var name = str(n.value, 80); if (!name) { err.textContent = 'Name fehlt.'; return; }
+    var cnt = parseInt(c.value, 10); cnt = cnt >= 1 && cnt <= 20 ? cnt : 3;
+    if (isNew) s.blocks[blockIdx].ex.push({ id: uid(), n: name, t: str(t.value, 120), sets: cnt }); else { x.n = name; x.t = str(t.value, 120); x.sets = cnt; }
+    closeSheet(); changed();
+  } }))];
+  if (!isNew) {
+    var armed = false, del = h('button', { class: 'btn ghost danger', type: 'button', style: 'width:100%;margin-top:8px', text: 'Aus der Einheit entfernen' });
+    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Nochmal tippen. Frühere Trainings bleiben erhalten'; return; } s.blocks.forEach(function (b) { b.ex = b.ex.filter(function (e) { return e !== x; }); }); if (state.draft) delete state.draft.data[x.id]; closeSheet(); changed(); });
+    foot.push(del);
+  }
+  sheet(isNew ? 'Neue Übung' : 'Übung', [field('Name', n), field('Details', t), field('Sätze', c)], foot);
+}
+function sessionToText(s) { return s.blocks.map(function (b) { return (b.name ? '# ' + b.name + '\n' : '') + b.ex.map(function (e) { return e.n + ' | ' + e.t + ' | ' + e.sets; }).join('\n'); }).join('\n'); }
+function textToBlocks(txt, old) {
+  var byName = {}; old.forEach(function (b) { b.ex.forEach(function (e) { byName[e.n.toLowerCase()] = e.id; }); });
+  var blocks = [], cur = null;
+  txt.split('\n').forEach(function (ln) {
+    ln = ln.trim(); if (!ln) return;
+    if (ln.charAt(0) === '#') { cur = { name: str(ln.replace(/^#+\s*/, ''), 60), ex: [] }; blocks.push(cur); return; }
+    if (!cur) { cur = { name: '', ex: [] }; blocks.push(cur); }
+    var p = ln.split('|').map(function (x) { return x.trim(); }), nm = str(p[0], 80); if (!nm) return;
+    var c = parseInt(p[2], 10);
+    cur.ex.push({ id: byName[nm.toLowerCase()] || uid(), n: nm, t: str(p[1] || '', 120), sets: c >= 1 && c <= 20 ? c : 3 });
+  });
+  return blocks.length ? blocks : [{ name: '', ex: [] }];
+}
+function editSession(s) {
+  var isNew = !s, name = h('input', { type: 'text', value: s ? s.name : '', maxlength: 60, placeholder: 'z. B. Oberkörper Inseason' });
+  var ta = h('textarea', { style: 'min-height:200px;font-size:14px', maxlength: 6000, placeholder: '# Warm-up\nPogos | 3 × 8 · RPE 7 | 3\n# Hauptteil\nBankdrücken | 4-6 Wdh · RPE 8 | 4', 'aria-label': 'Übungen' }); ta.value = s ? sessionToText(s) : '';
+  var err = h('div', { class: 'hint', style: 'color:var(--red)', role: 'alert' });
+  var foot = [err, h('div', { class: 'foot' }, h('button', { class: 'btn flex', type: 'button', text: 'Abbrechen', onclick: closeSheet }), h('button', { class: 'btn pri flex', type: 'button', text: 'Speichern', onclick: function () {
+    var nm = str(name.value, 60); if (!nm) { err.textContent = 'Name fehlt.'; return; }
+    var blocks = textToBlocks(ta.value, s ? s.blocks : []);
+    if (isNew) { var ns = { id: uid(), name: nm, blocks: blocks }; state.sessions.push(ns); if (!state.sel) state.sel = ns.id; } else { s.name = nm; s.blocks = blocks; }
+    closeSheet(); changed();
+  } }))];
+  if (!isNew) {
+    var armed = false, del = h('button', { class: 'btn ghost danger', type: 'button', style: 'width:100%;margin-top:8px', text: 'Einheit löschen' });
+    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Nochmal tippen. Frühere Trainings bleiben erhalten'; return; } state.sessions = state.sessions.filter(function (x) { return x !== s; }); if (state.sel === s.id) state.sel = ''; if (state.draft && state.draft.sid === s.id) state.draft = null; closeSheet(); changed(); });
+    foot.push(del);
+  }
+  sheet(isNew ? 'Neue Einheit' : 'Einheit bearbeiten', [field('Name', name), field('Übungen', ta, 'Eine Zeile pro Übung: Name | Details | Sätze. Eine Zeile mit # beginnt einen Block.')], foot);
+}
+
+/* ───────── Readiness ───────── */
+function viewReady() {
+  var t = today(), ex = readyFor(t), v = ex ? { sleep: ex.sleep, energy: ex.energy, soreness: ex.soreness, kl: ex.kl, kr: ex.kr } : { sleep: null, energy: null, soreness: null, kl: null, kr: null };
+  var out = [h('h1', { text: 'Readiness' }), h('div', { class: 'sub', text: ex ? 'Heute schon erfasst. Speichern aktualisiert den Eintrag.' : fmt(t) })];
+  var live = h('div', { class: 'live' });
+  function upd() { var a = avg(v); live.textContent = ''; if (a != null) { var am = ampel(a); live.appendChild(h('span', { class: 'dot', style: 'background:' + am.color })); live.appendChild(h('b', { style: 'color:' + am.color, text: f1(a) + ' · ' + am.label })); } else live.textContent = 'Wähle Schlaf, Energie und Muskelkater.'; }
+  var bj = h('input', { type: 'text', inputmode: 'decimal', placeholder: 'z. B. 215', value: ex && ex.bj ? ex.bj : '', maxlength: 5, 'aria-label': 'Broad Jump in cm' });
+  var note = h('textarea', { placeholder: 'Wie fühlst du dich heute?', maxlength: 600, 'aria-label': 'Notiz' }); note.value = ex ? ex.note : '';
+  out.push(h('div', { class: 'card quiet' },
+    field('Schlafqualität', rating(v.sleep, function (n) { v.sleep = n; upd(); }, 'Schlafqualität')),
+    field('Energie', rating(v.energy, function (n) { v.energy = n; upd(); }, 'Energie')),
+    field('Muskelkater (10 = keiner)', rating(v.soreness, function (n) { v.soreness = n; upd(); }, 'Muskelkater')),
+    h('div', { style: 'margin-top:14px' }, live),
+    field('Broad Jump (cm)', bj),
+    field('Knöchel links (10 = in Ordnung)', rating(v.kl, function (n) { v.kl = n; }, 'Knöchel links')),
+    field('Knöchel rechts (10 = in Ordnung)', rating(v.kr, function (n) { v.kr = n; }, 'Knöchel rechts')),
+    field('Notiz', note),
+    h('button', { class: 'btn pri', type: 'button', style: 'width:100%;margin-top:18px', text: ex ? 'Aktualisieren' : 'Speichern', onclick: function () {
+      if (avg(v) == null) { toast('Schlaf, Energie und Muskelkater fehlen noch.'); return; }
+      var r = normReady({ id: ex ? ex.id : uid(), date: t, sleep: v.sleep, energy: v.energy, soreness: v.soreness, bj: bj.value, kl: v.kl, kr: v.kr, note: note.value });
+      state.ready = state.ready.filter(function (x) { return x.date !== t; }); state.ready.push(r); save(); toast('Gespeichert'); setTab('today');
+    } })));
+  upd();
+  var list = readySorted().slice(0, 14);
+  if (list.length) { out.push(h('h2', { text: 'Letzte Einträge' })); list.forEach(function (r) { out.push(readyCard(r)); }); }
+  return out;
+}
+function readyCard(r) {
+  var a = r.avg != null ? ampel(r.avg) : null;
+  return h('div', { class: 'card quiet', style: a ? 'border-left-color:' + a.color : null }, h('div', { class: 'two' },
+    h('div', { class: 'grow' }, h('div', { class: 'title', text: fmt(r.date) }), h('div', { class: 'meta', text: 'Schlaf ' + (r.sleep || '–') + ' · Energie ' + (r.energy || '–') + ' · Kater ' + (r.soreness || '–') + (r.kl || r.kr ? ' · Knöchel ' + (r.kl || '–') + '/' + (r.kr || '–') : '') + (r.bj ? ' · BJ ' + r.bj : '') }), r.note ? h('div', { class: 'meta', text: r.note }) : null),
+    h('div', { class: 'score', style: a ? 'color:' + a.color : null, text: f1(r.avg) })));
+}
+
+/* ───────── Spiel ───────── */
+function viewGame() {
+  var v = { spr: null, zwei: null, fit: null, ges: null }, out = [h('h1', { text: 'Spiel' }), h('div', { class: 'sub', text: 'Bewertung nach dem Spiel' })];
+  var date = h('input', { type: 'date', value: today() }), opp = h('input', { type: 'text', placeholder: 'z. B. FC Musterhausen', maxlength: 80, autocapitalize: 'words' }), res = h('input', { type: 'text', placeholder: 'z. B. 2:1', maxlength: 20 }), com = h('textarea', { placeholder: 'Was lief gut? Was verbessern?', maxlength: 1500 });
+  var err = h('div', { class: 'hint', style: 'color:var(--red)', role: 'alert' });
+  out.push(h('div', { class: 'card quiet' },
+    field('Datum', date), field('Gegner', opp), field('Ergebnis', res),
+    field('Spritzigkeit / erster Schritt', rating(null, function (n) { v.spr = n; }, 'Spritzigkeit')),
+    field('Zweikampfverhalten', rating(null, function (n) { v.zwei = n; }, 'Zweikampf')),
+    field('Fitness / Ausdauer', rating(null, function (n) { v.fit = n; }, 'Fitness')),
+    field('Gesamtnote', rating(null, function (n) { v.ges = n; }, 'Gesamtnote')),
+    field('Kommentar', com), err,
+    h('button', { class: 'btn pri', type: 'button', style: 'width:100%;margin-top:16px', text: 'Spiel speichern', onclick: function () {
+      if (!str(opp.value, 80)) { err.textContent = 'Gegner fehlt.'; return; }
+      if (!isoOk(date.value)) { err.textContent = 'Datum fehlt.'; return; }
+      state.games.push(normGame({ id: uid(), date: date.value, opp: opp.value, res: res.value, spr: v.spr, zwei: v.zwei, fit: v.fit, ges: v.ges, note: com.value })); save(); toast('Spiel gespeichert'); setTab('hist'); histMode = 'game'; render();
+    } })));
+  return out;
+}
+function gameCard(g) {
+  return h('div', { class: 'card quiet' }, h('div', { class: 'two' }, h('div', { class: 'grow' }, h('div', { class: 'title', text: g.opp + (g.res ? ' · ' + g.res : '') }), h('div', { class: 'meta', text: fmt(g.date) + ' · Spritzigkeit ' + (g.spr || '–') + ' · Zweikampf ' + (g.zwei || '–') + ' · Fitness ' + (g.fit || '–') }), g.note ? h('div', { class: 'meta', text: g.note }) : null), h('div', { class: 'score', text: g.ges ? String(g.ges) : '–' })), delBtn(function () { state.games = state.games.filter(function (x) { return x.id !== g.id; }); changed(); }));
+}
+function delBtn(run) {
+  var armed = false, b = h('button', { class: 'btn ghost danger small', type: 'button', text: 'Löschen' });
+  b.addEventListener('click', function () { if (!armed) { armed = true; b.textContent = 'Nochmal tippen'; setTimeout(function () { armed = false; b.textContent = 'Löschen'; }, 3500); return; } run(); });
+  return b;
+}
+
+/* ───────── Verlauf ───────── */
+function viewHist() {
+  var out = [h('h1', { text: 'Verlauf' })];
+  out.push(h('div', { class: 'seg' }, [['train', 'Training'], ['ready', 'Readiness'], ['game', 'Spiele']].map(function (m) { return h('button', { type: 'button', class: histMode === m[0] ? 'on' : '', text: m[1], onclick: function () { histMode = m[0]; render(); } }); })));
+  if (histMode === 'train') {
+    var logs = state.logs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; });
+    if (!logs.length) out.push(h('div', { class: 'empty', text: 'Noch keine abgeschlossene Einheit.' }));
+    logs.forEach(function (l) {
+      var sets = l.ex.reduce(function (c, e) { return c + e.sets.length; }, 0), isOpen = !!openLog[l.id];
+      out.push(h('div', { class: 'card quiet' },
+        h('div', { class: 'two tap', onclick: function () { openLog[l.id] = !openLog[l.id]; render(); } }, h('div', { class: 'grow' }, h('div', { class: 'title', text: l.sname || 'Einheit' }), h('div', { class: 'meta', text: fmt(l.date) + (sets ? ' · ' + l.ex.length + ' Übungen · ' + sets + ' Sätze' : '') }), l.comment && !isOpen ? h('div', { class: 'meta clamp', text: l.comment }) : null), h('span', { class: 'chev', text: isOpen ? '▴' : '▾' })),
+        isOpen ? h('div', { class: 'detail' }, l.comment ? h('div', { class: 'cmt', text: l.comment }) : null,
+          l.ex.map(function (e) { return h('div', { class: 'exr' }, h('div', { class: 'exn', text: e.n }), h('div', { class: 'meta', text: e.sets.map(setTxt).join(' · ') || '–' }), e.note ? h('div', { class: 'meta', text: '„' + e.note + '“' }) : null); }),
+          !l.ex.length ? h('div', { class: 'meta', text: 'Keine Sätze gespeichert (Eintrag aus dem alten Tracker).' }) : null,
+          delBtn(function () { state.logs = state.logs.filter(function (x) { return x.id !== l.id; }); changed(); })) : null));
+    });
+  } else if (histMode === 'ready') {
+    var days = []; for (var i = 29; i >= 0; i--) { var r = readyFor(addDays(today(), -i)); days.push(r ? r.avg : null); }
+    out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Readiness, 30 Tage' }), spark(days, 300, 70)));
+    var all = readySorted(); if (!all.length) out.push(h('div', { class: 'empty', text: 'Noch keine Einträge.' }));
+    all.slice(0, 60).forEach(function (r) { out.push(readyCard(r)); });
+    if (all.length > 60) out.push(h('div', { class: 'note', text: 'Die letzten 60 Einträge. Ältere sind in der Sicherung enthalten.' }));
+  } else {
+    var gs = state.games.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    if (!gs.length) out.push(h('div', { class: 'empty', text: 'Noch keine Spiele.' }));
+    gs.forEach(function (g) { out.push(gameCard(g)); });
+  }
+  return out;
+}
+
+/* ───────── Mehr ───────── */
+function viewMore() {
+  var out = [h('h1', { text: 'Mehr' }), h('div', { class: 'sub', text: 'Einheiten und Sicherung' })];
+  out.push(h('h2', { text: 'Einheiten' }));
+  if (!state.sessions.length) out.push(h('div', { class: 'empty', text: 'Noch keine Einheit.' }));
+  state.sessions.forEach(function (s) { out.push(h('button', { class: 'card quiet rowbtn', type: 'button', onclick: function () { editSession(s); } }, h('div', { class: 'title', text: s.name }), h('div', { class: 'meta', text: s.blocks.reduce(function (c, b) { return c + b.ex.length; }, 0) + ' Übungen' }))); });
+  out.push(h('button', { class: 'btn', type: 'button', style: 'width:100%', text: '+ Neue Einheit', onclick: function () { editSession(null); } }));
+  var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, days = lb ? Math.floor((Date.now() - lb) / 86400000) : null;
+  out.push(h('h2', { text: 'Sicherung' }), h('div', { class: 'card quiet' },
+    h('div', { class: 'kv' }, h('span', { text: 'Gespeichert' }), h('b', { text: state.sessions.length + ' Einheiten · ' + state.logs.length + ' Trainings · ' + state.ready.length + ' Readiness · ' + state.games.length + ' Spiele' })),
+    h('div', { class: 'kv' }, h('span', { text: 'Letztes Backup' }), h('b', { style: days === null || days >= 7 ? 'color:var(--amber)' : '', text: days === null ? 'noch nie' : days === 0 ? 'heute' : days === 1 ? 'gestern' : 'vor ' + days + ' Tagen' }))));
+  var msg = h('div', { class: 'note', id: 'msg', role: 'status' }), exp = h('pre', { class: 'out', style: 'display:none' });
+  out.push(h('button', { class: 'btn pri', type: 'button', style: 'width:100%', text: 'Daten als Text kopieren', onclick: function () {
+    var txt = exportJson(); exp.textContent = txt; exp.style.display = 'block';
+    function ok() { lsSet(BK_KEY, String(Date.now())); msg.textContent = 'Kopiert. Füge den Text in Notizen oder Nachrichten ein und bewahre ihn dort auf.'; }
+    function fb() { var r = document.createRange(); r.selectNodeContents(exp); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); msg.textContent = 'Kopieren nicht möglich. Der Text ist markiert: lange tippen, Kopieren wählen.'; }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(ok, fb); else fb();
+  } }),
+  h('button', { class: 'btn', type: 'button', style: 'width:100%;margin-top:8px', text: 'Als Datei speichern', onclick: function () {
+    var blob = new Blob([exportJson()], { type: 'application/json' }), name = 'PERFORM_Tracker_' + today() + '.json';
+    function dl() { var a = h('a', { href: URL.createObjectURL(blob), download: name }); document.body.appendChild(a); a.click(); a.remove(); lsSet(BK_KEY, String(Date.now())); msg.textContent = 'Datei gespeichert: ' + name; }
+    try { var f = new File([blob], name, { type: 'application/json' }); if (navigator.canShare && navigator.canShare({ files: [f] })) { navigator.share({ files: [f], title: name }).then(function () { lsSet(BK_KEY, String(Date.now())); render(); }, function (e) { if (!e || e.name !== 'AbortError') dl(); }); return; } } catch (e) { }
+    dl();
+  } }), exp, msg);
+  var imp = h('textarea', { placeholder: 'Gesicherten Text hier einfügen (auch die Datei des alten Trackers)', 'aria-label': 'Text zum Importieren', maxlength: 2000000, style: 'min-height:110px' });
+  var fileIn = h('input', { type: 'file', accept: '.json,application/json,text/plain', style: 'display:none', onchange: function () { var f = fileIn.files && fileIn.files[0]; fileIn.value = ''; if (!f) return; var r = new FileReader(); r.onload = function () { imp.value = String(r.result); msg2.textContent = 'Datei geladen. Jetzt „Zusammenführen“ tippen.'; }; r.readAsText(f); } });
+  var msg2 = h('div', { class: 'note', role: 'status' });
+  var armed = false, replaceBtn = h('button', { class: 'btn danger flex', type: 'button', text: 'Alles ersetzen' });
+  function run(rep) {
+    var before = JSON.stringify(state);
+    try { var s = applyImport(imp.value, rep); save(); imp.value = ''; toast('Importiert: ' + s); render(); }
+    catch (e) { state = sanitize(JSON.parse(before)); msg2.textContent = 'Das ist keine gültige Sicherung. Es wurde nichts verändert.'; msg2.style.color = 'var(--red)'; }
+  }
+  replaceBtn.addEventListener('click', function () { if (!armed) { armed = true; replaceBtn.textContent = 'Nochmal tippen'; setTimeout(function () { armed = false; replaceBtn.textContent = 'Alles ersetzen'; }, 4000); return; } run(true); });
+  out.push(h('h2', { text: 'Wiederherstellen' }), imp,
+    h('div', { class: 'actions' }, h('button', { class: 'btn blue flex', type: 'button', text: 'Zusammenführen', onclick: function () { run(false); } }), replaceBtn),
+    h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:8px', text: 'Aus Datei laden', onclick: function () { fileIn.click(); } }), fileIn, msg2,
+    h('div', { class: 'note', text: 'Die Datei des alten Trackers wird erkannt und umgewandelt. Zusammenführen überschreibt Einträge mit gleicher Kennung und lässt den Rest unverändert. Die Daten liegen nur auf diesem Gerät, in dieser App. Ohne Sicherung gehen sie bei Zurücksetzen oder Löschen der App verloren.' }));
+  return out;
+}
+
+/* ───────── Render ───────── */
+var TABS = [['today', 'Heute', IC.today], ['train', 'Training', IC.train], ['ready', 'Readiness', IC.ready], ['game', 'Spiel', IC.game], ['hist', 'Verlauf', IC.hist], ['more', 'Mehr', IC.more]];
+function render() {
+  var app = document.getElementById('app'), views = { today: viewToday, train: viewTrain, ready: viewReady, game: viewGame, hist: viewHist, more: viewMore };
+  var y = window.scrollY; app.textContent = ''; [].concat.apply([], views[tab]()).forEach(function (n) { if (n) app.appendChild(n); });
+  var tabs = document.getElementById('tabs'); tabs.textContent = '';
+  TABS.forEach(function (t) { tabs.appendChild(h('button', { class: tab === t[0] ? 'on' : '', type: 'button', 'aria-label': t[1], 'aria-current': tab === t[0] ? 'page' : null, onclick: function () { setTab(t[0]); } }, svg(t[2]), h('span', { text: t[1] }))); });
+  window.scrollTo(0, y);
+}
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+render();
+window.__tr = { get state() { return state; }, applyImport: applyImport, save: save, exportJson: exportJson, render: render, legacyToV2: legacyToV2, fixMoji: fixMoji };
+})();
+
+</script>
+</body>
+</html>
