@@ -190,7 +190,7 @@ var IC = {
 var storageOK = true;
 var DEFAULT_TPL = [{"id": "vl-1", "title": "Erstantwort Spieler", "text": "Hey [Name], danke für deine Nachricht! 💪\n\nKurz zu mir: Ich bin Justus, Sportwissenschaftler und Athletiktrainer für Fußballer. Bei PERFORM. geht es darum, schneller zu werden und länger auf dem Platz zu bleiben, mit einem Plan, der zu deiner Woche passt.\n\nDamit ich dir etwas Sinnvolles sagen kann: Auf welchem Niveau spielst du, und was willst du verbessern?"}, {"id": "vl-2", "title": "Winter-Coaching erklären", "text": "Das Winter-Coaching läuft über die Winterpause bis zum Start der Saisonvorbereitung. Du bekommst einen individuellen Trainingsplan, den ich anhand deiner Rückmeldungen anpasse, und bist mit Rückfragen direkt bei mir.\n\nIch nehme nur 5 Spieler an, damit ich mich um jeden wirklich kümmern kann. Anmeldeschluss ist der 10.11.\n\nWenn das für dich passt, machen wir ein kurzes Kennenlerngespräch. Preis: [Preis]."}, {"id": "vl-3", "title": "Erstgespräch vorschlagen", "text": "Dann lass uns kurz telefonieren oder per Video sprechen, ca. 20 Minuten. Da klären wir, wo du stehst, wie dein Training gerade aussieht und ob das Coaching zu dir passt.\n\nIch hätte [Tag] um [Uhrzeit] oder [Tag] um [Uhrzeit] Zeit. Passt eins davon? Sonst nenn mir gern einen Termin."}, {"id": "vl-4", "title": "Nachfassen Spieler (nach ca. 3 Tagen)", "text": "Hey [Name], ich wollte kurz nachhaken, ob meine Nachricht bei dir angekommen ist. Wenn du noch Fragen hast, schreib mir einfach. Und wenn es gerade nicht passt, ist das auch völlig in Ordnung."}, {"id": "vl-5", "title": "Letzte Erinnerung vor Anmeldeschluss", "text": "Hey [Name], kurze Info: Der Anmeldeschluss fürs Winter-Coaching ist am 10.11., aktuell sind noch [Anzahl] Plätze frei. Wenn du dabei sein willst, gib mir bis dahin Bescheid. Wenn nicht, sag es mir gern kurz, dann plane ich anders."}, {"id": "vl-6", "title": "Platz bestätigen", "text": "Super, [Name], du bist dabei! 🎉\n\nSo geht es weiter:\n1. Ich schicke dir die Betreuungsvereinbarung und den Anamnesebogen zum Ausfüllen.\n2. Danach machen wir einen kurzen Termin zum Durchsprechen.\n3. Dann bekommst du deinen Plan, Start ist am [Datum].\n\nBei Fragen melde dich jederzeit."}, {"id": "vl-7", "title": "Warteliste", "text": "Aktuell sind alle Plätze im Winter-Coaching vergeben. Ich setze dich gern auf die Warteliste. Sobald ein Platz frei wird, melde ich mich direkt bei dir. Soll ich dich eintragen?"}, {"id": "vl-8", "title": "Absage, wenn voll", "text": "Danke für dein Interesse, [Name]. Das Winter-Coaching ist leider voll. Wenn du magst, melde ich mich, sobald ich die nächste Runde plane. Ein paar Grundlagen findest du bis dahin regelmäßig auf @perform.jb."}, {"id": "vl-9", "title": "Verein: Erstansprache", "text": "Hallo [Name],\n\nich bin Justus Böhm, Sportwissenschaftler und Athletiktrainer für Fußball (PERFORM.). Ich biete Vereinen im Raum Franken praxisnahe Athletik-Einheiten für die ganze Mannschaft an, mit Schwerpunkt Sprint, Sprünge und Prävention.\n\n[Konkreter Anlass / Bezug zum Verein]\n\nHätten Sie Interesse an einer Einheit in der Vorbereitung? Gern erkläre ich in einem kurzen Gespräch, wie so eine Einheit abläuft."}, {"id": "vl-10", "title": "Verein: Nachfassen", "text": "Hallo [Name], ich wollte kurz nachfragen, ob Sie meine Nachricht zur Athletik-Einheit für Ihre Mannschaft erhalten haben. Ich plane gerade die Termine für die Vorbereitung und würde mich über eine kurze Rückmeldung freuen, auch wenn es eine Absage ist."}];
 function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
-function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400) }; }
+function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400), doneAt: isoOk(t.doneAt) ? t.doneAt : '' }; }
 function normContact(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 80), type: c.type === 'verein' ? 'verein' : 'spieler', status: STATUSES.indexOf(c.status) >= 0 ? c.status : 'offen', msgDate: isoOk(c.msgDate) ? c.msgDate : '', reason: str(c.reason, 400), source: str(c.source, 120), followDate: isoOk(c.followDate) ? c.followDate : '' }; }
 function normPost(p) { return { id: str(p.id, 40) || uid(), date: isoOk(p.date) ? p.date : today(), format: FORMATS.indexOf(p.format) >= 0 ? p.format : 'Reel', title: str(p.title, 300), source: str(p.source, 120), done: !!p.done }; }
 function normTpl(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 80), text: str(t.text, 1500) }; }
@@ -403,16 +403,17 @@ function rel(date) {
   if (d === 0) return 'heute'; if (d === 1) return 'morgen'; if (d === -1) return 'seit gestern';
   return d < 0 ? 'seit ' + (-d) + ' Tagen' : 'in ' + d + ' Tagen';
 }
-function toggleTask(t) { t.done = !t.done; changed(); if (t.done) toast('Erledigt', function () { t.done = false; changed(); }); }
+function toggleTask(t) { t.done = !t.done; t.doneAt = t.done ? today() : ''; changed(); if (t.done) toast('Erledigt', function () { t.done = false; t.doneAt = ''; changed(); }); }
 function togglePost(p) { p.done = !p.done; changed(); if (p.done) toast('Als gepostet markiert', function () { p.done = false; changed(); }); }
 
 function taskCard(t, quiet) {
-  var late = t.due && t.due < today();
+  var late = !t.done && t.due && t.due < today();
+  var dueTxt = t.done ? (t.doneAt ? 'Erledigt ' + fmt(t.doneAt) : 'Erledigt') + (t.due ? ' · war fällig ' + fmtS(t.due) : '') : (t.due ? 'Fällig ' + fmt(t.due) + ' · ' + rel(t.due) : 'Ohne Datum');
   return h('div', { class: 'card' + (t.done ? ' done' : '') + (late ? ' late' : '') + (quiet ? ' quiet' : '') },
     h('div', { class: 'row' }, chk(t.done, function () { toggleTask(t); }, 'Erledigt: ' + t.title),
       h('div', { class: 'grow', onclick: function () { editTask(t); } },
         h('div', { class: 'title' }, t.title, t.group ? h('span', { class: 'tag', text: t.group }) : null),
-        t.due ? h('div', { class: 'meta' + (late ? ' red' : ''), text: 'Fällig ' + fmt(t.due) + ' · ' + rel(t.due) }) : null,
+        h('div', { class: 'meta' + (late ? ' red' : ''), text: dueTxt }),
         t.note ? h('div', { class: 'meta', style: 'white-space:pre-wrap;margin-top:4px', text: t.note.length > 140 ? t.note.slice(0, 140) + ' …' : t.note }) : null)));
 }
 function postCard(p, quiet) {
@@ -445,31 +446,23 @@ function contactCard(c, withActions) {
 /* ───────── Ansichten ───────── */
 function viewToday() {
   var t = today(), d = new Date(), out = [];
-  out.push(h('h1', { text: 'Heute' }), h('div', { class: 'sub', text: WDL[d.getDay()] + ', ' + d.getDate() + '. ' + MON[d.getMonth()] }));
+  var open = state.tasks.filter(function (x) { return !x.done; }), done = state.tasks.filter(function (x) { return x.done; });
+  out.push(h('h1', { text: 'To-do' }), h('div', { class: 'sub', text: WDL[d.getDay()] + ', ' + d.getDate() + '. ' + MON[d.getMonth()] + ' · ' + open.length + ' offen · ' + done.length + ' erledigt' }));
   if (!storageOK) out.push(h('div', { class: 'banner red', text: 'Speichern im Browser nicht möglich. Daten gehen verloren – sichere sie unter „Mehr“.' }));
   var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, hasData = state.tasks.length + state.pipeline.length + state.posts.length > 0;
   if (hasData && (!lb || Date.now() - lb > 7 * 86400000)) out.push(h('button', { class: 'banner', onclick: function () { setTab('more'); }, text: lb ? 'Letztes Backup ist über 7 Tage her. Jetzt sichern →' : 'Noch kein Backup gemacht. Jetzt sichern →' }));
   var fol = state.pipeline.filter(function (c) { return c.followDate && c.followDate <= t && CLOSED.indexOf(c.status) < 0; }).sort(function (a, b) { return a.followDate < b.followDate ? -1 : 1; });
-  var tasks = state.tasks.filter(function (x) { return !x.done && x.due && x.due <= t; }).sort(function (a, b) { return a.due < b.due ? -1 : 1; });
   var posts = state.posts.filter(function (p) { return !p.done && p.date <= t; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
   if (fol.length) { out.push(h('h2', { text: 'Nachfassen · ' + fol.length })); fol.forEach(function (c) { out.push(contactCard(c, true)); }); }
-  if (tasks.length) { out.push(h('h2', { text: 'Aufgaben · ' + tasks.length })); tasks.forEach(function (x) { out.push(taskCard(x)); }); }
   if (posts.length) { out.push(h('h2', { text: 'Posten · ' + posts.length })); posts.forEach(function (p) { out.push(postCard(p)); }); }
-  if (!fol.length && !tasks.length && !posts.length) out.push(h('div', { class: 'empty', text: 'Heute ist nichts fällig.' }));
-  var undated = state.tasks.filter(function (x) { return !x.done && !x.due; });
-  if (undated.length) out.push(h('h2', { text: 'Ohne Datum' }), h('details', null, h('summary', { text: undated.length + (undated.length === 1 ? ' offene Aufgabe anzeigen' : ' offene Aufgaben anzeigen') }), undated.map(function (x) { return taskCard(x, true); })));
-  var end = addDays(t, 7);
-  var soonT = state.tasks.filter(function (x) { return !x.done && x.due > t && x.due <= end; });
-  var soonP = state.posts.filter(function (p) { return !p.done && p.date > t && p.date <= end; });
-  var soonF = state.pipeline.filter(function (c) { return c.followDate > t && c.followDate <= end && CLOSED.indexOf(c.status) < 0; });
-  var n = soonT.length + soonP.length + soonF.length;
-  if (n) {
-    var items = [];
-    soonT.forEach(function (x) { items.push({ d: x.due, el: taskCard(x, true) }); });
-    soonP.forEach(function (p) { items.push({ d: p.date, el: postCard(p, true) }); });
-    soonF.forEach(function (c) { items.push({ d: c.followDate, el: contactCard(c, false) }); });
-    items.sort(function (a, b) { return a.d < b.d ? -1 : 1; });
-    out.push(h('h2', { text: 'Nächste 7 Tage' }), h('details', { open: items.length <= 4 ? true : null }, h('summary', { text: n + (n === 1 ? ' Eintrag anzeigen' : ' Einträge anzeigen') }), items.map(function (i) { return i.el; })));
+  open.sort(function (a, b) { var x = a.due || '9999', y = b.due || '9999'; return x < y ? -1 : x > y ? 1 : 0; });
+  out.push(h('h2', { text: 'Offen · ' + open.length }));
+  if (!open.length) out.push(h('div', { class: 'empty', text: state.tasks.length ? 'Keine offenen Aufgaben.' : 'Keine Aufgaben. Tippe auf +, um die erste anzulegen.' }));
+  open.forEach(function (x) { out.push(taskCard(x)); });
+  if (done.length) {
+    done.sort(function (a, b) { var x = a.doneAt || a.due || '', y = b.doneAt || b.due || ''; return x < y ? 1 : x > y ? -1 : 0; });
+    out.push(h('h2', { text: 'Erledigt · ' + done.length }));
+    done.forEach(function (x) { out.push(taskCard(x, true)); });
   }
   return out;
 }
@@ -619,7 +612,7 @@ function viewMore() {
 }
 
 /* ───────── Render ───────── */
-var TABS = [['today', 'Heute', IC.today], ['pipe', 'Kontakte', IC.pipe], ['winter', 'Coaching', IC.winter], ['tpl', 'Vorlagen', IC.tpl], ['cal', 'Content', IC.cal], ['more', 'Mehr', IC.more]];
+var TABS = [['today', 'To-do', IC.today], ['pipe', 'Kontakte', IC.pipe], ['winter', 'Coaching', IC.winter], ['tpl', 'Vorlagen', IC.tpl], ['cal', 'Content', IC.cal], ['more', 'Mehr', IC.more]];
 function render() {
   var app = document.getElementById('app'), views = { today: viewToday, pipe: viewPipe, winter: viewWinter, tpl: viewTpl, cal: viewCal, more: viewMore };
   var y = window.scrollY; app.textContent = ''; views[tab]().forEach(function (n) { app.appendChild(n); });
