@@ -133,6 +133,26 @@ pre.out{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(
 :root[data-look=kraeftig] h2{color:#7DB0FF}
 .quote{font-size:24px;line-height:1.25;font-weight:700;letter-spacing:-.2px;text-align:center;margin:10px 8px 6px;color:var(--text);overflow-wrap:anywhere}
 .streak{font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin:0 2px 18px}
+/* Tracker UI v3 */
+.setrow input{min-height:44px;font-size:17px;font-weight:600;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.setrow input::placeholder{color:var(--dim);font-weight:400;opacity:.8}
+.setrow input.fill{border-color:var(--acc);background:var(--card2)}
+.setrow .sn{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--card2);color:var(--muted);font-size:12px}
+.sethead{margin-top:8px;margin-bottom:-2px}
+.ed-blk{background:var(--card);border-radius:14px;padding:12px;margin-bottom:12px}
+.ed-bh{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.ed-bh input{font-weight:700}
+.ed-ex{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:12px;padding:6px 6px 6px 12px;margin-bottom:8px;min-height:56px}
+.ed-ex .tap{flex:1;min-width:0;text-align:left;padding:6px 0}
+.ed-ex .n{font-weight:600;font-size:14.5px;overflow-wrap:anywhere}
+.ed-ex .d{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.ed-ex .c{flex:none;font-size:12px;font-weight:700;color:var(--acc);background:var(--bg);border-radius:8px;padding:4px 8px}
+.mv{flex:none;width:36px;height:44px;display:grid;place-items:center;color:var(--muted);border-radius:10px}
+.mv:disabled{opacity:.25}
+.mv svg{width:18px;height:18px}
+.stp{display:flex;align-items:center;gap:10px}
+.stp button{width:52px;height:52px;border-radius:14px;background:var(--card2);font-size:24px;font-weight:700}
+.stp b{min-width:36px;text-align:center;font-size:22px}
 /* Tracker */
 select{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:0 14px;font-size:16px;min-height:48px;outline:none;-webkit-appearance:none;appearance:none;color:var(--text);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239BA8C0' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 select:focus{border-color:var(--acc)}
@@ -391,7 +411,7 @@ var tab = lsGet(TAB_KEY, 'today');
 if (tab === 'game' && !gamesOn()) tab = 'today';
 if (['today', 'train', 'ready', 'game', 'hist', 'more'].indexOf(tab) < 0) tab = 'today';
 var histMode = 'train', toastTimer = null, openLog = {};
-function setTab(t) { tab = t; lsSet(TAB_KEY, t); render(); window.scrollTo(0, 0); }
+function setTab(t) { if (t !== 'more') ed = null; tab = t; lsSet(TAB_KEY, t); render(); window.scrollTo(0, 0); }
 function sessionById(id) { for (var i = 0; i < state.sessions.length; i++) if (state.sessions[i].id === id) return state.sessions[i]; return null; }
 function currentSession() { return sessionById(state.sel) || state.sessions[0] || null; }
 function readyFor(date) { for (var i = 0; i < state.ready.length; i++) if (state.ready[i].date === date) return state.ready[i]; return null; }
@@ -485,7 +505,7 @@ function viewTrain() {
       function paintRows() {
         rows.textContent = '';
         st.sets.forEach(function (set, i) {
-          function inp(k, ph, mode) { var el = h('input', { type: 'text', inputmode: mode, placeholder: ph, value: set[k], maxlength: 8, autocomplete: 'off', 'aria-label': x.n + ' Satz ' + (i + 1) + ' ' + ph }); el.addEventListener('input', function () { set[k] = el.value.replace(',', '.'); save(); }); return el; }
+          function inp(k, ph, mode) { var el = h('input', { type: 'text', inputmode: mode, placeholder: (lt && lt.sets[i] && lt.sets[i][k]) ? String(lt.sets[i][k]) : '–', value: set[k], maxlength: 8, autocomplete: 'off', 'aria-label': x.n + ' Satz ' + (i + 1) + ' ' + ph }); el.classList.toggle('fill', !!el.value); el.addEventListener('input', function () { set[k] = el.value.replace(',', '.'); el.classList.toggle('fill', !!el.value); save(); }); return el; }
           rows.appendChild(h('div', { class: 'setrow' }, h('span', { class: 'sn', text: String(i + 1) }), inp('kg', 'kg', 'decimal'), inp('reps', 'Wdh', 'decimal'), inp('rpe', 'RPE', 'decimal')));
         });
       }
@@ -497,7 +517,7 @@ function viewTrain() {
         lt ? h('div', { class: 'last', text: 'Zuletzt ' + fmtS(lt.date) + ': ' + lt.sets.filter(function (z) { return z.reps || z.kg; }).map(setTxt).join(' · ') }) : null,
         h('div', { class: 'sethead' }, h('span'), h('span', { text: 'kg' }), h('span', { text: 'Wdh' }), h('span', { text: 'RPE' })),
         rows,
-        h('div', { class: 'actions', style: 'margin-top:8px' }, h('button', { class: 'btn flex', type: 'button', text: '+ Satz', onclick: function () { st.sets.push({ kg: st.sets.length ? st.sets[st.sets.length - 1].kg : '', reps: '', rpe: '' }); save(); paintRows(); } })),
+        h('div', { class: 'actions', style: 'margin-top:8px' }, lt ? h('button', { class: 'btn flex small', type: 'button', text: 'Wie zuletzt', onclick: function () { lt.sets.forEach(function (z, i2) { if (!st.sets[i2]) st.sets[i2] = { kg: '', reps: '', rpe: '' }; var d = st.sets[i2]; if (!d.kg && !d.reps && !d.rpe) { d.kg = z.kg || ''; d.reps = z.reps || ''; d.rpe = z.rpe || ''; } }); save(); paintRows(); } }) : null, h('button', { class: 'btn flex small', type: 'button', text: '+ Satz', onclick: function () { st.sets.push({ kg: st.sets.length ? st.sets[st.sets.length - 1].kg : '', reps: '', rpe: '' }); save(); paintRows(); } })),
         note));
     });
     out.push(h('button', { class: 'btn ghost addex', type: 'button', text: '+ Übung' + (bl.name ? ' zu ' + bl.name : ''), onclick: function () { editExercise(s, null, bi); } }));
@@ -528,51 +548,74 @@ function sheet(title, body, foot) {
   document.getElementById('layer').appendChild(ov); return ov;
 }
 function editExercise(s, x, blockIdx) {
-  var isNew = !x, n = h('input', { type: 'text', value: x ? x.n : '', maxlength: 80, placeholder: 'z. B. Beinpresse einbeinig', autocapitalize: 'sentences' }), t = h('input', { type: 'text', value: x ? x.t : '', maxlength: 120, placeholder: 'z. B. 8 Wdh · RPE 8 · Pause 90 s' }), c = h('input', { type: 'text', inputmode: 'numeric', value: x ? x.sets : 3, maxlength: 2 });
+  var isNew = !x, n = h('input', { type: 'text', value: x ? x.n : '', maxlength: 80, placeholder: 'z. B. Beinpresse einbeinig', autocapitalize: 'sentences' }), t = h('input', { type: 'text', value: x ? x.t : '', maxlength: 120, placeholder: 'z. B. 8 Wdh · RPE 8 · Pause 90 s' }), c = { value: x ? x.sets : 3 };
   var err = h('div', { class: 'hint', style: 'color:var(--red)', role: 'alert' });
   var foot = [err, h('div', { class: 'foot' }, h('button', { class: 'btn flex', type: 'button', text: 'Abbrechen', onclick: closeSheet }), h('button', { class: 'btn pri flex', type: 'button', text: 'Speichern', onclick: function () {
     var name = str(n.value, 80); if (!name) { err.textContent = 'Name fehlt.'; return; }
     var cnt = parseInt(c.value, 10); cnt = cnt >= 1 && cnt <= 20 ? cnt : 3;
     if (isNew) s.blocks[blockIdx].ex.push({ id: uid(), n: name, t: str(t.value, 120), sets: cnt }); else { x.n = name; x.t = str(t.value, 120); x.sets = cnt; }
-    closeSheet(); changed();
+    closeSheet(); (ed ? render : changed)();
   } }))];
   if (!isNew) {
     var armed = false, del = h('button', { class: 'btn ghost danger', type: 'button', style: 'width:100%;margin-top:8px', text: 'Aus der Einheit entfernen' });
-    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Nochmal tippen. Frühere Trainings bleiben erhalten'; return; } s.blocks.forEach(function (b) { b.ex = b.ex.filter(function (e) { return e !== x; }); }); if (state.draft) delete state.draft.data[x.id]; closeSheet(); changed(); });
+    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Nochmal tippen. Frühere Trainings bleiben erhalten'; return; } s.blocks.forEach(function (b) { b.ex = b.ex.filter(function (e) { return e !== x; }); }); if (state.draft && !ed) delete state.draft.data[x.id]; closeSheet(); (ed ? render : changed)(); });
     foot.push(del);
   }
-  sheet(isNew ? 'Neue Übung' : 'Übung', [field('Name', n), field('Details', t), field('Sätze', c)], foot);
+  sheet(isNew ? 'Neue Übung' : 'Übung', [field('Name', n), field('Details', t), field('Sätze', (function () { var v = h('b', { text: String(c.value) }); function set(d) { var n = Math.max(1, Math.min(20, (parseInt(c.value, 10) || 3) + d)); c.value = n; v.textContent = String(n); } return h('div', { class: 'stp' }, h('button', { type: 'button', 'aria-label': 'Weniger Sätze', text: '−', onclick: function () { set(-1); } }), v, h('button', { type: 'button', 'aria-label': 'Mehr Sätze', text: '+', onclick: function () { set(1); } })); })())], foot);
 }
-function sessionToText(s) { return s.blocks.map(function (b) { return (b.name ? '# ' + b.name + '\n' : '') + b.ex.map(function (e) { return e.n + ' | ' + e.t + ' | ' + e.sets; }).join('\n'); }).join('\n'); }
-function textToBlocks(txt, old) {
-  var byName = {}; old.forEach(function (b) { b.ex.forEach(function (e) { byName[e.n.toLowerCase()] = e.id; }); });
-  var blocks = [], cur = null;
-  txt.split('\n').forEach(function (ln) {
-    ln = ln.trim(); if (!ln) return;
-    if (ln.charAt(0) === '#') { cur = { name: str(ln.replace(/^#+\s*/, ''), 60), ex: [] }; blocks.push(cur); return; }
-    if (!cur) { cur = { name: '', ex: [] }; blocks.push(cur); }
-    var p = ln.split('|').map(function (x) { return x.trim(); }), nm = str(p[0], 80); if (!nm) return;
-    var c = parseInt(p[2], 10);
-    cur.ex.push({ id: byName[nm.toLowerCase()] || uid(), n: nm, t: str(p[1] || '', 120), sets: c >= 1 && c <= 20 ? c : 3 });
-  });
-  return blocks.length ? blocks : [{ name: '', ex: [] }];
-}
+var ed = null;
+function cloneS(s) { return JSON.parse(JSON.stringify(s)); }
 function editSession(s) {
-  var isNew = !s, name = h('input', { type: 'text', value: s ? s.name : '', maxlength: 60, placeholder: 'z. B. Oberkörper Inseason' });
-  var ta = h('textarea', { style: 'min-height:200px;font-size:14px', maxlength: 6000, placeholder: '# Warm-up\nPogos | 3 × 8 · RPE 7 | 3\n# Hauptteil\nBankdrücken | 4-6 Wdh · RPE 8 | 4', 'aria-label': 'Übungen' }); ta.value = s ? sessionToText(s) : '';
-  var err = h('div', { class: 'hint', style: 'color:var(--red)', role: 'alert' });
-  var foot = [err, h('div', { class: 'foot' }, h('button', { class: 'btn flex', type: 'button', text: 'Abbrechen', onclick: closeSheet }), h('button', { class: 'btn pri flex', type: 'button', text: 'Speichern', onclick: function () {
-    var nm = str(name.value, 60); if (!nm) { err.textContent = 'Name fehlt.'; return; }
-    var blocks = textToBlocks(ta.value, s ? s.blocks : []);
-    if (isNew) { var ns = { id: uid(), name: nm, blocks: blocks }; state.sessions.push(ns); if (!state.sel) state.sel = ns.id; } else { s.name = nm; s.blocks = blocks; }
-    closeSheet(); changed();
-  } }))];
-  if (!isNew) {
-    var armed = false, del = h('button', { class: 'btn ghost danger', type: 'button', style: 'width:100%;margin-top:8px', text: 'Einheit löschen' });
-    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Nochmal tippen. Frühere Trainings bleiben erhalten'; return; } state.sessions = state.sessions.filter(function (x) { return x !== s; }); if (state.sel === s.id) state.sel = ''; if (state.draft && state.draft.sid === s.id) state.draft = null; closeSheet(); changed(); });
-    foot.push(del);
+  ed = { src: s, isNew: !s, s: s ? cloneS(s) : { id: uid(), name: '', blocks: [{ name: '', ex: [] }] }, err: '' };
+  render(); window.scrollTo(0, 0);
+}
+function move(arr, i, d) { var j = i + d; if (j < 0 || j >= arr.length) return; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+var UP = '<path d="M6 15l6-6 6 6"/>', DN = '<path d="M6 9l6 6 6-6"/>';
+function mvBtn(label, dir, disabled, fn) { return h('button', { class: 'mv', type: 'button', 'aria-label': label, disabled: disabled, onclick: fn }, svg(dir > 0 ? DN : UP)); }
+function viewEdit() {
+  var e = ed, s = e.s, out = [h('h1', { text: e.isNew ? 'Neue Einheit' : 'Einheit bearbeiten' }), h('div', { class: 'sub', text: 'Tippe eine Übung an, um sie zu ändern.' })];
+  var name = h('input', { type: 'text', value: s.name, maxlength: 60, placeholder: 'z. B. Oberkörper Inseason', 'aria-label': 'Name der Einheit' });
+  name.addEventListener('input', function () { s.name = name.value; });
+  out.push(field('Name', name));
+  s.blocks.forEach(function (bl, bi) {
+    var bn = h('input', { type: 'text', value: bl.name, maxlength: 60, placeholder: 'Block (z. B. Warm-up, Hauptteil)', 'aria-label': 'Blockname' });
+    bn.addEventListener('input', function () { bl.name = bn.value; });
+    var card = h('div', { class: 'ed-blk' }, h('div', { class: 'ed-bh' }, bn,
+      mvBtn('Block nach oben', -1, bi === 0, function () { move(s.blocks, bi, -1); render(); }),
+      mvBtn('Block nach unten', 1, bi === s.blocks.length - 1, function () { move(s.blocks, bi, 1); render(); })));
+    bl.ex.forEach(function (x, xi) {
+      card.appendChild(h('div', { class: 'ed-ex' },
+        h('button', { class: 'tap', type: 'button', style: 'background:none;color:inherit', onclick: function () { editExercise(s, x, bi); } }, h('div', { class: 'n', text: x.n }), x.t ? h('div', { class: 'd', text: x.t }) : null),
+        h('span', { class: 'c', text: x.sets + '×' }),
+        mvBtn('Nach oben', -1, xi === 0, function () { move(bl.ex, xi, -1); render(); }),
+        mvBtn('Nach unten', 1, xi === bl.ex.length - 1, function () { move(bl.ex, xi, 1); render(); })));
+    });
+    card.appendChild(h('button', { class: 'btn small', type: 'button', style: 'width:100%', text: '+ Übung', onclick: function () { editExercise(s, null, bi); } }));
+    if (s.blocks.length > 1) {
+      var armed = false, db = h('button', { class: 'btn ghost danger small', type: 'button', style: 'width:100%;margin-top:6px', text: 'Block entfernen' });
+      db.addEventListener('click', function () { if (!armed && bl.ex.length) { armed = true; db.textContent = 'Nochmal tippen. Enthält ' + bl.ex.length + ' Übungen'; return; } s.blocks.splice(bi, 1); render(); });
+      card.appendChild(db);
+    }
+    out.push(card);
+  });
+  out.push(h('button', { class: 'btn ghost addex', type: 'button', text: '+ Neuer Block', onclick: function () { s.blocks.push({ name: '', ex: [] }); render(); } }));
+  var err = h('div', { class: 'hint', style: 'color:var(--red)', role: 'alert', text: e.err });
+  out.push(err, h('div', { class: 'foot' }, h('button', { class: 'btn flex', type: 'button', text: 'Abbrechen', onclick: function () { ed = null; render(); } }), h('button', { class: 'btn pri flex', type: 'button', text: 'Speichern', onclick: function () {
+    var nm = str(s.name, 60); if (!nm) { e.err = 'Name fehlt.'; render(); return; }
+    s.name = nm; s.blocks.forEach(function (b) { b.name = str(b.name, 60); });
+    var keep = s.blocks.filter(function (b) { return b.ex.length || b.name; }); s.blocks = keep.length ? keep : [{ name: '', ex: [] }];
+    if (e.isNew) { state.sessions.push(s); if (!state.sel) state.sel = s.id; }
+    else { var src = e.src; src.name = s.name; src.blocks = s.blocks; if (state.draft && state.draft.sid === src.id) { var ids = {}; s.blocks.forEach(function (b) { b.ex.forEach(function (x) { ids[x.id] = 1; }); }); Object.keys(state.draft.data).forEach(function (k) { if (!ids[k]) delete state.draft.data[k]; }); } }
+    ed = null; save(); toast('Gespeichert'); render();
+  } })));
+  if (!e.isNew) {
+    out.push(h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:8px', text: 'Als Kopie duplizieren', onclick: function () {
+      var c = cloneS(e.src); c.id = uid(); c.name = (c.name + ' Kopie').slice(0, 60); c.blocks.forEach(function (b) { b.ex.forEach(function (x) { x.id = uid(); }); }); state.sessions.push(c); ed = null; save(); toast('Kopie angelegt'); render(); } }));
+    var armed2 = false, del = h('button', { class: 'btn ghost danger', type: 'button', style: 'width:100%;margin-top:8px', text: 'Einheit löschen' });
+    del.addEventListener('click', function () { if (!armed2) { armed2 = true; del.textContent = 'Nochmal tippen. Frühere Trainings bleiben erhalten'; return; } var src = e.src; state.sessions = state.sessions.filter(function (x) { return x !== src; }); if (state.sel === src.id) state.sel = ''; if (state.draft && state.draft.sid === src.id) state.draft = null; ed = null; save(); render(); });
+    out.push(del);
   }
-  sheet(isNew ? 'Neue Einheit' : 'Einheit bearbeiten', [field('Name', name), field('Übungen', ta, 'Eine Zeile pro Übung: Name | Details | Sätze. Eine Zeile mit # beginnt einen Block.')], foot);
+  return out;
 }
 
 /* ───────── Readiness ───────── */
@@ -715,7 +758,7 @@ function viewMore() {
 var TABS = [['today', 'Heute', IC.today], ['train', 'Training', IC.train], ['ready', 'Readiness', IC.ready], ['game', 'Spiel', IC.game], ['hist', 'Verlauf', IC.hist], ['more', 'Mehr', IC.more]];
 function render() {
   var app = document.getElementById('app'), views = { today: viewToday, train: viewTrain, ready: viewReady, game: viewGame, hist: viewHist, more: viewMore };
-  var y = window.scrollY; app.textContent = ''; [].concat.apply([], views[tab]()).forEach(function (n) { if (n) app.appendChild(n); });
+  var y = window.scrollY; app.textContent = ''; [].concat.apply([], (tab === 'more' && ed ? viewEdit : views[tab])()).forEach(function (n) { if (n) app.appendChild(n); });
   var tabs = document.getElementById('tabs'); tabs.textContent = '';
   TABS.filter(function (t) { return t[0] !== 'game' || gamesOn(); }).forEach(function (t) { tabs.appendChild(h('button', { class: tab === t[0] ? 'on' : '', type: 'button', 'aria-label': t[1], 'aria-current': tab === t[0] ? 'page' : null, onclick: function () { setTab(t[0]); } }, svg(t[2]), h('span', { text: t[1] }))); });
   window.scrollTo(0, y);
