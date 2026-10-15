@@ -133,6 +133,14 @@ pre.out{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(
 :root[data-look=kraeftig] h2{color:#7DB0FF}
 .quote{font-size:24px;line-height:1.25;font-weight:700;letter-spacing:-.2px;text-align:center;margin:10px 8px 6px;color:var(--text);overflow-wrap:anywhere}
 .streak{font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin:0 2px 18px}
+/* Tracker UI v4 */
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--st);background:var(--bg);z-index:30}
+.stick{position:sticky;top:var(--st);z-index:15;display:flex;gap:8px;align-items:center;margin:0 -16px 12px;padding:8px 16px;background:rgba(15,18,24,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.stick select{flex:1;min-width:0}
+.stick .btn{flex:none;min-height:48px;padding:0 16px}
+.chart{width:100%;height:auto;display:block;touch-action:manipulation}
+.chart text{fill:var(--muted);font-size:10.5px;font-family:inherit}
+.readout{min-height:22px;font-size:13px;font-weight:700;margin-top:6px;text-align:center;color:var(--muted)}
 /* Tracker UI v3 */
 .setrow input{min-height:44px;font-size:17px;font-weight:600;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
 .setrow input::placeholder{color:var(--dim);font-weight:400;opacity:.8}
@@ -440,6 +448,32 @@ function spark(vals, w, hgt, color) {
   s.innerHTML = '<polyline fill="none" stroke="' + (color || '#4B8EF0') + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" points="' + d.join(' ') + '"/>';
   return s;
 }
+function chart(dates, vals, title) {
+  var W = 340, H = 210, L = 30, R = 10, T = 12, B = 30, pw = W - L - R, ph = H - T - B, n = vals.length;
+  var NS = 'http://www.w3.org/2000/svg', svgEl = document.createElementNS(NS, 'svg');
+  svgEl.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svgEl.setAttribute('class', 'chart'); svgEl.setAttribute('role', 'img'); svgEl.setAttribute('aria-label', title || 'Verlauf');
+  function X(i) { return L + (n > 1 ? i * pw / (n - 1) : 0); }
+  function Y(v) { return T + ph - (v - 1) / 9 * ph; }
+  var g = '';
+  [2, 4, 6, 8, 10].forEach(function (v) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="#3D4F73" stroke-opacity=".45" stroke-width="1"/><text x="' + (L - 6) + '" y="' + (Y(v) + 3.5).toFixed(1) + '" text-anchor="end">' + v + '</text>'; });
+  [[6, '#F5B041'], [7.5, '#4ADE80']].forEach(function (t) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(t[0]).toFixed(1) + '" y2="' + Y(t[0]).toFixed(1) + '" stroke="' + t[1] + '" stroke-opacity=".55" stroke-dasharray="4 4" stroke-width="1"/>'; });
+  var ticks = 5, used = {};
+  for (var k = 0; k < ticks; k++) { var i = Math.round(k * (n - 1) / (ticks - 1)); if (used[i]) continue; used[i] = 1; g += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="' + (k === 0 ? 'start' : k === ticks - 1 ? 'end' : 'middle') + '">' + fmtS(dates[i]).replace(/\.$/, '') + '</text>'; }
+  var seg = [], cur = [];
+  vals.forEach(function (v, i) { if (v == null) { if (cur.length) seg.push(cur); cur = []; } else cur.push(X(i).toFixed(1) + ',' + Y(v).toFixed(1)); });
+  if (cur.length) seg.push(cur);
+  seg.forEach(function (p) { if (p.length > 1) g += '<polyline fill="none" stroke="#5B9BFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" points="' + p.join(' ') + '"/>'; });
+  vals.forEach(function (v, i) { if (v != null) { var a = ampel(v); g += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.6" fill="' + a.color + '" stroke="#0F1218" stroke-width="1.2"/>'; } });
+  g += '<text x="' + (L - 22) + '" y="' + (T + ph / 2) + '" transform="rotate(-90 ' + (L - 22) + ' ' + (T + ph / 2) + ')" text-anchor="middle" style="font-size:9.5px">Readiness (1–10)</text>';
+  svgEl.innerHTML = g;
+  var ro = h('div', { class: 'readout', text: 'Tippe auf den Graphen für Datum und Wert' });
+  svgEl.addEventListener('click', function (e) {
+    var r = svgEl.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, best = -1, bd = 1e9;
+    vals.forEach(function (v, i) { if (v != null && Math.abs(X(i) - x) < bd) { bd = Math.abs(X(i) - x); best = i; } });
+    if (best >= 0) { var a = ampel(vals[best]); ro.textContent = fmt(dates[best]) + ' · ' + f1(vals[best]) + ' · ' + a.label; ro.style.color = a.color; }
+  });
+  return h('div', null, svgEl, ro);
+}
 function lastTime(name, beforeId) {
   var n = name.toLowerCase(), logs = state.logs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; });
   for (var i = 0; i < logs.length; i++) {
@@ -494,7 +528,7 @@ function viewTrain() {
   if (!state.draft || state.draft.sid !== s.id) state.draft = { sid: s.id, data: {}, comment: '' };
   var dr = state.draft, rd = readyFor(today()), a = rd && rd.avg != null ? ampel(rd.avg) : null;
   var sel = h('select', { 'aria-label': 'Einheit wählen', onchange: function () { state.sel = sel.value; state.draft = null; save(); render(); } }, state.sessions.map(function (x) { return h('option', { value: x.id, text: x.name, selected: x.id === s.id ? true : null }); }));
-  out.push(h('div', { class: 'sub', text: 'Werte werden laufend gespeichert' }), sel);
+  out.push(h('div', { class: 'sub', text: 'Werte werden laufend gespeichert' }), h('div', { class: 'stick' }, sel, (function () { var armed = false, fb = h('button', { class: 'btn done', type: 'button', text: '✓ Fertig' }); fb.addEventListener('click', function () { if (!armed) { armed = true; fb.textContent = 'Speichern?'; setTimeout(function () { armed = false; fb.textContent = '✓ Fertig'; }, 3000); return; } finishSession(); }); return fb; })()));
   if (a && a.label !== 'GRÜN') out.push(h('div', { class: 'banner', style: 'margin-top:12px;color:' + a.color, text: a.label + ' heute: ' + a.tip }));
   s.blocks.forEach(function (bl, bi) {
     if (bl.name) out.push(h('h2', { text: bl.name }));
@@ -695,8 +729,8 @@ function viewHist() {
           delBtn(function () { state.logs = state.logs.filter(function (x) { return x.id !== l.id; }); changed(); })) : null));
     });
   } else if (histMode === 'ready') {
-    var days = []; for (var i = 29; i >= 0; i--) { var r = readyFor(addDays(today(), -i)); days.push(r ? r.avg : null); }
-    out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Readiness, 30 Tage' }), spark(days, 300, 70)));
+    var days = [], dts = []; for (var i = 29; i >= 0; i--) { var dd = addDays(today(), -i), r = readyFor(dd); dts.push(dd); days.push(r ? r.avg : null); }
+    out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Readiness, 30 Tage' }), chart(dts, days, 'Readiness der letzten 30 Tage'), h('div', { class: 'note', text: 'Gestrichelt: Grenzen für Gelb (6,0) und Grün (7,5).' })));
     var all = readySorted(); if (!all.length) out.push(h('div', { class: 'empty', text: 'Noch keine Einträge.' }));
     all.slice(0, 60).forEach(function (r) { out.push(readyCard(r)); });
     if (all.length > 60) out.push(h('div', { class: 'note', text: 'Die letzten 60 Einträge. Ältere sind in der Sicherung enthalten.' }));
