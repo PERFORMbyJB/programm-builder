@@ -123,6 +123,16 @@ details summary::-webkit-details-marker{display:none}
 pre.out{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(--card2);padding:12px;border-radius:12px;max-height:200px;overflow:auto;color:var(--muted)}
 .note{font-size:12.5px;color:var(--muted);margin:8px 2px}
 
+/* Look: Kräftig */
+:root[data-look=kraeftig]{--bg:#0F1218;--card:#1D2431;--card2:#2A3445;--line:#3D4F73;--muted:#BCC8DF;--dim:#8D9BB8;--acc:#5B9BFF;--text:#FFFFFF}
+:root[data-look=kraeftig] .card.hero{background:linear-gradient(135deg,#1D4579 0%,#162338 100%);border-left-color:transparent;box-shadow:0 6px 24px rgba(29,69,121,.35)}
+:root[data-look=kraeftig] .card.hero .lab{color:#CFE0FB}
+:root[data-look=kraeftig] .big{font-size:64px}
+:root[data-look=kraeftig] .btn.pri,:root[data-look=kraeftig] .cta{background:linear-gradient(135deg,#2F6FD0,#1D4579);color:#fff}
+:root[data-look=kraeftig] .rate button.on,:root[data-look=kraeftig] .seg button.on,:root[data-look=kraeftig] .chip.on{background:#2F6FD0}
+:root[data-look=kraeftig] h2{color:#7DB0FF}
+.quote{font-size:15px;font-weight:700;letter-spacing:.2px;margin:-6px 2px 16px;color:var(--acc)}
+.streak{font-size:12px;font-weight:700;color:var(--muted);margin:-8px 2px 14px}
 /* Tracker */
 select{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:0 14px;font-size:16px;min-height:48px;outline:none;-webkit-appearance:none;appearance:none;color:var(--text);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239BA8C0' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 select:focus{border-color:var(--acc)}
@@ -367,6 +377,14 @@ function applyImport(text, replace) {
 }
 
 /* ───────── UI-Zustand ───────── */
+var LOOK_KEY = 'perform_tracker_look', Q_KEY = 'perform_tracker_quotes';
+var DEF_Q = ['Du weißt wofür.', 'Das Ziel im Blick.', 'Earn it.', 'Heute zählt.', 'Show up.', 'Built, not given.'];
+function lookOn() { return lsGet(LOOK_KEY, 'kraeftig') !== 'standard'; }
+function applyLook() { document.documentElement.setAttribute('data-look', lookOn() ? 'kraeftig' : 'standard'); }
+applyLook();
+function quotes() { try { var q = JSON.parse(lsGet(Q_KEY, 'null')); if (Array.isArray(q)) { q = q.filter(function (x) { return typeof x === 'string' && x.trim(); }).map(function (x) { return x.trim().slice(0, 80); }).slice(0, 30); if (q.length) return q; } } catch (e) {} return DEF_Q; }
+function todayQuote() { var q = quotes(), d = new Date(), n = Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 0)) / 86400000); return q[n % q.length]; }
+function streak() { var n = 0, d = today(); if (!readyFor(d)) d = addDays(d, -1); while (readyFor(d)) { n++; d = addDays(d, -1); } return n; }
 var GAMES_KEY = 'perform_tracker_games';
 function gamesOn() { return lsGet(GAMES_KEY, '0') === '1'; }
 var tab = lsGet(TAB_KEY, 'today');
@@ -416,12 +434,12 @@ function setTxt(s) { return (s.kg ? s.kg + ' kg × ' : '') + (s.reps || '–') +
 function viewToday() {
   var t = today(), d = new Date(), out = [];
   var r = readyFor(t), last = r && r.avg != null ? r : latestReady(), a = last ? ampel(last.avg) : null;
-  out.push(h('h1', { text: 'Heute' }), h('div', { class: 'sub', text: WD[d.getDay()] + ', ' + d.getDate() + '. ' + MON[d.getMonth()] }));
+  out.push(h('h1', { text: 'Heute' }), h('div', { class: 'sub', text: WD[d.getDay()] + ', ' + d.getDate() + '. ' + MON[d.getMonth()] }), h('div', { class: 'quote', text: todayQuote() }), streak() >= 2 ? h('div', { class: 'streak', text: streak() + ' Tage in Folge Readiness erfasst' }) : null);
   if (!storageOK) out.push(h('div', { class: 'banner red', text: 'Speichern im Browser nicht möglich. Daten gehen verloren – sichere sie unter „Mehr“.' }));
   var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, has = state.logs.length + state.ready.length + state.games.length > 0;
   if (has && (!lb || Date.now() - lb > 7 * 86400000)) out.push(h('button', { class: 'banner', onclick: function () { setTab('more'); }, text: lb ? 'Letztes Backup ist über 7 Tage her. Jetzt sichern →' : 'Noch kein Backup gemacht. Jetzt sichern →' }));
   if (!r) out.push(h('button', { class: 'cta', onclick: function () { setTab('ready'); } }, h('b', { text: 'Readiness-Check eintragen' }), h('span', { text: 'Heute noch nichts erfasst' })));
-  if (a) out.push(h('div', { class: 'card', style: 'border-left-color:' + a.color },
+  if (a) out.push(h('div', { class: 'card hero', style: 'border-left-color:' + a.color },
     h('div', { class: 'two' },
       h('div', null, h('div', { class: 'lab', text: 'Readiness' + (r ? '' : ' · ' + fmt(last.date)) }), h('div', { class: 'big', style: 'color:' + a.color, text: f1(last.avg) })),
       h('div', null, h('div', { class: 'lab', text: 'Ampel' }), h('div', { class: 'amp', style: 'color:' + a.color }, h('span', { class: 'dot', style: 'background:' + a.color }), a.label))),
@@ -656,7 +674,10 @@ function viewMore() {
   out.push(h('button', { class: 'btn', type: 'button', style: 'width:100%', text: '+ Neue Einheit', onclick: function () { editSession(null); } }));
   var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, days = lb ? Math.floor((Date.now() - lb) / 86400000) : null;
   var gt = h('button', { class: 'btn', type: 'button', style: 'width:100%;margin-top:14px', 'aria-pressed': gamesOn() ? 'true' : 'false', text: 'Spiel-Reiter: ' + (gamesOn() ? 'an' : 'aus') + ' (tippen zum Wechseln)', onclick: function () { lsSet(GAMES_KEY, gamesOn() ? '0' : '1'); render(); } });
-  out.push(gt);
+  var lt = h('button', { class: 'btn', type: 'button', style: 'width:100%;margin-top:8px', text: 'Look: ' + (lookOn() ? 'Kräftig' : 'Standard') + ' (tippen zum Wechseln)', onclick: function () { lsSet(LOOK_KEY, lookOn() ? 'standard' : 'kraeftig'); applyLook(); render(); } });
+  var qa = h('textarea', { 'aria-label': 'Sprüche, einer pro Zeile', maxlength: 2400, style: 'min-height:130px' }); qa.value = quotes().join('\n');
+  out.push(gt, lt, h('h2', { text: 'Sprüche' }), qa, h('div', { class: 'note', text: 'Ein Spruch pro Zeile. Pro Tag wird einer angezeigt. Die Sprüche gehören nicht zur Sicherung.' }),
+    h('button', { class: 'btn', type: 'button', style: 'width:100%', text: 'Sprüche speichern', onclick: function () { lsSet(Q_KEY, JSON.stringify(qa.value.split('\n'))); toast('Gespeichert'); } }));
   out.push(h('h2', { text: 'Sicherung' }), h('div', { class: 'card quiet' },
     h('div', { class: 'kv' }, h('span', { text: 'Gespeichert' }), h('b', { text: state.sessions.length + ' Einheiten · ' + state.logs.length + ' Trainings · ' + state.ready.length + ' Readiness · ' + state.games.length + ' Spiele' })),
     h('div', { class: 'kv' }, h('span', { text: 'Letztes Backup' }), h('b', { style: days === null || days >= 7 ? 'color:var(--amber)' : '', text: days === null ? 'noch nie' : days === 0 ? 'heute' : days === 1 ? 'gestern' : 'vor ' + days + ' Tagen' }))));
