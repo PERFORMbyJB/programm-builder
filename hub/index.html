@@ -113,6 +113,11 @@ svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-l
 .toast button{color:var(--acc);font-weight:700;min-height:40px;padding:0 6px}
 .banner{background:#4a3a14;color:var(--amber);border-radius:12px;padding:11px 14px;font-size:13px;margin-bottom:14px;width:100%;text-align:left}
 .banner.red{background:#4a2227;color:#f4a3a3}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;flex:none}
+.swrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.sw{width:40px;height:40px;border-radius:50%;border:3px solid transparent;flex:none}
+.sw.on{border-color:#fff}
+.opts button .dot{vertical-align:0}
 details summary{list-style:none;cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--muted);font-weight:700;font-size:13px}
 details summary::-webkit-details-marker{display:none}
 pre.out{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(--card2);padding:12px;border-radius:12px;max-height:200px;overflow:auto;color:var(--muted)}
@@ -188,11 +193,20 @@ var IC = {
 
 /* ───────── Daten ───────── */
 var storageOK = true;
+var PALETTE = ['#4B8EF0', '#2DD4BF', '#4ADE80', '#FACC15', '#FB923C', '#F87171', '#F472B6', '#A78BFA'];
 var DEFAULT_TPL = [{"id": "vl-1", "title": "Erstantwort Spieler", "text": "Hey [Name], danke für deine Nachricht! 💪\n\nKurz zu mir: Ich bin Justus, Sportwissenschaftler und Athletiktrainer für Fußballer. Bei PERFORM. geht es darum, schneller zu werden und länger auf dem Platz zu bleiben, mit einem Plan, der zu deiner Woche passt.\n\nDamit ich dir etwas Sinnvolles sagen kann: Auf welchem Niveau spielst du, und was willst du verbessern?"}, {"id": "vl-2", "title": "Winter-Coaching erklären", "text": "Das Winter-Coaching läuft über die Winterpause bis zum Start der Saisonvorbereitung. Du bekommst einen individuellen Trainingsplan, den ich anhand deiner Rückmeldungen anpasse, und bist mit Rückfragen direkt bei mir.\n\nIch nehme nur 5 Spieler an, damit ich mich um jeden wirklich kümmern kann. Anmeldeschluss ist der 10.11.\n\nWenn das für dich passt, machen wir ein kurzes Kennenlerngespräch. Preis: [Preis]."}, {"id": "vl-3", "title": "Erstgespräch vorschlagen", "text": "Dann lass uns kurz telefonieren oder per Video sprechen, ca. 20 Minuten. Da klären wir, wo du stehst, wie dein Training gerade aussieht und ob das Coaching zu dir passt.\n\nIch hätte [Tag] um [Uhrzeit] oder [Tag] um [Uhrzeit] Zeit. Passt eins davon? Sonst nenn mir gern einen Termin."}, {"id": "vl-4", "title": "Nachfassen Spieler (nach ca. 3 Tagen)", "text": "Hey [Name], ich wollte kurz nachhaken, ob meine Nachricht bei dir angekommen ist. Wenn du noch Fragen hast, schreib mir einfach. Und wenn es gerade nicht passt, ist das auch völlig in Ordnung."}, {"id": "vl-5", "title": "Letzte Erinnerung vor Anmeldeschluss", "text": "Hey [Name], kurze Info: Der Anmeldeschluss fürs Winter-Coaching ist am 10.11., aktuell sind noch [Anzahl] Plätze frei. Wenn du dabei sein willst, gib mir bis dahin Bescheid. Wenn nicht, sag es mir gern kurz, dann plane ich anders."}, {"id": "vl-6", "title": "Platz bestätigen", "text": "Super, [Name], du bist dabei! 🎉\n\nSo geht es weiter:\n1. Ich schicke dir die Betreuungsvereinbarung und den Anamnesebogen zum Ausfüllen.\n2. Danach machen wir einen kurzen Termin zum Durchsprechen.\n3. Dann bekommst du deinen Plan, Start ist am [Datum].\n\nBei Fragen melde dich jederzeit."}, {"id": "vl-7", "title": "Warteliste", "text": "Aktuell sind alle Plätze im Winter-Coaching vergeben. Ich setze dich gern auf die Warteliste. Sobald ein Platz frei wird, melde ich mich direkt bei dir. Soll ich dich eintragen?"}, {"id": "vl-8", "title": "Absage, wenn voll", "text": "Danke für dein Interesse, [Name]. Das Winter-Coaching ist leider voll. Wenn du magst, melde ich mich, sobald ich die nächste Runde plane. Ein paar Grundlagen findest du bis dahin regelmäßig auf @perform.jb."}, {"id": "vl-9", "title": "Verein: Erstansprache", "text": "Hallo [Name],\n\nich bin Justus Böhm, Sportwissenschaftler und Athletiktrainer für Fußball (PERFORM.). Ich biete Vereinen im Raum Franken praxisnahe Athletik-Einheiten für die ganze Mannschaft an, mit Schwerpunkt Sprint, Sprünge und Prävention.\n\n[Konkreter Anlass / Bezug zum Verein]\n\nHätten Sie Interesse an einer Einheit in der Vorbereitung? Gern erkläre ich in einem kurzen Gespräch, wie so eine Einheit abläuft."}, {"id": "vl-10", "title": "Verein: Nachfassen", "text": "Hallo [Name], ich wollte kurz nachfragen, ob Sie meine Nachricht zur Athletik-Einheit für Ihre Mannschaft erhalten haben. Ich plane gerade die Termine für die Vorbereitung und würde mich über eine kurze Rückmeldung freuen, auch wenn es eine Absage ist."}];
-function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
+function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], cats: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
 function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400), doneAt: isoOk(t.doneAt) ? t.doneAt : '' }; }
 function normContact(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 80), type: c.type === 'verein' ? 'verein' : 'spieler', status: STATUSES.indexOf(c.status) >= 0 ? c.status : 'offen', msgDate: isoOk(c.msgDate) ? c.msgDate : '', reason: str(c.reason, 400), source: str(c.source, 120), followDate: isoOk(c.followDate) ? c.followDate : '' }; }
 function normPost(p) { return { id: str(p.id, 40) || uid(), date: isoOk(p.date) ? p.date : today(), format: FORMATS.indexOf(p.format) >= 0 ? p.format : 'Reel', title: str(p.title, 300), source: str(p.source, 120), done: !!p.done }; }
+function normCat(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 40), color: PALETTE.indexOf(c.color) >= 0 ? c.color : PALETTE[0] }; }
+function nextColor(cats) { var used = {}; cats.forEach(function (c) { used[c.color] = (used[c.color] || 0) + 1; }); var best = PALETTE[0], n = 1e9; PALETTE.forEach(function (col) { if ((used[col] || 0) < n) { n = used[col] || 0; best = col; } }); return best; }
+function ensureCats(st) {
+  var seen = {}; st.cats = st.cats.filter(function (c) { if (seen[c.name]) return false; seen[c.name] = 1; return true; });
+  st.tasks.forEach(function (t) { if (t.group && !seen[t.group]) { seen[t.group] = 1; st.cats.push({ id: uid(), name: t.group, color: nextColor(st.cats) }); } });
+  return st;
+}
+function catColor(name) { for (var i = 0; i < state.cats.length; i++) if (state.cats[i].name === name) return state.cats[i].color; return null; }
 function normTpl(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 80), text: str(t.text, 1500) }; }
 function normWinter(w, base) {
   w = w && typeof w === 'object' ? w : {};
@@ -205,7 +219,7 @@ function sanitize(d) {
   var base = defaults();
   d = d && typeof d === 'object' ? d : {};
   function arr(a, f, key) { return (Array.isArray(a) ? a : []).filter(function (x) { return x && typeof x === 'object'; }).map(f).filter(function (x) { return x[key]; }); }
-  return { v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), winter: normWinter(d.winter, base.winter) };
+  return ensureCats({ v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), winter: normWinter(d.winter, base.winter), cats: arr(d.cats, normCat, 'name') });
 }
 function load() {
   try { var r = localStorage.getItem(KEY); if (r) { var o = JSON.parse(r), st = sanitize(o); if (!o || !Array.isArray(o.templates)) st.templates = defaults().templates; return st; } } catch (e) { storageOK = false; }
@@ -222,7 +236,7 @@ function counts() { return state.tasks.length + ' Aufgaben · ' + state.pipeline
 /* ───────── UI-Zustand ───────── */
 var tab = lsGet(TAB_KEY, 'today');
 if (['today', 'pipe', 'winter', 'tpl', 'cal', 'more'].indexOf(tab) < 0) tab = 'today';
-var pFilter = 'Alle', calMode = 'next', toastTimer = null;
+var tFilter = 'Alle', pFilter = 'Alle', calMode = 'next', toastTimer = null;
 
 function setTab(t) { tab = t; lsSet(TAB_KEY, t); render(); window.scrollTo(0, 0); }
 function openCount() {
@@ -259,6 +273,25 @@ function openSheet(cfg) {
         wrap.appendChild(b);
       });
       node = wrap; get = function () { return cur; };
+    } else if (f.type === 'cat') {
+      var curCat = val, newCol = null, boxOpen = false;
+      var wrapC = h('div', { class: 'opts c2' }), box = h('div', { style: 'display:none;margin-top:8px' });
+      var nameIn = h('input', { type: 'text', placeholder: 'Name der neuen Kategorie', maxlength: 40, autocomplete: 'off', autocapitalize: 'sentences' });
+      var swr = h('div', { class: 'swrow' });
+      function paintCat() {
+        wrapC.textContent = '';
+        [{ name: '', color: null }].concat(state.cats).forEach(function (c) {
+          var b = h('button', { type: 'button', class: !boxOpen && c.name === curCat ? 'on' : '', onclick: function () { curCat = c.name; boxOpen = false; box.style.display = 'none'; paintCat(); } },
+            c.color ? h('span', { class: 'dot', style: 'background:' + c.color }) : null, c.name || 'Keine');
+          wrapC.appendChild(b);
+        });
+        wrapC.appendChild(h('button', { type: 'button', class: boxOpen ? 'on' : '', text: '+ Neue Kategorie', onclick: function () { boxOpen = true; box.style.display = 'block'; if (!newCol) newCol = nextColor(state.cats); paintCat(); nameIn.focus(); } }));
+        swr.textContent = '';
+        PALETTE.forEach(function (col) { swr.appendChild(h('button', { type: 'button', class: 'sw' + (col === newCol ? ' on' : ''), style: 'background:' + col, 'aria-label': 'Farbe ' + col, onclick: function () { newCol = col; paintCat(); } })); });
+      }
+      box.appendChild(nameIn); box.appendChild(swr); paintCat();
+      node = h('div', null, wrapC, box);
+      get = function () { return boxOpen && nameIn.value.trim() ? { name: nameIn.value.trim().slice(0, 40), color: newCol } : { name: curCat }; };
     } else if (f.type === 'area') {
       var ta = h('textarea', { value: val, placeholder: f.ph || '', maxlength: f.max || 400 }); node = ta; get = function () { return ta.value; };
     } else if (f.type === 'date') {
@@ -306,9 +339,13 @@ function editTask(t) {
   openSheet({ title: isNew ? 'Neue Aufgabe' : 'Aufgabe', values: t, fields: [
     { key: 'title', label: 'Aufgabe', type: 'text', req: true, ph: 'Was ist zu tun?' },
     { key: 'due', label: 'Fällig am', type: 'date', chips: [{ l: 'Heute', n: 0 }, { l: 'Morgen', n: 1 }, { l: 'In 3 Tagen', n: 3 }, { l: 'In 1 Woche', n: 7 }] },
+    { key: 'group', label: 'Kategorie', type: 'cat' },
     { key: 'note', label: 'Notiz', type: 'area', ph: 'Details, Links, Gedanken …', hint: 'Keine Gesundheits- oder Vertragsdaten.' }
   ], actions: isNew ? [] : [{ label: 'Löschen', danger: true, run: function () { state.tasks = state.tasks.filter(function (x) { return x.id !== t.id; }); changed(); } }],
     onSave: function (v) {
+      var g = v.group && typeof v.group === 'object' ? v.group : { name: '' }, nm = str(g.name, 40);
+      if (nm && !state.cats.some(function (c) { return c.name === nm; })) state.cats.push({ id: uid(), name: nm, color: PALETTE.indexOf(g.color) >= 0 ? g.color : nextColor(state.cats) });
+      t.group = nm;
       t.title = str(v.title, 200); t.note = str(v.note, 400); t.due = isoOk(v.due) ? v.due : '';
       if (isNew) state.tasks.push(normTask(t)); else Object.assign(t, normTask(t));
       changed();
@@ -377,6 +414,41 @@ function copyText(txt) {
   }
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, fb); else fb();
 }
+function openCats() {
+  closeSheet();
+  var draft = state.cats.map(function (c) { return { orig: c.name, name: c.name, color: c.color, del: false, id: c.id }; });
+  var list = h('div');
+  function paint() {
+    list.textContent = '';
+    draft.forEach(function (d) {
+      if (d.del) return;
+      var inp = h('input', { type: 'text', value: d.name, maxlength: 40, 'aria-label': 'Kategoriename', autocomplete: 'off' });
+      inp.addEventListener('input', function () { d.name = inp.value; });
+      var armed = false, del = h('button', { class: 'btn ghost danger', type: 'button', style: 'width:100%;margin-top:8px', text: 'Löschen' });
+      del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Nochmal tippen. Aufgaben bleiben, verlieren die Kategorie.'; return; } d.del = true; paint(); });
+      var sw = h('div', { class: 'swrow' }, PALETTE.map(function (col) { return h('button', { type: 'button', class: 'sw' + (col === d.color ? ' on' : ''), style: 'background:' + col, 'aria-label': 'Farbe ' + col, onclick: function () { d.color = col; paint(); } }); }));
+      list.appendChild(h('div', { class: 'card quiet', style: 'border-left-color:' + d.color }, inp, sw, del));
+    });
+    if (!draft.some(function (d) { return !d.del; })) list.appendChild(h('div', { class: 'empty', text: 'Keine Kategorien. Lege sie beim Erstellen einer Aufgabe an.' }));
+  }
+  paint();
+  var sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true' }, h('div', { class: 'grab' }), h('h3', { text: 'Kategorien' }), list,
+    h('div', { class: 'foot' }, h('button', { class: 'btn flex', type: 'button', text: 'Abbrechen', onclick: closeSheet }),
+      h('button', { class: 'btn pri flex', type: 'button', text: 'Speichern', onclick: function () {
+        var taken = {}; draft.forEach(function (d) { if (!d.del) taken[d.orig] = 1; });
+        var out = [];
+        draft.forEach(function (d) {
+          if (d.del) { state.tasks.forEach(function (t) { if (t.group === d.orig) t.group = ''; }); return; }
+          var nm = str(d.name, 40), c = state.cats.filter(function (x) { return x.id === d.id; })[0];
+          var clash = !nm || (nm !== d.orig && (taken[nm] || out.some(function (o) { return o.name === nm; })));
+          if (!clash && nm !== d.orig) { state.tasks.forEach(function (t) { if (t.group === d.orig) t.group = nm; }); if (tFilter === d.orig) tFilter = nm; }
+          out.push({ id: d.id, name: clash ? d.orig : nm, color: d.color });
+        });
+        state.cats = out; ensureCats(state); closeSheet(); changed();
+      } })));
+  var ov = h('div', { class: 'ov', onclick: function (e) { if (e.target === ov) closeSheet(); } }, sheet);
+  document.getElementById('layer').appendChild(ov);
+}
 function editWinter() {
   var w = state.winter;
   openSheet({ title: 'Winter-Coaching', values: { total: w.total, deadline: w.deadline }, fields: [
@@ -409,10 +481,11 @@ function togglePost(p) { p.done = !p.done; changed(); if (p.done) toast('Als gep
 function taskCard(t, quiet) {
   var late = !t.done && t.due && t.due < today();
   var dueTxt = t.done ? (t.doneAt ? 'Erledigt ' + fmt(t.doneAt) : 'Erledigt') + (t.due ? ' · war fällig ' + fmtS(t.due) : '') : (t.due ? 'Fällig ' + fmt(t.due) + ' · ' + rel(t.due) : 'Ohne Datum');
-  return h('div', { class: 'card' + (t.done ? ' done' : '') + (late ? ' late' : '') + (quiet ? ' quiet' : '') },
+  var cc = t.group ? catColor(t.group) : null;
+  return h('div', { class: 'card' + (t.done ? ' done' : '') + (late ? ' late' : '') + (quiet ? ' quiet' : ''), style: late ? null : (cc ? 'border-left-color:' + cc : (state.cats.length ? 'border-left-color:#3a4256' : null)) },
     h('div', { class: 'row' }, chk(t.done, function () { toggleTask(t); }, 'Erledigt: ' + t.title),
       h('div', { class: 'grow', onclick: function () { editTask(t); } },
-        h('div', { class: 'title' }, t.title, t.group ? h('span', { class: 'tag', text: t.group }) : null),
+        h('div', { class: 'title' }, t.title, t.group ? h('span', { class: 'tag', style: cc ? 'color:' + cc + ';background:' + cc + '26' : null, text: t.group }) : null),
         h('div', { class: 'meta' + (late ? ' red' : ''), text: dueTxt }),
         t.note ? h('div', { class: 'meta', style: 'white-space:pre-wrap;margin-top:4px', text: t.note.length > 140 ? t.note.slice(0, 140) + ' …' : t.note }) : null)));
 }
@@ -455,6 +528,21 @@ function viewToday() {
   var posts = state.posts.filter(function (p) { return !p.done && p.date <= t; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
   if (fol.length) { out.push(h('h2', { text: 'Nachfassen · ' + fol.length })); fol.forEach(function (c) { out.push(contactCard(c, true)); }); }
   if (posts.length) { out.push(h('h2', { text: 'Posten · ' + posts.length })); posts.forEach(function (p) { out.push(postCard(p)); }); }
+  if (state.cats.length) {
+    if (tFilter !== 'Alle' && tFilter !== '__none' && !state.cats.some(function (c) { return c.name === tFilter; })) tFilter = 'Alle';
+    var cntOpen = function (nm) { return open.filter(function (x) { return x.group === nm; }).length; };
+    var chips = [h('button', { class: 'chip' + (tFilter === 'Alle' ? ' on' : ''), type: 'button', text: 'Alle ' + open.length, onclick: function () { tFilter = 'Alle'; render(); } })];
+    state.cats.forEach(function (c) {
+      var on = tFilter === c.name;
+      chips.push(h('button', { class: 'chip', type: 'button', style: on ? 'background:' + c.color + ';color:#0f1218' : null, onclick: function () { tFilter = c.name; render(); } },
+        h('span', { class: 'dot', style: 'background:' + (on ? '#0f1218' : c.color) }), c.name + ' ' + cntOpen(c.name)));
+    });
+    if (open.some(function (x) { return !x.group; })) chips.push(h('button', { class: 'chip' + (tFilter === '__none' ? ' on' : ''), type: 'button', text: 'Ohne ' + cntOpen(''), onclick: function () { tFilter = '__none'; render(); } }));
+    chips.push(h('button', { class: 'chip', type: 'button', text: 'Verwalten', onclick: openCats }));
+    out.push(h('div', { class: 'chips', style: 'margin-top:14px' }, chips));
+  }
+  var fl = function (x) { return tFilter === 'Alle' || (tFilter === '__none' ? !x.group : x.group === tFilter); };
+  open = open.filter(fl); done = done.filter(fl);
   open.sort(function (a, b) { var x = a.due || '9999', y = b.due || '9999'; return x < y ? -1 : x > y ? 1 : 0; });
   out.push(h('h2', { text: 'Offen · ' + open.length }));
   if (!open.length) out.push(h('div', { class: 'empty', text: state.tasks.length ? 'Keine offenen Aufgaben.' : 'Keine Aufgaben. Tippe auf +, um die erste anzulegen.' }));
@@ -555,14 +643,15 @@ function viewCal() {
 }
 
 function exportJson() {
-  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates }, null, 1);
+  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates, cats: state.cats }, null, 1);
 }
 function applyImport(text, replace) {
   var data = JSON.parse(text);
   if (!data || typeof data !== 'object' || !(data.tasks || data.pipeline || data.posts || data.winter || data.templates)) throw new Error('format');
   var inc = sanitize(data), has = function (k) { return Array.isArray(data[k]); };
   function merge(cur, add) { var ids = {}; add.forEach(function (x) { ids[x.id] = x; }); return cur.filter(function (x) { return !ids[x.id]; }).concat(add); }
-  ['tasks', 'pipeline', 'posts', 'templates'].forEach(function (k) { if (has(k)) state[k] = replace ? inc[k] : merge(state[k], inc[k]); });
+  ['tasks', 'pipeline', 'posts', 'templates', 'cats'].forEach(function (k) { if (has(k)) state[k] = replace ? inc[k] : merge(state[k], inc[k]); });
+  ensureCats(state);
   if (data.winter && typeof data.winter === 'object') state.winter = normWinter(data.winter, state.winter);
   return inc.tasks.length + ' Aufgaben, ' + inc.pipeline.length + ' Kontakte, ' + inc.posts.length + ' Posts' + (has('templates') ? ', ' + inc.templates.length + ' Vorlagen' : '');
 }
