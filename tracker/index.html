@@ -565,10 +565,6 @@ function viewToday() {
     tile(f1(mean(rd7)), '', 'Ø Readiness 7 Tage', dTxt(mean(rd7), mean(rdPrev), '', 1))));
   if (gamesOn()) out.push(h('div', { class: 'kv' }, h('span', { text: 'Spiele' }), h('b', { text: String(wg) })));
   out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Readiness, 14 Tage' }), chart(dts14, days14, 'Readiness der letzten 14 Tage')));
-  var bj = readySorted().filter(function (x) { return x.bj; })[0];
-  if (bj) out.push(h('h2', { text: 'Zuletzt gemessen' }), h('div', { class: 'card quiet' },
-    h('div', { class: 'kv' }, h('span', { text: 'Broad Jump · ' + fmtS(bj.date) }), h('b', { text: bj.bj + ' cm' })),
-    (function () { var all = readySorted().filter(function (x) { return x.bj; }), best = all.reduce(function (m, x) { return x.bj > m ? x.bj : m; }, 0), prev = all[1]; return h('div', null, h('div', { class: 'kv' }, h('span', { text: 'Bestwert' }), h('b', { text: best + ' cm' })), prev ? h('div', { class: 'kv' }, h('span', { text: 'Veränderung zur Messung davor (' + fmtS(prev.date) + ')' }), h('b', { class: bj.bj - prev.bj > 0 ? 'up' : bj.bj - prev.bj < 0 ? 'down' : 'flat', text: (bj.bj - prev.bj > 0 ? '+' : '') + (bj.bj - prev.bj) + ' cm' })) : null); })()));
   return out;
 }
 
@@ -714,18 +710,16 @@ function viewReady() {
   var out = [h('h1', { text: 'Readiness' }), h('div', { class: 'sub', text: ex ? 'Heute schon erfasst. Speichern aktualisiert den Eintrag.' : fmt(t) })];
   var live = h('div', { class: 'live' });
   function upd() { var a = avg(v); live.textContent = ''; if (a != null) { var am = ampel(a); live.appendChild(h('span', { class: 'dot', style: 'background:' + am.color })); live.appendChild(h('b', { style: 'color:' + am.color, text: f1(a) + ' · ' + am.label })); } else live.textContent = 'Wähle Schlaf, Energie und Muskelkater.'; }
-  var bj = h('input', { type: 'text', inputmode: 'decimal', placeholder: 'z. B. 215', value: ex && ex.bj ? ex.bj : '', maxlength: 5, 'aria-label': 'Broad Jump in cm' });
   var note = h('textarea', { placeholder: 'Falls etwas auffällt, z. B. Knie links zwickt', maxlength: 600, 'aria-label': 'Auffälligkeiten' }); note.value = ex ? ex.note : '';
   out.push(h('div', { class: 'card quiet' },
     field('Schlafqualität', rating(v.sleep, function (n) { v.sleep = n; upd(); }, 'Schlafqualität')),
     field('Energie', rating(v.energy, function (n) { v.energy = n; upd(); }, 'Energie')),
     field('Muskelkater (10 = keiner)', rating(v.soreness, function (n) { v.soreness = n; upd(); }, 'Muskelkater')),
     h('div', { style: 'margin-top:14px' }, live),
-    field('Broad Jump (cm)', bj),
     field('Auffälligkeiten', note),
     h('button', { class: 'btn pri', type: 'button', style: 'width:100%;margin-top:18px', text: ex ? 'Aktualisieren' : 'Speichern', onclick: function () {
       if (avg(v) == null) { toast('Schlaf, Energie und Muskelkater fehlen noch.'); return; }
-      var r = normReady({ id: ex ? ex.id : uid(), date: t, sleep: v.sleep, energy: v.energy, soreness: v.soreness, bj: bj.value, kl: v.kl, kr: v.kr, note: note.value });
+      var r = normReady({ id: ex ? ex.id : uid(), date: t, sleep: v.sleep, energy: v.energy, soreness: v.soreness, bj: ex ? ex.bj : null, kl: v.kl, kr: v.kr, note: note.value });
       state.ready = state.ready.filter(function (x) { return x.date !== t; }); state.ready.push(r); save(); toast('Gespeichert'); setTab('today');
     } })));
   upd();
@@ -736,7 +730,7 @@ function viewReady() {
 function readyCard(r) {
   var a = r.avg != null ? ampel(r.avg) : null;
   return h('div', { class: 'card quiet', style: a ? 'border-left-color:' + a.color : null }, h('div', { class: 'two' },
-    h('div', { class: 'grow' }, h('div', { class: 'title', text: fmt(r.date) }), h('div', { class: 'meta', text: 'Schlaf ' + (r.sleep || '–') + ' · Energie ' + (r.energy || '–') + ' · Kater ' + (r.soreness || '–') + (r.kl || r.kr ? ' · Knöchel ' + (r.kl || '–') + '/' + (r.kr || '–') : '') + (r.bj ? ' · BJ ' + r.bj : '') }), r.note ? h('div', { class: 'meta', text: r.note }) : null),
+    h('div', { class: 'grow' }, h('div', { class: 'title', text: fmt(r.date) }), h('div', { class: 'meta', text: 'Schlaf ' + (r.sleep || '–') + ' · Energie ' + (r.energy || '–') + ' · Kater ' + (r.soreness || '–') + (r.kl || r.kr ? ' · Knöchel ' + (r.kl || '–') + '/' + (r.kr || '–') : '') }), r.note ? h('div', { class: 'meta', text: r.note }) : null),
     h('div', { class: 'score', style: a ? 'color:' + a.color : null, text: f1(r.avg) })));
 }
 
@@ -802,9 +796,6 @@ function viewHist() {
       out.push(h('div', { class: 'tiles' }, tile(f1(mean(r30)), '', 'Ø 30 Tage'), tile(f1(Math.max.apply(null, r30)) + ' / ' + f1(Math.min.apply(null, r30)), '', 'Bester / schwächster Tag'),
         tile(cnt.GRÜN + ' · ' + cnt.GELB + ' · ' + cnt.ROT, '', 'Tage Grün · Gelb · Rot'), tile(f1(mean(in30.map(function (x) { return x.sleep; }))) + ' / ' + f1(mean(in30.map(function (x) { return x.energy; }))) + ' / ' + f1(mean(in30.map(function (x) { return x.soreness; }))), '', 'Ø Schlaf / Energie / Kater')));
     }
-    var bjs = readySorted().filter(function (x) { return x.bj; }).reverse().slice(-20);
-    if (bjs.length >= 2) { var bv = bjs.map(function (x) { return x.bj; }), bmin = Math.floor(Math.min.apply(null, bv) / 10) * 10 - 10, bmax = Math.ceil(Math.max.apply(null, bv) / 10) * 10 + 10, bt = [bmin, bmin + (bmax - bmin) / 3, bmin + 2 * (bmax - bmin) / 3, bmax].map(Math.round);
-      out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Broad Jump' }), chart(bjs.map(function (x) { return x.date; }), bv, 'Broad Jump Verlauf', { min: bmin, max: bmax, ticks: bt, ampel: false, ylabel: 'cm', unit: 'cm' }))); }
     var all = readySorted(); if (!all.length) out.push(h('div', { class: 'empty', text: 'Noch keine Einträge.' }));
     all.slice(0, 60).forEach(function (r) { out.push(readyCard(r)); });
     if (all.length > 60) out.push(h('div', { class: 'note', text: 'Die letzten 60 Einträge. Ältere sind in der Sicherung enthalten.' }));
