@@ -367,7 +367,10 @@ function applyImport(text, replace) {
 }
 
 /* ───────── UI-Zustand ───────── */
+var GAMES_KEY = 'perform_tracker_games';
+function gamesOn() { return lsGet(GAMES_KEY, '0') === '1'; }
 var tab = lsGet(TAB_KEY, 'today');
+if (tab === 'game' && !gamesOn()) tab = 'today';
 if (['today', 'train', 'ready', 'game', 'hist', 'more'].indexOf(tab) < 0) tab = 'today';
 var histMode = 'train', toastTimer = null, openLog = {};
 function setTab(t) { tab = t; lsSet(TAB_KEY, t); render(); window.scrollTo(0, 0); }
@@ -435,13 +438,13 @@ function viewToday() {
   var w7 = days.slice(7).filter(function (v) { return v != null; }), a7 = w7.length ? w7.reduce(function (x, y) { return x + y; }, 0) / w7.length : null;
   out.push(h('h2', { text: 'Diese Woche' }), h('div', { class: 'card quiet' },
     h('div', { class: 'kv' }, h('span', { text: 'Trainings' }), h('b', { text: String(wk) })),
-    h('div', { class: 'kv' }, h('span', { text: 'Spiele' }), h('b', { text: String(wg) })),
+    gamesOn() ? h('div', { class: 'kv' }, h('span', { text: 'Spiele' }), h('b', { text: String(wg) })) : null,
     h('div', { class: 'kv' }, h('span', { text: 'Ø Readiness, 7 Tage' }), h('b', { text: f1(a7) })),
     h('div', { style: 'margin-top:10px' }, spark(days, 300, 56))));
-  var bj = readySorted().filter(function (x) { return x.bj; })[0], an = readySorted().filter(function (x) { return x.kl || x.kr; })[0];
-  if (bj || an) out.push(h('h2', { text: 'Zuletzt gemessen' }), h('div', { class: 'card quiet' },
+  var bj = readySorted().filter(function (x) { return x.bj; })[0];
+  if (bj) out.push(h('h2', { text: 'Zuletzt gemessen' }), h('div', { class: 'card quiet' },
     bj ? h('div', { class: 'kv' }, h('span', { text: 'Broad Jump · ' + fmtS(bj.date) }), h('b', { text: bj.bj + ' cm' })) : null,
-    an ? h('div', { class: 'kv' }, h('span', { text: 'Knöchel L / R · ' + fmtS(an.date) }), h('b', { text: (an.kl || '–') + ' / ' + (an.kr || '–') })) : null));
+    null));
   return out;
 }
 
@@ -561,16 +564,14 @@ function viewReady() {
   var live = h('div', { class: 'live' });
   function upd() { var a = avg(v); live.textContent = ''; if (a != null) { var am = ampel(a); live.appendChild(h('span', { class: 'dot', style: 'background:' + am.color })); live.appendChild(h('b', { style: 'color:' + am.color, text: f1(a) + ' · ' + am.label })); } else live.textContent = 'Wähle Schlaf, Energie und Muskelkater.'; }
   var bj = h('input', { type: 'text', inputmode: 'decimal', placeholder: 'z. B. 215', value: ex && ex.bj ? ex.bj : '', maxlength: 5, 'aria-label': 'Broad Jump in cm' });
-  var note = h('textarea', { placeholder: 'Wie fühlst du dich heute?', maxlength: 600, 'aria-label': 'Notiz' }); note.value = ex ? ex.note : '';
+  var note = h('textarea', { placeholder: 'Falls etwas auffällt, z. B. Knie links zwickt', maxlength: 600, 'aria-label': 'Auffälligkeiten' }); note.value = ex ? ex.note : '';
   out.push(h('div', { class: 'card quiet' },
     field('Schlafqualität', rating(v.sleep, function (n) { v.sleep = n; upd(); }, 'Schlafqualität')),
     field('Energie', rating(v.energy, function (n) { v.energy = n; upd(); }, 'Energie')),
     field('Muskelkater (10 = keiner)', rating(v.soreness, function (n) { v.soreness = n; upd(); }, 'Muskelkater')),
     h('div', { style: 'margin-top:14px' }, live),
     field('Broad Jump (cm)', bj),
-    field('Knöchel links (10 = in Ordnung)', rating(v.kl, function (n) { v.kl = n; }, 'Knöchel links')),
-    field('Knöchel rechts (10 = in Ordnung)', rating(v.kr, function (n) { v.kr = n; }, 'Knöchel rechts')),
-    field('Notiz', note),
+    field('Auffälligkeiten', note),
     h('button', { class: 'btn pri', type: 'button', style: 'width:100%;margin-top:18px', text: ex ? 'Aktualisieren' : 'Speichern', onclick: function () {
       if (avg(v) == null) { toast('Schlaf, Energie und Muskelkater fehlen noch.'); return; }
       var r = normReady({ id: ex ? ex.id : uid(), date: t, sleep: v.sleep, energy: v.energy, soreness: v.soreness, bj: bj.value, kl: v.kl, kr: v.kr, note: note.value });
@@ -619,7 +620,7 @@ function delBtn(run) {
 /* ───────── Verlauf ───────── */
 function viewHist() {
   var out = [h('h1', { text: 'Verlauf' })];
-  out.push(h('div', { class: 'seg' }, [['train', 'Training'], ['ready', 'Readiness'], ['game', 'Spiele']].map(function (m) { return h('button', { type: 'button', class: histMode === m[0] ? 'on' : '', text: m[1], onclick: function () { histMode = m[0]; render(); } }); })));
+  out.push(h('div', { class: 'seg' }, [['train', 'Training'], ['ready', 'Readiness'], ['game', 'Spiele']].filter(function (m) { return m[0] !== 'game' || gamesOn() || state.games.length; }).map(function (m) { return h('button', { type: 'button', class: histMode === m[0] ? 'on' : '', text: m[1], onclick: function () { histMode = m[0]; render(); } }); })));
   if (histMode === 'train') {
     var logs = state.logs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; });
     if (!logs.length) out.push(h('div', { class: 'empty', text: 'Noch keine abgeschlossene Einheit.' }));
@@ -654,6 +655,8 @@ function viewMore() {
   state.sessions.forEach(function (s) { out.push(h('button', { class: 'card quiet rowbtn', type: 'button', onclick: function () { editSession(s); } }, h('div', { class: 'title', text: s.name }), h('div', { class: 'meta', text: s.blocks.reduce(function (c, b) { return c + b.ex.length; }, 0) + ' Übungen' }))); });
   out.push(h('button', { class: 'btn', type: 'button', style: 'width:100%', text: '+ Neue Einheit', onclick: function () { editSession(null); } }));
   var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, days = lb ? Math.floor((Date.now() - lb) / 86400000) : null;
+  var gt = h('button', { class: 'btn', type: 'button', style: 'width:100%;margin-top:14px', 'aria-pressed': gamesOn() ? 'true' : 'false', text: 'Spiel-Reiter: ' + (gamesOn() ? 'an' : 'aus') + ' (tippen zum Wechseln)', onclick: function () { lsSet(GAMES_KEY, gamesOn() ? '0' : '1'); render(); } });
+  out.push(gt);
   out.push(h('h2', { text: 'Sicherung' }), h('div', { class: 'card quiet' },
     h('div', { class: 'kv' }, h('span', { text: 'Gespeichert' }), h('b', { text: state.sessions.length + ' Einheiten · ' + state.logs.length + ' Trainings · ' + state.ready.length + ' Readiness · ' + state.games.length + ' Spiele' })),
     h('div', { class: 'kv' }, h('span', { text: 'Letztes Backup' }), h('b', { style: days === null || days >= 7 ? 'color:var(--amber)' : '', text: days === null ? 'noch nie' : days === 0 ? 'heute' : days === 1 ? 'gestern' : 'vor ' + days + ' Tagen' }))));
@@ -693,7 +696,7 @@ function render() {
   var app = document.getElementById('app'), views = { today: viewToday, train: viewTrain, ready: viewReady, game: viewGame, hist: viewHist, more: viewMore };
   var y = window.scrollY; app.textContent = ''; [].concat.apply([], views[tab]()).forEach(function (n) { if (n) app.appendChild(n); });
   var tabs = document.getElementById('tabs'); tabs.textContent = '';
-  TABS.forEach(function (t) { tabs.appendChild(h('button', { class: tab === t[0] ? 'on' : '', type: 'button', 'aria-label': t[1], 'aria-current': tab === t[0] ? 'page' : null, onclick: function () { setTab(t[0]); } }, svg(t[2]), h('span', { text: t[1] }))); });
+  TABS.filter(function (t) { return t[0] !== 'game' || gamesOn(); }).forEach(function (t) { tabs.appendChild(h('button', { class: tab === t[0] ? 'on' : '', type: 'button', 'aria-label': t[1], 'aria-current': tab === t[0] ? 'page' : null, onclick: function () { setTab(t[0]); } }, svg(t[2]), h('span', { text: t[1] }))); });
   window.scrollTo(0, y);
 }
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
