@@ -137,6 +137,23 @@ pre.out{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(
 .stp2 button{width:52px;min-height:40px;font-size:22px;font-weight:700;border-radius:12px}
 .stp2 b{font-size:13px;white-space:nowrap}
 .stp2 button{flex:none}
+/* Tracker UI v5 */
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.tile{background:var(--card);border-radius:14px;padding:12px 14px;min-width:0}
+.tile .v{font-size:24px;font-weight:700;line-height:1.1}
+.tile .v.txt{font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+.tile .v small{font-size:12px;font-weight:600;color:var(--muted);margin-left:3px}
+.tile .l{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.tile .d{font-size:12px;font-weight:700;margin-top:3px}
+.up{color:var(--green)} .down{color:var(--red)} .flat{color:var(--muted)}
+.mini3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.mini3 .m{min-width:0}
+.mini3 .t{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#CFE0FB}
+.mini3 .n{font-size:18px;font-weight:700}
+.mini3 .bar{height:5px;border-radius:3px;background:rgba(255,255,255,.14);margin-top:4px;overflow:hidden}
+.mini3 .bar i{display:block;height:100%;background:#fff;border-radius:3px}
+.hnote{font-size:13px;color:#CFE0FB;margin-top:12px;font-style:italic}
+.delta{font-size:12.5px;font-weight:700;margin-top:6px}
 /* Tracker UI v4 */
 body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--st);background:var(--bg);z-index:30}
 .stick{position:sticky;top:var(--st);z-index:15;display:flex;gap:8px;align-items:center;margin:0 -16px 12px;padding:8px 16px;background:rgba(15,18,24,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -452,31 +469,48 @@ function spark(vals, w, hgt, color) {
   s.innerHTML = '<polyline fill="none" stroke="' + (color || '#4B8EF0') + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" points="' + d.join(' ') + '"/>';
   return s;
 }
-function chart(dates, vals, title) {
+function chart(dates, vals, title, o) {
+  o = o || {}; var lo = o.min != null ? o.min : 1, hi = o.max != null ? o.max : 10, tickList = o.ticks || [2, 4, 6, 8, 10], useAmp = o.ampel !== false, unit = o.unit || '';
   var W = 340, H = 210, L = 30, R = 10, T = 12, B = 30, pw = W - L - R, ph = H - T - B, n = vals.length;
   var NS = 'http://www.w3.org/2000/svg', svgEl = document.createElementNS(NS, 'svg');
   svgEl.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svgEl.setAttribute('class', 'chart'); svgEl.setAttribute('role', 'img'); svgEl.setAttribute('aria-label', title || 'Verlauf');
   function X(i) { return L + (n > 1 ? i * pw / (n - 1) : 0); }
-  function Y(v) { return T + ph - (v - 1) / 9 * ph; }
+  function Y(v) { return T + ph - (v - lo) / (hi - lo) * ph; }
   var g = '';
-  [2, 4, 6, 8, 10].forEach(function (v) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="#3D4F73" stroke-opacity=".45" stroke-width="1"/><text x="' + (L - 6) + '" y="' + (Y(v) + 3.5).toFixed(1) + '" text-anchor="end">' + v + '</text>'; });
-  [[6, '#F5B041'], [7.5, '#4ADE80']].forEach(function (t) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(t[0]).toFixed(1) + '" y2="' + Y(t[0]).toFixed(1) + '" stroke="' + t[1] + '" stroke-opacity=".55" stroke-dasharray="4 4" stroke-width="1"/>'; });
+  tickList.forEach(function (v) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v).toFixed(1) + '" y2="' + Y(v).toFixed(1) + '" stroke="#3D4F73" stroke-opacity=".45" stroke-width="1"/><text x="' + (L - 6) + '" y="' + (Y(v) + 3.5).toFixed(1) + '" text-anchor="end">' + v + '</text>'; });
+  (useAmp ? [[6, '#F5B041'], [7.5, '#4ADE80']] : []).forEach(function (t) { g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(t[0]).toFixed(1) + '" y2="' + Y(t[0]).toFixed(1) + '" stroke="' + t[1] + '" stroke-opacity=".55" stroke-dasharray="4 4" stroke-width="1"/>'; });
   var ticks = 5, used = {};
   for (var k = 0; k < ticks; k++) { var i = Math.round(k * (n - 1) / (ticks - 1)); if (used[i]) continue; used[i] = 1; g += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="' + (k === 0 ? 'start' : k === ticks - 1 ? 'end' : 'middle') + '">' + fmtS(dates[i]).replace(/\.$/, '') + '</text>'; }
   var seg = [], cur = [];
   vals.forEach(function (v, i) { if (v == null) { if (cur.length) seg.push(cur); cur = []; } else cur.push(X(i).toFixed(1) + ',' + Y(v).toFixed(1)); });
   if (cur.length) seg.push(cur);
   seg.forEach(function (p) { if (p.length > 1) g += '<polyline fill="none" stroke="#5B9BFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" points="' + p.join(' ') + '"/>'; });
-  vals.forEach(function (v, i) { if (v != null) { var a = ampel(v); g += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.6" fill="' + a.color + '" stroke="#0F1218" stroke-width="1.2"/>'; } });
-  g += '<text x="' + (L - 22) + '" y="' + (T + ph / 2) + '" transform="rotate(-90 ' + (L - 22) + ' ' + (T + ph / 2) + ')" text-anchor="middle" style="font-size:9.5px">Readiness (1–10)</text>';
+  vals.forEach(function (v, i) { if (v != null) { var a = useAmp ? ampel(v) : { color: '#5B9BFF' }; g += '<circle cx="' + X(i).toFixed(1) + '" cy="' + Y(v).toFixed(1) + '" r="3.6" fill="' + a.color + '" stroke="#0F1218" stroke-width="1.2"/>'; } });
+  g += '<text x="' + (L - 22) + '" y="' + (T + ph / 2) + '" transform="rotate(-90 ' + (L - 22) + ' ' + (T + ph / 2) + ')" text-anchor="middle" style="font-size:9.5px">' + (o.ylabel || 'Readiness (1–10)') + '</text>';
   svgEl.innerHTML = g;
   var ro = h('div', { class: 'readout', text: 'Tippe auf den Graphen für Datum und Wert' });
   svgEl.addEventListener('click', function (e) {
     var r = svgEl.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * W, best = -1, bd = 1e9;
     vals.forEach(function (v, i) { if (v != null && Math.abs(X(i) - x) < bd) { bd = Math.abs(X(i) - x); best = i; } });
-    if (best >= 0) { var a = ampel(vals[best]); ro.textContent = fmt(dates[best]) + ' · ' + f1(vals[best]) + ' · ' + a.label; ro.style.color = a.color; }
+    if (best >= 0) { if (useAmp) { var a = ampel(vals[best]); ro.textContent = fmt(dates[best]) + ' · ' + f1(vals[best]) + ' · ' + a.label; ro.style.color = a.color; } else { ro.textContent = fmt(dates[best]) + ' · ' + vals[best] + ' ' + unit; ro.style.color = ''; } }
   });
   return h('div', null, svgEl, ro);
+}
+function nz(v) { var n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : null; }
+function logVol(l) { return l.ex.reduce(function (c, e) { return c + e.sets.reduce(function (c2, z) { var k = nz(z.kg), r = nz(z.reps); return c2 + (k && r ? k * r : 0); }, 0); }, 0); }
+function logSets(l) { return l.ex.reduce(function (c, e) { return c + e.sets.length; }, 0); }
+function logRpe(l) { var v = []; l.ex.forEach(function (e) { e.sets.forEach(function (z) { var r = nz(z.rpe); if (r) v.push(r); }); }); return v.length ? v.reduce(function (a, b) { return a + b; }, 0) / v.length : null; }
+function fmtVol(kg) { return kg >= 1000 ? (kg / 1000).toFixed(1).replace('.', ',') + ' t' : Math.round(kg) + ' kg'; }
+function mean(a) { a = a.filter(function (x) { return x != null; }); return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+function dTxt(cur, prev, unit, dig) { if (cur == null || prev == null) return null; var d = cur - prev, cls = Math.abs(d) < 0.05 ? 'flat' : d > 0 ? 'up' : 'down'; return h('div', { class: 'd ' + cls, text: (d > 0.04 ? '▲ +' : d < -0.04 ? '▼ ' : '■ ') + d.toFixed(dig == null ? 1 : dig).replace('.', ',') + (unit || '') + ' ggü. davor' }); }
+function tile(val, unit, label, delta) { return h('div', { class: 'tile' }, h('div', { class: 'v' + (String(val).length > 9 ? ' txt' : '') }, val, unit ? h('small', { text: unit }) : null), h('div', { class: 'l', text: label }), delta || null); }
+function weekLogs(from) { return state.logs.filter(function (l) { return l.date >= from && l.date <= addDays(from, 6); }); }
+function bars(labels, vals) {
+  var W = 340, H = 150, L = 24, R = 6, T = 16, B = 24, pw = W - L - R, ph = H - T - B, mx = Math.max.apply(null, vals.concat([1])), bw = pw / vals.length;
+  var NS = 'http://www.w3.org/2000/svg', el = document.createElementNS(NS, 'svg'); el.setAttribute('viewBox', '0 0 ' + W + ' ' + H); el.setAttribute('class', 'chart'); el.setAttribute('role', 'img'); el.setAttribute('aria-label', 'Trainings pro Woche');
+  var g = '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ph) + '" y2="' + (T + ph) + '" stroke="#3D4F73" stroke-width="1"/><text x="' + (L - 6) + '" y="' + (T + 4) + '" text-anchor="end">' + mx + '</text><text x="' + (L - 6) + '" y="' + (T + ph + 3) + '" text-anchor="end">0</text>';
+  vals.forEach(function (v, i) { var bh = v / mx * ph, x = L + i * bw + bw * .18; g += '<rect x="' + x.toFixed(1) + '" y="' + (T + ph - bh).toFixed(1) + '" width="' + (bw * .64).toFixed(1) + '" height="' + Math.max(bh, v ? 2 : 0).toFixed(1) + '" rx="4" fill="' + (i === vals.length - 1 ? '#5B9BFF' : '#2F4F85') + '"/>' + (v ? '<text x="' + (x + bw * .32).toFixed(1) + '" y="' + (T + ph - bh - 4).toFixed(1) + '" text-anchor="middle" style="fill:#fff;font-weight:700">' + v + '</text>' : '') + '<text x="' + (x + bw * .32).toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + labels[i] + '</text>'; });
+  el.innerHTML = g; return el;
 }
 function lastTime(name, beforeId) {
   var n = name.toLowerCase(), logs = state.logs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; });
@@ -501,7 +535,10 @@ function viewToday() {
     h('div', { class: 'two' },
       h('div', null, h('div', { class: 'lab', text: 'Readiness' + (r ? '' : ' · ' + fmt(last.date)) }), h('div', { class: 'big', style: 'color:' + a.color, text: f1(last.avg) })),
       h('div', null, h('div', { class: 'lab', text: 'Ampel' }), h('div', { class: 'amp', style: 'color:' + a.color }, h('span', { class: 'dot', style: 'background:' + a.color }), a.label))),
-    h('div', { class: 'tip', style: 'color:' + a.color, text: a.tip })));
+    h('div', { class: 'tip', style: 'color:' + a.color, text: a.tip }),
+    h('div', { class: 'mini3' }, [['Schlaf', last.sleep], ['Energie', last.energy], ['Kater', last.soreness]].map(function (m) { return h('div', { class: 'm' }, h('div', { class: 't', text: m[0] }), h('div', { class: 'n', text: m[1] == null ? '–' : String(m[1]) }), h('div', { class: 'bar' }, h('i', { style: 'width:' + ((m[1] || 0) * 10) + '%' }))); })),
+    (function () { var base = mean(state.ready.filter(function (x) { return x.date < last.date && x.date >= addDays(last.date, -7); }).map(function (x) { return x.avg; })); return base != null ? dTxt(last.avg, base, '', 1) && h('div', { class: 'delta', style: 'color:#CFE0FB', text: (last.avg - base >= 0.05 ? '▲ +' : last.avg - base <= -0.05 ? '▼ ' : '■ ') + (last.avg - base).toFixed(1).replace('.', ',') + ' ggü. Ø der 7 Tage davor (' + f1(base) + ')' }) : null; })(),
+    last.note ? h('div', { class: 'hnote', text: '„' + last.note + '“' }) : null));
   var s = currentSession(), dr = state.draft;
   out.push(h('h2', { text: 'Einheit' }));
   if (s) {
@@ -509,18 +546,29 @@ function viewToday() {
     out.push(h('div', { class: 'card quiet' }, h('div', { class: 'title', text: s.name }), h('div', { class: 'meta', text: n ? 'Läuft: ' + n + (n === 1 ? ' Satz' : ' Sätze') + ' erfasst' : s.blocks.reduce(function (c, b) { return c + b.ex.length; }, 0) + ' Übungen' }),
       h('div', { class: 'actions' }, h('button', { class: 'btn pri flex', type: 'button', text: n ? 'Weiter trainieren' : 'Training starten', onclick: function () { setTab('train'); } }))));
   } else out.push(h('div', { class: 'empty', text: 'Noch keine Einheit. Lege unter „Mehr“ eine an oder importiere deine Sicherung.' }));
+  var ll = state.logs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; })[0];
+  if (ll) { var ago = diff(t, ll.date), lsx = logSets(ll), lv = logVol(ll), lr = logRpe(ll);
+    out.push(h('h2', { text: 'Letztes Training' }), h('div', { class: 'card quiet' }, h('div', { class: 'two' }, h('div', { class: 'grow' }, h('div', { class: 'title', text: ll.sname || 'Einheit' }), h('div', { class: 'meta', text: fmt(ll.date) + ' · ' + (ago === 0 ? 'heute' : ago === 1 ? 'gestern' : 'vor ' + ago + ' Tagen') })), h('button', { class: 'btn small', type: 'button', text: 'Verlauf', onclick: function () { histMode = 'train'; setTab('hist'); } })),
+      lsx ? h('div', { class: 'meta', style: 'margin-top:8px', text: ll.ex.length + ' Übungen · ' + lsx + ' Sätze' + (lv ? ' · ' + fmtVol(lv) + ' Volumen' : '') + (lr ? ' · Ø RPE ' + f1(lr) : '') }) : null)); }
   var mon = monday(t), wk = state.logs.filter(function (l) { return l.date >= mon && l.date <= addDays(mon, 6); }).length, wg = state.games.filter(function (g) { return g.date >= mon && g.date <= addDays(mon, 6); }).length;
   var days = []; for (var i = 13; i >= 0; i--) { var rr = readyFor(addDays(t, -i)); days.push(rr ? rr.avg : null); }
   var w7 = days.slice(7).filter(function (v) { return v != null; }), a7 = w7.length ? w7.reduce(function (x, y) { return x + y; }, 0) / w7.length : null;
-  out.push(h('h2', { text: 'Diese Woche' }), h('div', { class: 'card quiet' },
-    h('div', { class: 'kv' }, h('span', { text: 'Trainings' }), h('b', { text: String(wk) })),
-    gamesOn() ? h('div', { class: 'kv' }, h('span', { text: 'Spiele' }), h('b', { text: String(wg) })) : null,
-    h('div', { class: 'kv' }, h('span', { text: 'Ø Readiness, 7 Tage' }), h('b', { text: f1(a7) })),
-    h('div', { style: 'margin-top:10px' }, spark(days, 300, 56))));
+  var tw = weekLogs(mon), pw0 = weekLogs(addDays(mon, -7));
+  var rd7 = []; for (var q = 6; q >= 0; q--) { var rq = readyFor(addDays(t, -q)); rd7.push(rq ? rq.avg : null); }
+  var rdPrev = []; for (var q2 = 13; q2 >= 7; q2--) { var rq2 = readyFor(addDays(t, -q2)); rdPrev.push(rq2 ? rq2.avg : null); }
+  var tv = tw.reduce(function (c, l) { return c + logVol(l); }, 0), pv = pw0.reduce(function (c, l) { return c + logVol(l); }, 0);
+  var days14 = [], dts14 = []; for (var i2 = 13; i2 >= 0; i2--) { var d14 = addDays(t, -i2), r14 = readyFor(d14); dts14.push(d14); days14.push(r14 ? r14.avg : null); }
+  out.push(h('h2', { text: 'Diese Woche (ab ' + fmtS(mon) + ')' }), h('div', { class: 'tiles' },
+    tile(String(tw.length), '', 'Trainings', dTxt(tw.length, pw0.length, '', 0)),
+    tile(String(tw.reduce(function (c, l) { return c + logSets(l); }, 0)), '', 'Sätze', dTxt(tw.reduce(function (c, l) { return c + logSets(l); }, 0), pw0.reduce(function (c, l) { return c + logSets(l); }, 0), '', 0)),
+    tile(tv ? fmtVol(tv) : '–', '', 'Volumen (kg × Wdh)', tv && pv ? dTxt(tv / 1000, pv / 1000, ' t', 1) : null),
+    tile(f1(mean(rd7)), '', 'Ø Readiness 7 Tage', dTxt(mean(rd7), mean(rdPrev), '', 1))));
+  if (gamesOn()) out.push(h('div', { class: 'kv' }, h('span', { text: 'Spiele' }), h('b', { text: String(wg) })));
+  out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Readiness, 14 Tage' }), chart(dts14, days14, 'Readiness der letzten 14 Tage')));
   var bj = readySorted().filter(function (x) { return x.bj; })[0];
   if (bj) out.push(h('h2', { text: 'Zuletzt gemessen' }), h('div', { class: 'card quiet' },
-    bj ? h('div', { class: 'kv' }, h('span', { text: 'Broad Jump · ' + fmtS(bj.date) }), h('b', { text: bj.bj + ' cm' })) : null,
-    null));
+    h('div', { class: 'kv' }, h('span', { text: 'Broad Jump · ' + fmtS(bj.date) }), h('b', { text: bj.bj + ' cm' })),
+    (function () { var all = readySorted().filter(function (x) { return x.bj; }), best = all.reduce(function (m, x) { return x.bj > m ? x.bj : m; }, 0), prev = all[1]; return h('div', null, h('div', { class: 'kv' }, h('span', { text: 'Bestwert' }), h('b', { text: best + ' cm' })), prev ? h('div', { class: 'kv' }, h('span', { text: 'Veränderung zur Messung davor (' + fmtS(prev.date) + ')' }), h('b', { class: bj.bj - prev.bj > 0 ? 'up' : bj.bj - prev.bj < 0 ? 'down' : 'flat', text: (bj.bj - prev.bj > 0 ? '+' : '') + (bj.bj - prev.bj) + ' cm' })) : null); })()));
   return out;
 }
 
@@ -727,10 +775,19 @@ function viewHist() {
   if (histMode === 'train') {
     var logs = state.logs.slice().sort(function (a, b) { return a.ts < b.ts ? 1 : -1; });
     if (!logs.length) out.push(h('div', { class: 'empty', text: 'Noch keine abgeschlossene Einheit.' }));
+    else {
+      var m0 = monday(today()), wl = [], wk = []; for (var w = 7; w >= 0; w--) { var f = addDays(m0, -7 * w); wl.push(fmtS(f).replace(/\.$/, '')); wk.push(weekLogs(f).length); }
+      var l28 = state.logs.filter(function (l) { return l.date >= addDays(today(), -27); }), vols = logs.map(logVol).filter(Boolean), tops = {};
+      logs.forEach(function (l) { tops[l.sname || 'Einheit'] = (tops[l.sname || 'Einheit'] || 0) + 1; });
+      var fav = Object.keys(tops).sort(function (a, b) { return tops[b] - tops[a]; })[0];
+      out.push(h('div', { class: 'tiles' }, tile(String(logs.length), '', 'Trainings gesamt'), tile((l28.length / 4).toFixed(1).replace('.', ','), '', 'Ø pro Woche (28 Tage)'),
+        tile(String(l28.reduce(function (c, l) { return c + logSets(l); }, 0)), '', 'Sätze (28 Tage)'), tile(fav, '', 'Häufigste Einheit (' + tops[fav] + '×)')));
+      out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Trainings pro Woche (Wochenbeginn Montag)' }), bars(wl, wk)));
+    }
     logs.forEach(function (l) {
       var sets = l.ex.reduce(function (c, e) { return c + e.sets.length; }, 0), isOpen = !!openLog[l.id];
       out.push(h('div', { class: 'card quiet' },
-        h('div', { class: 'two tap', onclick: function () { openLog[l.id] = !openLog[l.id]; render(); } }, h('div', { class: 'grow' }, h('div', { class: 'title', text: l.sname || 'Einheit' }), h('div', { class: 'meta', text: fmt(l.date) + (sets ? ' · ' + l.ex.length + ' Übungen · ' + sets + ' Sätze' : '') }), l.comment && !isOpen ? h('div', { class: 'meta clamp', text: l.comment }) : null), h('span', { class: 'chev', text: isOpen ? '▴' : '▾' })),
+        h('div', { class: 'two tap', onclick: function () { openLog[l.id] = !openLog[l.id]; render(); } }, h('div', { class: 'grow' }, h('div', { class: 'title', text: l.sname || 'Einheit' }), h('div', { class: 'meta', text: fmt(l.date) + (sets ? ' · ' + l.ex.length + ' Übungen · ' + sets + ' Sätze' + (logVol(l) ? ' · ' + fmtVol(logVol(l)) : '') + (logRpe(l) ? ' · Ø RPE ' + f1(logRpe(l)) : '') : '') }), l.comment && !isOpen ? h('div', { class: 'meta clamp', text: l.comment }) : null), h('span', { class: 'chev', text: isOpen ? '▴' : '▾' })),
         isOpen ? h('div', { class: 'detail' }, l.comment ? h('div', { class: 'cmt', text: l.comment }) : null,
           l.ex.map(function (e) { return h('div', { class: 'exr' }, h('div', { class: 'exn', text: e.n }), h('div', { class: 'meta', text: e.sets.map(setTxt).join(' · ') || '–' }), e.note ? h('div', { class: 'meta', text: '„' + e.note + '“' }) : null); }),
           !l.ex.length ? h('div', { class: 'meta', text: 'Keine Sätze gespeichert (Eintrag aus dem alten Tracker).' }) : null,
@@ -739,6 +796,15 @@ function viewHist() {
   } else if (histMode === 'ready') {
     var days = [], dts = []; for (var i = 29; i >= 0; i--) { var dd = addDays(today(), -i), r = readyFor(dd); dts.push(dd); days.push(r ? r.avg : null); }
     out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Readiness, 30 Tage' }), chart(dts, days, 'Readiness der letzten 30 Tage'), h('div', { class: 'note', text: 'Gestrichelt: Grenzen für Gelb (6,0) und Grün (7,5).' })));
+    var r30 = days.filter(function (v) { return v != null; }), cnt = { GRÜN: 0, GELB: 0, ROT: 0 }; r30.forEach(function (v) { cnt[ampel(v).label]++; });
+    var in30 = state.ready.filter(function (x) { return x.date >= dts[0]; });
+    if (r30.length) {
+      out.push(h('div', { class: 'tiles' }, tile(f1(mean(r30)), '', 'Ø 30 Tage'), tile(f1(Math.max.apply(null, r30)) + ' / ' + f1(Math.min.apply(null, r30)), '', 'Bester / schwächster Tag'),
+        tile(cnt.GRÜN + ' · ' + cnt.GELB + ' · ' + cnt.ROT, '', 'Tage Grün · Gelb · Rot'), tile(f1(mean(in30.map(function (x) { return x.sleep; }))) + ' / ' + f1(mean(in30.map(function (x) { return x.energy; }))) + ' / ' + f1(mean(in30.map(function (x) { return x.soreness; }))), '', 'Ø Schlaf / Energie / Kater')));
+    }
+    var bjs = readySorted().filter(function (x) { return x.bj; }).reverse().slice(-20);
+    if (bjs.length >= 2) { var bv = bjs.map(function (x) { return x.bj; }), bmin = Math.floor(Math.min.apply(null, bv) / 10) * 10 - 10, bmax = Math.ceil(Math.max.apply(null, bv) / 10) * 10 + 10, bt = [bmin, bmin + (bmax - bmin) / 3, bmin + 2 * (bmax - bmin) / 3, bmax].map(Math.round);
+      out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab', text: 'Broad Jump' }), chart(bjs.map(function (x) { return x.date; }), bv, 'Broad Jump Verlauf', { min: bmin, max: bmax, ticks: bt, ampel: false, ylabel: 'cm', unit: 'cm' }))); }
     var all = readySorted(); if (!all.length) out.push(h('div', { class: 'empty', text: 'Noch keine Einträge.' }));
     all.slice(0, 60).forEach(function (r) { out.push(readyCard(r)); });
     if (all.length > 60) out.push(h('div', { class: 'note', text: 'Die letzten 60 Einträge. Ältere sind in der Sicherung enthalten.' }));
