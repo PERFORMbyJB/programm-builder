@@ -133,6 +133,10 @@ pre.out{white-space:pre-wrap;word-break:break-all;font-size:11px;background:var(
 :root[data-look=kraeftig] h2{color:#7DB0FF}
 .quote{font-size:24px;line-height:1.25;font-weight:700;letter-spacing:-.2px;text-align:center;margin:10px 8px 6px;color:var(--text);overflow-wrap:anywhere}
 .streak{font-size:12px;font-weight:700;color:var(--muted);text-align:center;margin:0 2px 18px}
+.stp2{flex:1.3;min-width:0;display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:12px;min-height:40px}
+.stp2 button{width:52px;min-height:40px;font-size:22px;font-weight:700;border-radius:12px}
+.stp2 b{font-size:13px;white-space:nowrap}
+.stp2 button{flex:none}
 /* Tracker UI v4 */
 body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--st);background:var(--bg);z-index:30}
 .stick{position:sticky;top:var(--st);z-index:15;display:flex;gap:8px;align-items:center;margin:0 -16px 12px;padding:8px 16px;background:rgba(15,18,24,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
@@ -316,7 +320,7 @@ function normGame(g) {
 }
 function normDraft(d) {
   if (!d || typeof d !== 'object' || !d.sid) return null;
-  var data = {}; if (d.data && typeof d.data === 'object') for (var k in d.data) { if (Object.keys(data).length > 200) break; data[str(k, 80)] = { sets: (Array.isArray(d.data[k].sets) ? d.data[k].sets : []).slice(0, 20).map(normSet), note: str(d.data[k].note, 400) }; }
+  var data = {}; if (d.data && typeof d.data === 'object') for (var k in d.data) { if (Object.keys(data).length > 200) break; data[str(k, 80)] = { sets: (Array.isArray(d.data[k].sets) ? d.data[k].sets : []).slice(0, 20).map(normSet), note: str(d.data[k].note, 400), count: (function (c) { c = parseInt(c, 10); return c >= 1 && c <= 20 ? c : 0; })(d.data[k].count) }; }
   return { sid: str(d.sid, 60), data: data, comment: str(d.comment, 1500) };
 }
 function defaults() { return { v: 2, sessions: [], logs: [], ready: [], games: [], draft: null, sel: '', legacy: null }; }
@@ -533,7 +537,7 @@ function viewTrain() {
   s.blocks.forEach(function (bl, bi) {
     if (bl.name) out.push(h('h2', { text: bl.name }));
     bl.ex.forEach(function (x) {
-      var st = exState(x), cnt = Math.max(x.sets, st.sets.length), lt = lastTime(x.n);
+      var st = exState(x), cnt = st.count || Math.max(x.sets, st.sets.length), lt = lastTime(x.n);
       while (st.sets.length < cnt) st.sets.push({ kg: '', reps: '', rpe: '' });
       var rows = h('div', { class: 'sets' });
       function paintRows() {
@@ -551,7 +555,11 @@ function viewTrain() {
         lt ? h('div', { class: 'last', text: 'Zuletzt ' + fmtS(lt.date) + ': ' + lt.sets.filter(function (z) { return z.reps || z.kg; }).map(setTxt).join(' · ') }) : null,
         h('div', { class: 'sethead' }, h('span'), h('span', { text: 'kg' }), h('span', { text: 'Wdh' }), h('span', { text: 'RPE' })),
         rows,
-        h('div', { class: 'actions', style: 'margin-top:8px' }, lt ? h('button', { class: 'btn flex small', type: 'button', text: 'Wie zuletzt', onclick: function () { lt.sets.forEach(function (z, i2) { if (!st.sets[i2]) st.sets[i2] = { kg: '', reps: '', rpe: '' }; var d = st.sets[i2]; if (!d.kg && !d.reps && !d.rpe) { d.kg = z.kg || ''; d.reps = z.reps || ''; d.rpe = z.rpe || ''; } }); save(); paintRows(); } }) : null, h('button', { class: 'btn flex small', type: 'button', text: '+ Satz', onclick: function () { st.sets.push({ kg: st.sets.length ? st.sets[st.sets.length - 1].kg : '', reps: '', rpe: '' }); save(); paintRows(); } })),
+        h('div', { class: 'actions', style: 'margin-top:8px' }, lt ? h('button', { class: 'btn flex small', type: 'button', text: 'Wie zuletzt', onclick: function () { lt.sets.forEach(function (z, i2) { if (!st.sets[i2]) st.sets[i2] = { kg: '', reps: '', rpe: '' }; var d = st.sets[i2]; if (!d.kg && !d.reps && !d.rpe) { d.kg = z.kg || ''; d.reps = z.reps || ''; d.rpe = z.rpe || ''; } }); save(); paintRows(); } }) : null, (function () {
+          var lbl = h('b', { text: cnt + (cnt === 1 ? ' Satz' : ' Sätze') });
+          function setCnt(d) { var c = Math.max(1, Math.min(20, st.sets.length + d)); if (c === st.sets.length) return; if (d > 0) st.sets.push({ kg: st.sets.length ? st.sets[st.sets.length - 1].kg : '', reps: '', rpe: '' }); else st.sets.length = c; st.count = c; lbl.textContent = c + (c === 1 ? ' Satz' : ' Sätze'); save(); paintRows(); }
+          return h('div', { class: 'stp2' }, h('button', { type: 'button', 'aria-label': 'Einen Satz weniger', text: '−', onclick: function () { setCnt(-1); } }), lbl, h('button', { type: 'button', 'aria-label': 'Einen Satz mehr', text: '+', onclick: function () { setCnt(1); } }));
+        })()),
         note));
     });
     out.push(h('button', { class: 'btn ghost addex', type: 'button', text: '+ Übung' + (bl.name ? ' zu ' + bl.name : ''), onclick: function () { editExercise(s, null, bi); } }));
