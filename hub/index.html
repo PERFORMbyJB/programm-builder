@@ -87,6 +87,11 @@ textarea{resize:vertical;min-height:84px}
 label.f{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:16px 2px 7px}
 .hint{font-size:12px;color:var(--amber);margin:6px 2px 0}
 .mini{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mini button.on{background:var(--blue);color:#fff}
+.ntag{display:inline-block;font-size:11px;font-weight:700;color:#9cc0f7;background:#22385c;padding:3px 9px;border-radius:99px;margin:6px 6px 0 0}
+.nsrc{font-size:12px;color:var(--acc);margin-top:6px;overflow-wrap:anywhere}
+.nfull{white-space:pre-wrap;overflow-wrap:anywhere;font-size:15px;line-height:1.5;margin:12px 2px}
+.review{background:linear-gradient(135deg,#1D4579,#162338);border-left-color:transparent}
 .mini button{min-height:36px;padding:0 12px;border-radius:99px;background:var(--card2);font-size:12.5px;font-weight:600;color:var(--muted)}
 .opts{display:grid;gap:8px}
 .opts.c3{grid-template-columns:repeat(3,1fr)} .opts.c2{grid-template-columns:repeat(2,1fr)}
@@ -185,6 +190,7 @@ var IC = {
   pipe: '<path d="M4 6h16M7 12h10M10 18h4"/>',
   winter: '<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/>',
   tpl: '<path d="M5 4h14v12H9l-4 4z"/><path d="M9 9h6M9 12h4"/>',
+  note: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
   cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
   more: '<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
@@ -195,7 +201,7 @@ var IC = {
 var storageOK = true;
 var PALETTE = ['#4B8EF0', '#2DD4BF', '#4ADE80', '#FACC15', '#FB923C', '#F87171', '#F472B6', '#A78BFA'];
 var DEFAULT_TPL = [{"id": "vl-1", "title": "Erstantwort Spieler", "text": "Hey [Name], danke für deine Nachricht! 💪\n\nKurz zu mir: Ich bin Justus, Sportwissenschaftler und Athletiktrainer für Fußballer. Bei PERFORM. geht es darum, schneller zu werden und länger auf dem Platz zu bleiben, mit einem Plan, der zu deiner Woche passt.\n\nDamit ich dir etwas Sinnvolles sagen kann: Auf welchem Niveau spielst du, und was willst du verbessern?"}, {"id": "vl-2", "title": "Winter-Coaching erklären", "text": "Das Winter-Coaching läuft über die Winterpause bis zum Start der Saisonvorbereitung. Du bekommst einen individuellen Trainingsplan, den ich anhand deiner Rückmeldungen anpasse, und bist mit Rückfragen direkt bei mir.\n\nIch nehme nur 5 Spieler an, damit ich mich um jeden wirklich kümmern kann. Anmeldeschluss ist der 10.11.\n\nWenn das für dich passt, machen wir ein kurzes Kennenlerngespräch. Preis: [Preis]."}, {"id": "vl-3", "title": "Erstgespräch vorschlagen", "text": "Dann lass uns kurz telefonieren oder per Video sprechen, ca. 20 Minuten. Da klären wir, wo du stehst, wie dein Training gerade aussieht und ob das Coaching zu dir passt.\n\nIch hätte [Tag] um [Uhrzeit] oder [Tag] um [Uhrzeit] Zeit. Passt eins davon? Sonst nenn mir gern einen Termin."}, {"id": "vl-4", "title": "Nachfassen Spieler (nach ca. 3 Tagen)", "text": "Hey [Name], ich wollte kurz nachhaken, ob meine Nachricht bei dir angekommen ist. Wenn du noch Fragen hast, schreib mir einfach. Und wenn es gerade nicht passt, ist das auch völlig in Ordnung."}, {"id": "vl-5", "title": "Letzte Erinnerung vor Anmeldeschluss", "text": "Hey [Name], kurze Info: Der Anmeldeschluss fürs Winter-Coaching ist am 10.11., aktuell sind noch [Anzahl] Plätze frei. Wenn du dabei sein willst, gib mir bis dahin Bescheid. Wenn nicht, sag es mir gern kurz, dann plane ich anders."}, {"id": "vl-6", "title": "Platz bestätigen", "text": "Super, [Name], du bist dabei! 🎉\n\nSo geht es weiter:\n1. Ich schicke dir die Betreuungsvereinbarung und den Anamnesebogen zum Ausfüllen.\n2. Danach machen wir einen kurzen Termin zum Durchsprechen.\n3. Dann bekommst du deinen Plan, Start ist am [Datum].\n\nBei Fragen melde dich jederzeit."}, {"id": "vl-7", "title": "Warteliste", "text": "Aktuell sind alle Plätze im Winter-Coaching vergeben. Ich setze dich gern auf die Warteliste. Sobald ein Platz frei wird, melde ich mich direkt bei dir. Soll ich dich eintragen?"}, {"id": "vl-8", "title": "Absage, wenn voll", "text": "Danke für dein Interesse, [Name]. Das Winter-Coaching ist leider voll. Wenn du magst, melde ich mich, sobald ich die nächste Runde plane. Ein paar Grundlagen findest du bis dahin regelmäßig auf @perform.jb."}, {"id": "vl-9", "title": "Verein: Erstansprache", "text": "Hallo [Name],\n\nich bin Justus Böhm, Sportwissenschaftler und Athletiktrainer für Fußball (PERFORM.). Ich biete Vereinen im Raum Franken praxisnahe Athletik-Einheiten für die ganze Mannschaft an, mit Schwerpunkt Sprint, Sprünge und Prävention.\n\n[Konkreter Anlass / Bezug zum Verein]\n\nHätten Sie Interesse an einer Einheit in der Vorbereitung? Gern erkläre ich in einem kurzen Gespräch, wie so eine Einheit abläuft."}, {"id": "vl-10", "title": "Verein: Nachfassen", "text": "Hallo [Name], ich wollte kurz nachfragen, ob Sie meine Nachricht zur Athletik-Einheit für Ihre Mannschaft erhalten haben. Ich plane gerade die Termine für die Vorbereitung und würde mich über eine kurze Rückmeldung freuen, auch wenn es eine Absage ist."}];
-function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], cats: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
+function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], cats: [], notes: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
 function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400), doneAt: isoOk(t.doneAt) ? t.doneAt : '' }; }
 function normContact(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 80), type: c.type === 'verein' ? 'verein' : 'spieler', status: STATUSES.indexOf(c.status) >= 0 ? c.status : 'offen', msgDate: isoOk(c.msgDate) ? c.msgDate : '', reason: str(c.reason, 400), source: str(c.source, 120), followDate: isoOk(c.followDate) ? c.followDate : '' }; }
 function normPost(p) { return { id: str(p.id, 40) || uid(), date: isoOk(p.date) ? p.date : today(), format: FORMATS.indexOf(p.format) >= 0 ? p.format : 'Reel', title: str(p.title, 300), source: str(p.source, 120), done: !!p.done }; }
@@ -207,6 +213,9 @@ function ensureCats(st) {
   return st;
 }
 function catColor(name) { for (var i = 0; i < state.cats.length; i++) if (state.cats[i].name === name) return state.cats[i].color; return null; }
+function parseTags(v) { var a = Array.isArray(v) ? v : String(v || '').split(/[,;]/), seen = {}, out = []; a.forEach(function (x) { x = str(String(x).replace(/^#+/, ''), 24); if (x && !seen[x.toLowerCase()] && out.length < 6) { seen[x.toLowerCase()] = 1; out.push(x); } }); return out; }
+function normNote(n) { var text = str(n.text, 2000), title = str(n.title, 80) || str(text.split('\n')[0], 80); return { id: str(n.id, 40) || uid(), title: title, text: text, src: str(n.src, 300), tags: parseTags(n.tags), pin: n.pin === true || n.pin === '1', ts: isoOk(n.ts) ? n.ts : today(), upd: isoOk(n.upd) ? n.upd : (isoOk(n.ts) ? n.ts : today()) }; }
+function allTags() { var c = {}; state.notes.forEach(function (n) { n.tags.forEach(function (t) { var k = t.toLowerCase(); c[k] = c[k] || { t: t, n: 0 }; c[k].n++; }); }); return Object.keys(c).map(function (k) { return c[k]; }).sort(function (a, b) { return b.n - a.n || (a.t.toLowerCase() < b.t.toLowerCase() ? -1 : 1); }).map(function (x) { return x.t; }); }
 function normTpl(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 80), text: str(t.text, 1500) }; }
 function normWinter(w, base) {
   w = w && typeof w === 'object' ? w : {};
@@ -219,7 +228,7 @@ function sanitize(d) {
   var base = defaults();
   d = d && typeof d === 'object' ? d : {};
   function arr(a, f, key) { return (Array.isArray(a) ? a : []).filter(function (x) { return x && typeof x === 'object'; }).map(f).filter(function (x) { return x[key]; }); }
-  return ensureCats({ v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), winter: normWinter(d.winter, base.winter), cats: arr(d.cats, normCat, 'name') });
+  return ensureCats({ v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), notes: arr(d.notes, normNote, 'title'), winter: normWinter(d.winter, base.winter), cats: arr(d.cats, normCat, 'name') });
 }
 function load() {
   try { var r = localStorage.getItem(KEY); if (r) { var o = JSON.parse(r), st = sanitize(o); if (!o || !Array.isArray(o.templates)) st.templates = defaults().templates; return st; } } catch (e) { storageOK = false; }
@@ -231,7 +240,7 @@ function save() {
   try { ok = lsSet(KEY, JSON.stringify(state)); } catch (e) { ok = false; }
   if (!ok) { storageOK = false; }
 }
-function counts() { return state.tasks.length + ' Aufgaben · ' + state.pipeline.length + ' Kontakte · ' + state.posts.length + ' Posts · ' + state.templates.length + ' Vorlagen'; }
+function counts() { return state.tasks.length + ' Aufgaben · ' + state.pipeline.length + ' Kontakte · ' + state.posts.length + ' Posts · ' + state.templates.length + ' Vorlagen · ' + state.notes.length + ' Notizen'; }
 
 /* ───────── UI-Zustand ───────── */
 var tab = lsGet(TAB_KEY, 'today');
@@ -292,6 +301,10 @@ function openSheet(cfg) {
       box.appendChild(nameIn); box.appendChild(swr); paintCat();
       node = h('div', null, wrapC, box);
       get = function () { return boxOpen && nameIn.value.trim() ? { name: nameIn.value.trim().slice(0, 40), color: newCol } : { name: curCat }; };
+    } else if (f.type === 'tags') {
+      var tin = h('input', { type: 'text', value: (Array.isArray(val) ? val : []).join(', '), placeholder: f.ph || '', maxlength: 120, autocomplete: 'off', autocapitalize: 'none', enterkeyhint: 'done' }), cbox = h('div', { class: 'mini' });
+      function paintT() { var curT = parseTags(tin.value); cbox.textContent = ''; allTags().forEach(function (t) { var on = curT.some(function (x) { return x.toLowerCase() === t.toLowerCase(); }); cbox.appendChild(h('button', { type: 'button', class: on ? 'on' : '', text: t, onclick: function () { var c = parseTags(tin.value); if (on) c = c.filter(function (x) { return x.toLowerCase() !== t.toLowerCase(); }); else c.push(t); tin.value = c.join(', '); paintT(); } })); }); }
+      tin.addEventListener('input', paintT); paintT(); node = h('div', null, tin, cbox); get = function () { return parseTags(tin.value); };
     } else if (f.type === 'area') {
       var ta = h('textarea', { value: val, placeholder: f.ph || '', maxlength: f.max || 400 }); node = ta; get = function () { return ta.value; };
     } else if (f.type === 'date') {
@@ -573,8 +586,8 @@ function viewPipe() {
   return out;
 }
 
-function viewTpl() {
-  var out = [h('h1', { text: 'Vorlagen' }), h('div', { class: 'sub', text: 'Kopieren, Platzhalter [in Klammern] ersetzen, senden' })];
+function viewTplList() {
+  var out = [h('div', { class: 'sub', text: 'Kopieren, Platzhalter [in Klammern] ersetzen, senden' })];
   if (!state.templates.length) out.push(h('div', { class: 'empty', text: 'Noch keine Vorlagen. Tippe auf +, um die erste anzulegen.' }));
   state.templates.forEach(function (t) {
     out.push(h('div', { class: 'card' },
@@ -586,6 +599,80 @@ function viewTpl() {
         h('button', { class: 'btn flex', type: 'button', text: 'Bearbeiten', onclick: function () { editTpl(t); } }))));
   });
   return out;
+}
+var nMode = 'notes', nQuery = '', nTag = '', nShuffle = 0;
+function editNote(n) {
+  var isNew = !n; n = n || { id: uid(), title: '', text: '', src: '', tags: [], pin: false, ts: today(), upd: today() };
+  openSheet({ title: isNew ? 'Neue Notiz' : 'Notiz bearbeiten', values: { title: n.title, text: n.text, src: n.src, tags: n.tags, pin: n.pin ? '1' : '0' }, fields: [
+    { key: 'text', label: 'Notiz', type: 'area', req: true, max: 2000, ph: 'Was willst du dir merken? Dein Gedanke, die Kernaussage, ein Zitat.', hint: 'Keine Gesundheits- oder Kundenvertragsdaten.' },
+    { key: 'title', label: 'Titel (optional)', type: 'text', ph: 'Sonst wird die erste Zeile genommen' },
+    { key: 'src', label: 'Quelle oder Link', type: 'text', cap: 'none', ph: 'z. B. https://… oder Buch, Podcast' },
+    { key: 'tags', label: 'Tags', type: 'tags', ph: 'z. B. Sprint, Reha, Marketing' },
+    { key: 'pin', label: 'Position', type: 'choice', cols: 2, options: [{ v: '0', l: 'Normal' }, { v: '1', l: 'Oben anheften' }] }
+  ], actions: isNew ? [] : [{ label: 'Löschen', danger: true, run: function () { var old = state.notes.slice(); state.notes = state.notes.filter(function (x) { return x.id !== n.id; }); changed(); toast('Notiz gelöscht', function () { state.notes = old; changed(); }); } }],
+    onSave: function (v) {
+      var m = normNote({ id: n.id, title: v.title, text: v.text, src: v.src, tags: v.tags, pin: v.pin === '1', ts: n.ts, upd: today() });
+      if (isNew) state.notes.push(m); else Object.assign(n, m);
+      changed();
+    } });
+}
+function isUrl(u) { return /^https?:\/\/[^\s]+$/i.test(u); }
+function viewNote(n) {
+  closeSheet();
+  var src = n.src ? (isUrl(n.src) ? h('a', { class: 'nsrc', href: n.src, target: '_blank', rel: 'noopener noreferrer', text: n.src.replace(/^https?:\/\/(www\.)?/i, '').slice(0, 70) }) : h('div', { class: 'nsrc', text: n.src })) : null;
+  var sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true' }, h('div', { class: 'grab' }), h('h3', { text: n.title }),
+    h('div', { class: 'meta', text: 'Notiert ' + fmt(n.ts) + (n.upd !== n.ts ? ' · geändert ' + fmt(n.upd) : '') + (n.pin ? ' · angeheftet' : '') }),
+    n.tags.length ? h('div', null, n.tags.map(function (t) { return h('span', { class: 'ntag', text: t }); })) : null,
+    h('div', { class: 'nfull', text: n.text }), src,
+    h('div', { class: 'foot' }, h('button', { class: 'btn blue flex', type: 'button', text: 'Kopieren', onclick: function () { copyText(n.title + '\n\n' + n.text + (n.src ? '\n\nQuelle: ' + n.src : '')); } }), h('button', { class: 'btn flex', type: 'button', text: 'Bearbeiten', onclick: function () { editNote(n); } })),
+    h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:8px', text: 'Als Aufgabe übernehmen', onclick: function () { state.tasks.push(normTask({ id: uid(), title: n.title, note: n.text.slice(0, 400), due: '', group: '' })); closeSheet(); changed(); toast('Aufgabe angelegt'); } }),
+    h('button', { class: 'btn ghost', type: 'button', style: 'width:100%', text: 'Schließen', onclick: closeSheet }));
+  var ov = h('div', { class: 'ov', onclick: function (e) { if (e.target === ov) closeSheet(); } }, sheet);
+  document.getElementById('layer').appendChild(ov);
+}
+function noteCard(n, review) {
+  return h('div', { class: 'card' + (review ? ' review' : ''), onclick: function () { viewNote(n); }, style: 'cursor:pointer' },
+    h('div', { class: 'title', text: (n.pin ? '📌 ' : '') + n.title }),
+    n.text !== n.title ? h('div', { class: 'meta', style: 'white-space:pre-wrap;margin-top:6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden', text: n.text }) : null,
+    n.tags.length ? h('div', null, n.tags.map(function (t) { return h('span', { class: 'ntag', text: t }); })) : null,
+    h('div', { class: 'meta', style: 'margin-top:8px', text: fmt(n.ts) + (n.src ? ' · mit Quelle' : '') }));
+}
+function viewNotes() {
+  var out = [h('div', { class: 'sub', text: 'Gelesenes, Ideen, Merksätze. Später suchen und wiederfinden.' })];
+  if (!state.notes.length) { out.push(h('div', { class: 'empty', text: 'Noch keine Notizen. Tippe auf +, wenn du etwas gelesen hast, das du dir merken willst.' })); return out; }
+  var box = h('div'), tags = allTags();
+  var search = h('input', { type: 'text', inputmode: 'search', placeholder: 'Suchen in Titel, Text, Tags, Quelle', 'aria-label': 'Notizen durchsuchen', value: nQuery, autocomplete: 'off', style: 'margin-bottom:12px' });
+  var chipBox = h('div', { class: 'chips' });
+  function paintChips() {
+    chipBox.textContent = '';
+    chipBox.appendChild(h('button', { class: 'chip' + (!nTag ? ' on' : ''), type: 'button', text: 'Alle ' + state.notes.length, onclick: function () { nTag = ''; paintChips(); paint(); } }));
+    tags.forEach(function (t) { var c = state.notes.filter(function (n) { return n.tags.some(function (x) { return x.toLowerCase() === t.toLowerCase(); }); }).length; chipBox.appendChild(h('button', { class: 'chip' + (nTag.toLowerCase() === t.toLowerCase() ? ' on' : ''), type: 'button', text: t + ' ' + c, onclick: function () { nTag = nTag.toLowerCase() === t.toLowerCase() ? '' : t; paintChips(); paint(); } })); });
+  }
+  function paint() {
+    box.textContent = '';
+    var q = nQuery.trim().toLowerCase();
+    var list = state.notes.filter(function (n) {
+      if (nTag && !n.tags.some(function (x) { return x.toLowerCase() === nTag.toLowerCase(); })) return false;
+      return !q || (n.title + ' ' + n.text + ' ' + n.tags.join(' ') + ' ' + n.src).toLowerCase().indexOf(q) >= 0;
+    }).sort(function (a, b) { return (b.pin ? 1 : 0) - (a.pin ? 1 : 0) || (a.upd < b.upd ? 1 : a.upd > b.upd ? -1 : 0); });
+    if (!q && !nTag && state.notes.length >= 3) {
+      var pool = state.notes.filter(function (n) { return diff(today(), n.ts) >= 3; }); if (!pool.length) pool = state.notes;
+      var dn = Math.floor(Date.now() / 86400000), pick = pool[(dn + nShuffle) % pool.length];
+      box.appendChild(h('div', { class: 'week', text: 'Wiedervorlage' })); box.appendChild(noteCard(pick, true));
+      box.appendChild(h('button', { class: 'btn ghost small', type: 'button', style: 'width:100%;margin:-4px 0 6px', text: 'Eine andere zeigen', onclick: function () { nShuffle++; paint(); } }));
+      box.appendChild(h('div', { class: 'week', text: 'Alle Notizen' }));
+    }
+    if (!list.length) box.appendChild(h('div', { class: 'empty', text: 'Nichts gefunden.' }));
+    list.forEach(function (n) { box.appendChild(noteCard(n)); });
+  }
+  search.addEventListener('input', function () { nQuery = search.value; paint(); });
+  paintChips(); paint(); out.push(search, chipBox, box); return out;
+}
+function viewTpl() {
+  var out = [h('h1', { text: 'Notizen' }), h('div', { class: 'seg' },
+    h('button', { class: nMode === 'notes' ? 'on' : '', type: 'button', text: 'Notizen', onclick: function () { nMode = 'notes'; render(); } }),
+    h('button', { class: nMode === 'tpl' ? 'on' : '', type: 'button', text: 'Vorlagen', onclick: function () { nMode = 'tpl'; render(); } }))];
+  return out.concat(nMode === 'notes' ? viewNotes() : viewTplList());
 }
 function viewWinter() {
   var w = state.winter, free = Math.max(0, w.total - w.taken), t = today(), dl = diff(w.deadline, t);
@@ -643,17 +730,17 @@ function viewCal() {
 }
 
 function exportJson() {
-  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates, cats: state.cats }, null, 1);
+  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates, cats: state.cats, notes: state.notes }, null, 1);
 }
 function applyImport(text, replace) {
   var data = JSON.parse(text);
-  if (!data || typeof data !== 'object' || !(data.tasks || data.pipeline || data.posts || data.winter || data.templates)) throw new Error('format');
+  if (!data || typeof data !== 'object' || !(data.tasks || data.pipeline || data.posts || data.winter || data.templates || data.notes)) throw new Error('format');
   var inc = sanitize(data), has = function (k) { return Array.isArray(data[k]); };
   function merge(cur, add) { var ids = {}; add.forEach(function (x) { ids[x.id] = x; }); return cur.filter(function (x) { return !ids[x.id]; }).concat(add); }
-  ['tasks', 'pipeline', 'posts', 'templates', 'cats'].forEach(function (k) { if (has(k)) state[k] = replace ? inc[k] : merge(state[k], inc[k]); });
+  ['tasks', 'pipeline', 'posts', 'templates', 'cats', 'notes'].forEach(function (k) { if (has(k)) state[k] = replace ? inc[k] : merge(state[k], inc[k]); });
   ensureCats(state);
   if (data.winter && typeof data.winter === 'object') state.winter = normWinter(data.winter, state.winter);
-  return inc.tasks.length + ' Aufgaben, ' + inc.pipeline.length + ' Kontakte, ' + inc.posts.length + ' Posts' + (has('templates') ? ', ' + inc.templates.length + ' Vorlagen' : '');
+  return inc.tasks.length + ' Aufgaben, ' + inc.pipeline.length + ' Kontakte, ' + inc.posts.length + ' Posts' + (has('templates') ? ', ' + inc.templates.length + ' Vorlagen' : '') + (has('notes') ? ', ' + inc.notes.length + ' Notizen' : '');
 }
 function viewMore() {
   var out = [h('h1', { text: 'Mehr' }), h('div', { class: 'sub', text: 'Sicherung der Daten' })];
@@ -701,7 +788,7 @@ function viewMore() {
 }
 
 /* ───────── Render ───────── */
-var TABS = [['today', 'To-do', IC.today], ['pipe', 'Kontakte', IC.pipe], ['winter', 'Coaching', IC.winter], ['tpl', 'Vorlagen', IC.tpl], ['cal', 'Content', IC.cal], ['more', 'Mehr', IC.more]];
+var TABS = [['today', 'To-do', IC.today], ['pipe', 'Kontakte', IC.pipe], ['winter', 'Coaching', IC.winter], ['tpl', 'Notizen', IC.note], ['cal', 'Content', IC.cal], ['more', 'Mehr', IC.more]];
 function render() {
   var app = document.getElementById('app'), views = { today: viewToday, pipe: viewPipe, winter: viewWinter, tpl: viewTpl, cal: viewCal, more: viewMore };
   var y = window.scrollY; app.textContent = ''; views[tab]().forEach(function (n) { app.appendChild(n); });
@@ -712,9 +799,9 @@ function render() {
       svg(t[2]), h('span', { text: t[1] }), t[0] === 'today' && n ? h('span', { class: 'badge', text: String(n) }) : null));
   });
   var fab = document.getElementById('fab'); fab.textContent = ''; fab.appendChild(svg(IC.plus));
-  var act = { today: editTask, pipe: editContact, winter: addWait, tpl: editTpl, cal: editPost }[tab];
+  var act = { today: editTask, pipe: editContact, winter: addWait, tpl: function () { if (nMode === 'notes') editNote(); else editTpl(); }, cal: editPost }[tab];
   fab.style.display = act ? 'grid' : 'none'; fab.onclick = act ? function () { act(); } : null;
-  fab.setAttribute('aria-label', { today: 'Aufgabe hinzufügen', pipe: 'Kontakt hinzufügen', winter: 'Auf die Warteliste', tpl: 'Vorlage hinzufügen', cal: 'Post hinzufügen' }[tab] || 'Hinzufügen');
+  fab.setAttribute('aria-label', { today: 'Aufgabe hinzufügen', pipe: 'Kontakt hinzufügen', winter: 'Auf die Warteliste', tpl: nMode === 'notes' ? 'Notiz hinzufügen' : 'Vorlage hinzufügen', cal: 'Post hinzufügen' }[tab] || 'Hinzufügen');
   window.scrollTo(0, y);
 }
 document.addEventListener('visibilitychange', function () { if (!document.hidden && !document.getElementById('layer').firstChild) render(); });
