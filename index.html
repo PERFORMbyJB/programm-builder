@@ -323,8 +323,12 @@ textarea.form-control { resize:vertical; min-height:60px; }
   .print-page { break-after:page; page-break-after:always; padding:0; }
   .print-page:last-child { break-after:auto; page-break-after:auto; }
 
-  .block { border:1px solid #ccc !important; background:#fff !important; margin-bottom:12px !important; break-inside:avoid; }
-  .block-header { border-bottom:1px solid #ccc !important; background:#f5f5f5 !important; }
+  /* Blöcke dürfen über Seiten laufen (sonst springt jeder lange Block auf eine neue Seite und lässt Leerraum),
+     einzelne Zeilen und die Kopfzeile bleiben zusammen, die Tabellenüberschrift wiederholt sich. */
+  .block { border:1px solid #ccc !important; background:#fff !important; margin-bottom:10px !important; break-inside:auto; page-break-inside:auto; }
+  .block-header { border-bottom:1px solid #ccc !important; background:#f5f5f5 !important; break-after:avoid; page-break-after:avoid; }
+  .ex-table thead { display:table-header-group; }
+  .ex-table tr { break-inside:avoid; page-break-inside:avoid; }
   .block-body { display:block !important; }
   .block-name, .ex-input, .prog-meta-bar h2, .meta-tag { color:#000 !important; }
   .ex-row { background:#f9f9f9 !important; color:#000 !important; }
@@ -332,18 +336,15 @@ textarea.form-control { resize:vertical; min-height:60px; }
   .ex-table th { color:#333 !important; }
   .ex-video-link-print a { color:#1D4579 !important; }
 
-  /* Fixed column widths so long coaching cues wrap instead of overflowing off the page */
-  .ex-table { table-layout:fixed !important; width:100% !important; }
-  .ex-table col.col-ex   { width:22% !important; }
-  .ex-table col.col-sets { width:8% !important; }
-  .ex-table col.col-reps { width:9% !important; }
-  .ex-table col.col-load { width:9% !important; }
-  .ex-table col.col-rpe  { width:7% !important; }
-  .ex-table col.col-rest { width:8% !important; }
-  .ex-table col.col-cue  { width:37% !important; }
+  /* Spaltenbreiten kommen pro Block aus dem Inhalt (Inline-Style an <col>), Schrift kompakt, keine automatische Silbentrennung */
+  .ex-table { table-layout:fixed !important; width:100% !important; border-spacing:0 3px !important; margin-bottom:6px !important; }
+  .ex-table th { font-size:8.5px !important; padding:4px 6px !important; letter-spacing:.4px; }
+  .ex-row td { font-size:11.5px !important; line-height:1.35 !important; padding:5px 6px !important; }
+  .ex-row td:first-child { font-weight:600 !important; font-size:12px !important; padding-left:8px !important; }
+  .ex-cue-print { font-size:11px !important; color:#333 !important; }
   .ex-table td, .ex-table th {
     word-wrap:break-word !important; overflow-wrap:break-word !important;
-    white-space:normal !important; hyphens:auto !important;
+    white-space:normal !important; hyphens:none !important; -webkit-hyphens:none !important;
     vertical-align:top !important;
   }
 }
@@ -815,9 +816,7 @@ function renderSessionHTML(sess, editable, columns) {
       </div>
       <div class="block-body${(editable && bl.collapsed)?' collapsed':''}">
         <table class="ex-table">
-          ${!editable ? `<colgroup>
-            <col class="col-ex">${cols.map(()=> '<col class="col-metric">').join('')}<col class="col-cue">
-          </colgroup>` : ''}
+          ${!editable ? printColgroup(bl, cols) : ''}
           <thead><tr>
             ${editable?'<th style="width:28px"></th>':''}
             <th>Übung</th>
@@ -836,6 +835,23 @@ function renderSessionHTML(sess, editable, columns) {
 
   if (editable) html += `<button class="add-block-btn" onclick="addBlock()">＋ Block hinzufügen</button>`;
   return html;
+}
+
+// Spaltenbreiten für den Export aus dem Inhalt: kurze Werte bekommen wenig Platz,
+// der Rest geht an Übungsname und Coaching-Cue (Cue schrumpft, wenn der Block keine hat).
+function printColgroup(bl, cols) {
+  const exs = bl.exercises || [];
+  const len = f => exs.reduce((m, e) => Math.max(m, String(f(e) || '').length), 0);
+  const metric = cols.map(c => {
+    const longestWord = Math.max(...String(c.label).split(/\s+/).map(w => w.length), 3);
+    const v = len(e => e.metrics && e.metrics[c.key]);
+    return Math.min(14, Math.max(5, longestWord + 1, Math.min(v, 12) + 1));
+  });
+  const cueLen = len(e => e.notes);
+  const wName = 30, wCue = cueLen === 0 ? 6 : Math.min(34, Math.max(18, cueLen / 3));
+  const total = wName + wCue + metric.reduce((a, b) => a + b, 0);
+  const pct = w => (w / total * 100).toFixed(2) + '%';
+  return `<colgroup><col style="width:${pct(wName)}">${metric.map(w => `<col style="width:${pct(w)}">`).join('')}<col style="width:${pct(wCue)}"></colgroup>`;
 }
 
 // Static (non-input) exercise row for export/print
