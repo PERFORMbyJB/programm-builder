@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; manifest-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Spieler">
+<meta name="theme-color" content="#1C1F26">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>PERFORM. Spieler</title>
+<style>
+@font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
+:root{
+  color-scheme:dark;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
+  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#9BA8C0; --dim:#6C7890;
+  --red:#F87171; --amber:#F5B041; --green:#4ADE80;
+  --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",-apple-system,system-ui,sans-serif;font-size:15px;line-height:1.4;-webkit-text-size-adjust:100%}
+body{min-height:100dvh;overscroll-behavior-y:none}
+body::before{content:'';position:fixed;top:0;left:0;right:0;height:var(--st);background:var(--bg);z-index:30}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{max-width:560px;margin:0 auto;padding:calc(var(--st) + 18px) 16px calc(var(--sb) + 48px)}
+.logo{font-size:15px;font-weight:700;letter-spacing:3px}
+.logo span{color:var(--acc)}
+.logo small{display:block;font-size:10.5px;letter-spacing:2px;color:var(--muted);font-weight:600;margin-top:1px}
+h1{font-size:24px;font-weight:700;margin:16px 0 0;letter-spacing:-.2px;overflow-wrap:anywhere}
+.sub{color:var(--muted);font-size:13px;margin:2px 0 14px}
+h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc);margin:22px 2px 10px;display:flex;align-items:center;gap:8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border-left:3px solid var(--acc)}
+.card.quiet{border-left-color:var(--line)}
+.card.ok{border-left-color:var(--green)}
+.title{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.meta{font-size:12.5px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere;white-space:pre-wrap}
+.btn{min-height:48px;border-radius:12px;padding:0 16px;font-weight:700;font-size:14px;background:var(--card2);color:var(--text)}
+.btn.pri{background:var(--acc);color:#0f1218}
+.btn.blue{background:var(--blue);color:#fff}
+.btn.ghost{background:none;color:var(--muted)}
+.btn.full{width:100%}
+.btn.danger{color:var(--red)}
+.btn[aria-disabled=true]{opacity:.5}
+.actions{display:flex;gap:8px;margin-top:12px}
+.actions .btn{flex:1}
+.banner{background:#22385c;color:#cfe0fb;border-radius:12px;padding:11px 14px;font-size:13px;margin:14px 0 4px}
+.banner.amber{background:#4a3a14;color:var(--amber)}
+.banner.red{background:#4a2227;color:#f4a3a3}
+.prog{height:8px;border-radius:99px;background:var(--card2);overflow:hidden;margin-top:10px}
+.prog i{display:block;height:100%;background:var(--acc);border-radius:99px}
+.two{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.grow{flex:1;min-width:0}
+.empty{color:var(--muted);text-align:center;padding:28px 10px;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:12px;font-weight:600;background:var(--card2);border-radius:8px;padding:4px 8px;color:var(--text)}
+.chip b{color:var(--muted);font-weight:600;margin-right:4px}
+.vid{display:inline-flex;align-items:center;min-height:44px;color:var(--acc);font-weight:700;font-size:13px;text-decoration:none}
+.stick{position:sticky;top:var(--st);z-index:15;display:flex;gap:8px;align-items:center;margin:0 -16px 6px;padding:8px 16px;background:rgba(28,31,38,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.stick .back{min-height:44px;min-width:44px;padding:0 10px;border-radius:12px;background:var(--card2);font-weight:700}
+.stick .t{flex:1;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stick .c{flex:none;font-size:12.5px;font-weight:700;color:var(--acc)}
+/* Sätze */
+.sethead,.setrow{display:grid;grid-template-columns:30px 1fr 1fr 1fr;gap:8px;align-items:center}
+.sethead{margin-top:12px;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--dim);text-align:center}
+.sets{display:grid;gap:8px;margin-top:6px}
+.sn{font-weight:700;color:var(--dim);text-align:center}
+.setrow input{width:100%;min-width:0;min-height:48px;text-align:center;font-size:17px;font-weight:600;border-radius:10px;background:var(--bg);border:1px solid var(--line);padding:0 4px;outline:none;-webkit-appearance:none;appearance:none}
+.setrow input::placeholder{color:var(--dim);font-weight:400}
+.setrow input.fill{border-color:var(--acc);background:var(--card2)}
+.setrow input.bad{border-color:var(--red)}
+.setrow input:focus{border-color:var(--acc)}
+.stp{display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:12px;margin-top:10px}
+.stp button{width:56px;min-height:48px;font-size:24px;font-weight:700;border-radius:12px}
+.stp b{font-size:13.5px}
+.err{font-size:12px;color:var(--red);margin:6px 2px 0;min-height:0}
+/* Formulare */
+label.f{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin:18px 2px 8px}
+.q{font-size:14.5px;font-weight:600;margin:20px 2px 8px}
+.qh{font-size:12px;color:var(--muted);margin:-4px 2px 8px}
+textarea,input[type=text]{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:12px 14px;font-size:16px;min-height:48px;outline:none;-webkit-appearance:none;appearance:none}
+textarea:focus,input[type=text]:focus{border-color:var(--acc)}
+textarea{resize:vertical;min-height:96px}
+.hint{font-size:12px;color:var(--muted);margin:6px 2px 0}
+.opts{display:grid;gap:8px}
+.opts.c6{grid-template-columns:repeat(6,1fr)} .opts.c5{grid-template-columns:repeat(5,1fr)} .opts.c2{grid-template-columns:repeat(2,1fr)}
+.opts button{min-height:48px;border-radius:12px;background:var(--card2);font-weight:700;font-size:15px;color:var(--muted)}
+.opts button.on{background:var(--blue);color:#fff;box-shadow:inset 0 0 0 2px var(--acc)}
+.opts button:disabled{opacity:.35}
+.consent{display:flex;gap:12px;align-items:flex-start;background:var(--card);border-radius:14px;padding:12px 14px;margin-top:16px;border-left:3px solid var(--amber);cursor:pointer}
+.consent input{flex:none;width:28px;height:28px;margin:8px 0;accent-color:var(--acc)}
+.consent span{font-size:13px;line-height:1.45}
+.consent .req{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--amber);margin-bottom:3px}
+.missing{font-size:12.5px;color:var(--amber);margin:14px 2px 0}
+/* Sheet */
+.ov{position:fixed;inset:0;z-index:50;background:rgba(8,10,14,.62);display:flex;align-items:flex-end;justify-content:center}
+.sheet{width:100%;max-width:560px;max-height:90dvh;overflow:auto;background:var(--bg);border-radius:22px 22px 0 0;padding:10px 16px calc(var(--sb) + 18px);border-top:1px solid var(--line)}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.sheet h3{margin:4px 2px 6px;font-size:18px;font-weight:700}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(var(--sb) + 20px);max-width:528px;margin:0 auto;z-index:60;background:var(--card2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:13.5px}
+.list .row{display:flex;gap:8px;align-items:center}
+.list .row .btn{flex:none}
+.foot{font-size:11.5px;color:var(--dim);text-align:center;margin-top:28px}
+/* Druckansicht */
+#print-root{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff !important;color:#000 !important}
+  body::before{display:none}
+  body>*:not(#print-root){display:none !important}
+  #print-root{display:block !important;font-family:"Montserrat",Arial,sans-serif;color:#000}
+  .pp{break-after:page;page-break-after:always}
+  .pp:last-child{break-after:auto;page-break-after:auto}
+  .ph{border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:12px}
+  .ph .top{display:flex;justify-content:space-between;align-items:baseline}
+  .ph .lg{font-size:15px;font-weight:700;letter-spacing:2px}
+  .ph .lg span{color:#1D4579}
+  .ph .mt{font-size:10.5px;color:#555;font-weight:600}
+  .ph .nm{font-size:18px;font-weight:700;margin-top:4px}
+  .ph .fc{font-size:11px;color:#555}
+  .pb{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin:10px 0 4px;color:#1D4579}
+  table.pt{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10.5px}
+  table.pt th{font-size:8.5px;text-transform:uppercase;letter-spacing:.4px;text-align:left;color:#333;padding:3px 5px;border-bottom:1px solid #999}
+  table.pt td{padding:4px 5px;border-bottom:1px solid #ddd;vertical-align:top;overflow-wrap:break-word;hyphens:none}
+  table.pt tr{break-inside:avoid;page-break-inside:avoid}
+  .pe{font-weight:600}
+  .pn{font-size:10.5px;color:#555;margin-top:8px}
+  .pa{font-size:12px;line-height:1.6}
+  .pa b{display:inline-block;min-width:215px;margin-right:8px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<div id="print-root"></div>
+<script>
+(function () {
+'use strict';
+
+/* ───────── Konstanten ───────── */
+var PFX = 'perform_player_v1:', IDX_KEY = 'perform_player_index', LAST_KEY = 'perform_player_last';
+// Grenzen für eingehende Pläne. Was darüber liegt, wird abgelehnt (nicht still gekürzt).
+var LIM = { code: 200000, raw: 400000, sessions: 14, blocks: 12, ex: 40, cols: 10, sets: 20 };
+var UMFANG = ['0', '1', '2', '3', '4', '5+'];
+var CONSENT_TEXT = 'Ich willige ein, dass meine Angabe zu Beschwerden (Ja/Nein) auf Grundlage meiner Einwilligung aus Anamnese/Betreuungsvereinbarung verarbeitet wird. Widerruf jederzeit möglich.';
+var PAIN_HINT = 'Bitte kurz direkt melden, ohne Diagnose. Bei Schmerz, Schwellung oder Instabilität Training pausieren.';
+
+/* ───────── Helfer ───────── */
+function h(tag, props) {
+  var e = document.createElement(tag);
+  if (props) for (var k in props) {
+    var v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'value') e.value = v;
+    else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  (function add(list) {
+    for (var j = 0; j < list.length; j++) {
+      var c = list[j];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(c);
+      else e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+  })(Array.prototype.slice.call(arguments, 2));
+  return e;
+}
+function err(msg) { var e = new Error(msg); e.user = true; return e; }
+function isObj(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
+// Text bereinigen: nur Strings/Zahlen, Steuerzeichen raus, Länge begrenzen. Angezeigt wird ausschließlich per textContent.
+function str(v, max) {
+  if (typeof v === 'number' && isFinite(v)) v = String(v);
+  if (typeof v !== 'string') return '';
+  return v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F‪-‮⁦-⁩]/g, '').trim().slice(0, max);
+}
+function idOk(v) { return typeof v === 'string' && /^[A-Za-z0-9_-]{1,40}$/.test(v); }
+function safeUrl(u) {
+  u = str(u, 500); if (!u) return '';
+  try { var x = new URL(u); return (x.protocol === 'https:' || x.protocol === 'http:') && !x.username && !x.password ? x.href : ''; } catch (e) { return ''; }
+}
+function int(v, lo, hi) { var n = typeof v === 'number' ? v : parseInt(v, 10); return n === Math.floor(n) && n >= lo && n <= hi ? n : null; }
+function nz(v) { if (v === '' || v == null) return null; var n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : null; }
+function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function pad(n) { return String(n).padStart(2, '0'); }
+function today() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function fmtTs(s) { var d = new Date(s); return isNaN(d) ? '' : pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '. ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+var toastTimer = null;
+function toast(msg) {
+  var old = document.querySelector('.toast'); if (old) old.remove();
+  var el = h('div', { class: 'toast', role: 'status', text: msg }); document.body.appendChild(el);
+  clearTimeout(toastTimer); toastTimer = setTimeout(function () { el.remove(); }, 3500);
+}
+
+/* ───────── Plan: dekodieren und streng bereinigen ───────── */
+function b64urlToBytes(s) {
+  if (!/^[A-Za-z0-9_-]+$/.test(s)) throw err('Der Link ist beschädigt (ungültige Zeichen).');
+  s = s.replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '=';
+  var bin; try { bin = atob(s); } catch (e) { throw err('Der Link ist beschädigt.'); }
+  var out = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function inflate(bytes) {
+  if (typeof DecompressionStream === 'undefined') return Promise.reject(err('Dieser Browser kann den Link nicht entpacken. Bitte Browser aktualisieren oder den Plan als Text einfügen.'));
+  var reader, chunks = [], total = 0;
+  try { reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader(); } catch (e) { return Promise.reject(err('Der Link ist beschädigt.')); }
+  function pump() {
+    return reader.read().then(function (r) {
+      if (r.done) return;
+      total += r.value.length;
+      if (total > LIM.raw) { try { reader.cancel(); } catch (e) {} throw err('Der Plan ist zu groß.'); }
+      chunks.push(r.value); return pump();
+    });
+  }
+  return pump().then(function () {
+    var out = new Uint8Array(total), o = 0; chunks.forEach(function (c) { out.set(c, o); o += c.length; }); return out;
+  }, function (e) { throw e && e.user ? e : err('Der Link ist beschädigt (Entpacken fehlgeschlagen).'); });
+}
+function decodeCode(code) {
+  code = String(code || '').trim();
+  if (!code) return Promise.reject(err('Im Link steckt kein Plan.'));
+  if (code.length > LIM.code) return Promise.reject(err('Der Link ist zu lang.'));
+  var mode = code.charAt(0), bytes;
+  try { bytes = b64urlToBytes(code.slice(1)); } catch (e) { return Promise.reject(e); }
+  var p = mode === 'd' ? inflate(bytes) : mode === 'r' ? Promise.resolve(bytes) : Promise.reject(err('Unbekanntes Link-Format.'));
+  return p.then(function (b) {
+    if (b.length > LIM.raw) throw err('Der Plan ist zu groß.');
+    var txt; try { txt = new TextDecoder('utf-8', { fatal: true }).decode(b); } catch (e) { throw err('Der Link ist beschädigt (Zeichensatz).'); }
+    return parsePlanText(txt);
+  });
+}
+function parsePlanText(txt) {
+  if (txt.length > LIM.raw) throw err('Der Plan ist zu groß.');
+  var o; try { o = JSON.parse(txt); } catch (e) { throw err('Das ist kein gültiger Plan (JSON fehlerhaft).'); }
+  return sanitizePlan(o);
+}
+// Eingabe aus dem Textfeld: kompletter Link, nur der Code oder Plan-JSON.
+function parseAnyInput(t) {
+  t = String(t || '').trim();
+  if (!t) return Promise.reject(err('Das Feld ist leer.'));
+  if (t.length > LIM.raw) return Promise.reject(err('Der Text ist zu lang.'));
+  if (t.charAt(0) === '{') { try { return Promise.resolve(parsePlanText(t)); } catch (e) { return Promise.reject(e); } }
+  var i = t.indexOf('#p='); if (i >= 0) t = t.slice(i + 3); else if (t.slice(0, 2) === 'p=') t = t.slice(2);
+  return decodeCode(t);
+}
+function arr(a, max, what) {
+  if (a == null) return [];
+  if (!Array.isArray(a)) throw err('Plan fehlerhaft: ' + what + ' ist keine Liste.');
+  if (a.length > max) throw err('Plan zu groß: mehr als ' + max + ' ' + what + '.');
+  return a;
+}
+function sanitizePlan(o) {
+  if (!isObj(o)) throw err('Das ist kein PERFORM-Plan.');
+  if (o.app !== 'perform-plan') throw err('Das ist kein PERFORM-Plan.');
+  if (o.v !== 1) throw err('Diese Planversion (' + str(o.v, 6) + ') kann die App nicht lesen. Bitte neuen Link anfordern.');
+  if (!idOk(o.id)) throw err('Plan-ID fehlt oder ist ungültig.');
+  var week = int(o.week, 1, 52); if (week == null) throw err('Woche fehlt oder ist ungültig.');
+  var cols = arr(o.cols, LIM.cols, 'Spalten').map(function (c) {
+    if (!Array.isArray(c)) return null;
+    var k = str(c[0], 30), l = str(c[1], 30);
+    return /^[A-Za-z0-9_-]+$/.test(k) && l ? { k: k, l: l } : null;
+  }).filter(Boolean);
+  var seen = {};
+  function uniq(id, fb) { var x = idOk(id) ? id : fb; while (seen[x]) x += '_'; seen[x] = 1; return x; }
+  var sessions = arr(o.sessions, LIM.sessions, 'Einheiten').filter(isObj).map(function (s, si) {
+    var sid = uniq(s.id, 's' + si);
+    var blocks = arr(s.blocks, LIM.blocks, 'Blöcke').filter(isObj).map(function (b, bi) {
+      var ex = arr(b.ex, LIM.ex, 'Übungen je Block').filter(isObj).map(function (e, ei) {
+        var m = arr(e.m, LIM.cols, 'Werte').slice(0, cols.length).map(function (v) { return str(v, 40); });
+        while (m.length < cols.length) m.push('');
+        return { id: uniq(e.id, sid + 'b' + bi + 'e' + ei), name: str(e.name, 100), m: m, cue: str(e.cue, 400), video: safeUrl(e.video) };
+      }).filter(function (e) { return e.name; });
+      return { name: str(b.name, 60), color: typeof b.color === 'string' && /^#[0-9a-fA-F]{6}$/.test(b.color) ? b.color : '#4B8EF0', ex: ex };
+    }).filter(function (b) { return b.ex.length; });
+    return { id: sid, name: str(s.name, 80) || 'Einheit ' + (si + 1), focus: str(s.focus, 120), note: str(s.note, 1000), blocks: blocks };
+  }).filter(function (s) { return s.blocks.length; });
+  if (!sessions.length) throw err('Der Plan enthält keine Übungen.');
+  var ref = str(o.ref, 12); if (!/^[A-Za-z0-9-]*$/.test(ref)) ref = '';
+  return { app: 'perform-plan', v: 1, id: o.id, title: str(o.title, 80), week: week, weeks: int(o.weeks, 1, 52), ref: ref, notes: str(o.notes, 2000), cols: cols, sessions: sessions };
+}
+
+/* ───────── Speicher (ein Key pro Plan) ───────── */
+function emptyAns() { return { umfang: '', belastung: null, schlaf: null, beschwerden: null, anmerkung: '' }; }
+function cleanVal(v) { return str(v, 8).replace(/[^0-9.\-]/g, ''); }
+function sanitizeRec(o) {
+  if (!isObj(o) || o.v !== 1) throw err('Gespeicherte Daten unlesbar.');
+  var plan = sanitizePlan(o.plan), log = {};
+  if (isObj(o.log)) Object.keys(o.log).slice(0, 50).forEach(function (sid) {
+    var se = o.log[sid]; if (!idOk(sid) || !isObj(se)) return;
+    log[sid] = {};
+    Object.keys(se).slice(0, 600).forEach(function (eid) {
+      if (!idOk(eid) || !Array.isArray(se[eid])) return;
+      log[sid][eid] = se[eid].slice(0, LIM.sets).map(function (z) { z = isObj(z) ? z : {}; return { r: cleanVal(z.r), l: cleanVal(z.l), e: cleanVal(z.e) }; });
+    });
+  });
+  var a = isObj(o.ans) ? o.ans : {};
+  var ans = { umfang: UMFANG.indexOf(a.umfang) >= 0 ? a.umfang : '', belastung: int(a.belastung, 1, 10), schlaf: int(a.schlaf, 1, 5), beschwerden: typeof a.beschwerden === 'boolean' ? a.beschwerden : null, anmerkung: typeof a.anmerkung === 'string' ? a.anmerkung.slice(0, 500) : '' };
+  var consent = o.consent === true;
+  if (!consent) ans.beschwerden = null;
+  return { v: 1, plan: plan, log: log, ans: ans, consent: consent, consentAt: consent ? str(o.consentAt, 30) : '', name: typeof o.name === 'string' ? o.name.slice(0, 60) : '', exportedAt: str(o.exportedAt, 30) };
+}
+function newRec(plan) { return { v: 1, plan: plan, log: {}, ans: emptyAns(), consent: false, consentAt: '', name: '', exportedAt: '' }; }
+function loadRec(id) {
+  var raw = lsGet(PFX + id, null); if (!raw) return null;
+  try { return sanitizeRec(JSON.parse(raw)); }
+  catch (e) { lsSet(PFX + id + ':defekt', raw); return null; } // kaputten Stand aufheben statt still zu verwerfen
+}
+var storageOK = true, rec = null;
+function save() {
+  if (!rec) return;
+  if (!lsSet(PFX + rec.plan.id, JSON.stringify(rec))) { storageOK = false; return; }
+  var idx = readIndex().filter(function (x) { return x.id !== rec.plan.id; });
+  idx.unshift({ id: rec.plan.id, title: rec.plan.title, week: rec.plan.week, ts: new Date().toISOString() });
+  lsSet(IDX_KEY, JSON.stringify(idx.slice(0, 40)));
+  lsSet(LAST_KEY, rec.plan.id);
+}
+function readIndex() {
+  try {
+    var a = JSON.parse(lsGet(IDX_KEY, '[]'));
+    return (Array.isArray(a) ? a : []).filter(function (x) { return isObj(x) && idOk(x.id); }).map(function (x) { return { id: x.id, title: str(x.title, 80), week: int(x.week, 1, 52), ts: str(x.ts, 30) }; });
+  } catch (e) { return []; }
+}
+function openPlan(plan) {
+  var old = loadRec(plan.id);
+  rec = old || newRec(plan);
+  rec.plan = plan; // neuer Stand vom Coach, Einträge bleiben (über Übungs-IDs zugeordnet)
+  save();
+}
+
+/* ───────── Plan-Abfragen ───────── */
+function allEx(s) { var out = []; s.blocks.forEach(function (b) { b.ex.forEach(function (x) { out.push(x); }); }); return out; }
+function setsCol() {
+  for (var i = 0; i < rec.plan.cols.length; i++) { var c = rec.plan.cols[i]; if (c.k === 'sets' || /^(sets?|sätze|satz|serien)$/i.test(c.l)) return i; }
+  return -1;
+}
+function plannedSets(x) { var i = setsCol(), n = i >= 0 ? parseInt(x.m[i], 10) : NaN; return n >= 1 && n <= LIM.sets ? n : 1; }
+function setsOf(sid, x) { var se = rec.log[sid]; return se && se[x.id] ? se[x.id] : null; }
+function filled(z) { return !!(z.r || z.l || z.e); }
+function exDone(sid, x) { var s = setsOf(sid, x); return !!s && s.some(filled); }
+function sessProgress(s) { var xs = allEx(s), d = xs.filter(function (x) { return exDone(s.id, x); }).length; return { done: d, total: xs.length }; }
+function ensureSets(sid, x) {
+  if (!rec.log[sid]) rec.log[sid] = {};
+  if (!rec.log[sid][x.id]) { var n = plannedSets(x), a = []; while (a.length < n) a.push({ r: '', l: '', e: '' }); rec.log[sid][x.id] = a; }
+  return rec.log[sid][x.id];
+}
+function rpeOk(v) { var n = nz(v); return v === '' || (n != null && n >= 0 && n <= 10); }
+
+/* ───────── Navigation ───────── */
+var view = { name: 'start', si: 0 }, startError = '';
+function go(name, si, push) {
+  view = { name: name, si: si || 0 };
+  if (push !== false) { try { history.pushState({ v: name, si: si || 0 }, ''); } catch (e) {} }
+  render(); window.scrollTo(0, 0);
+}
+window.addEventListener('popstate', function (e) {
+  var st = e.state;
+  if (rec && st && (st.v === 'sess' || st.v === 'week')) go(st.v, st.si, false);
+  else go(rec ? 'home' : 'start', 0, false);
+});
+
+/* ───────── Ansichten ───────── */
+function header() { return h('div', { class: 'logo' }, 'PERFORM', h('span', { text: '.' }), h('small', { text: 'SPIELER' })); }
+function infoBanner() {
+  return [h('div', { class: 'banner', text: 'Daten liegen nur auf diesem Gerät. Exportiere nach jeder Woche.' }),
+    storageOK ? null : h('div', { class: 'banner red', role: 'alert', text: 'Speichern auf diesem Gerät klappt gerade nicht (privater Modus oder Speicher voll). Exportiere jetzt, sonst gehen Eingaben verloren.' })];
+}
+
+function viewStart() {
+  var out = [header(), h('h1', { text: 'Trainingsplan öffnen' }), h('div', { class: 'sub', text: 'Öffne den Link von deinem Coach. Alternativ den Plan-Text hier einfügen oder die Plan-Datei wählen.' })];
+  if (startError) out.push(h('div', { class: 'banner red', role: 'alert', text: startError }));
+  var ta = h('textarea', { placeholder: 'Link oder Plan-Text einfügen', 'aria-label': 'Link oder Plan-Text', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false' });
+  var e = h('div', { class: 'err', role: 'alert' });
+  function tryLoad(p) {
+    p.then(function (plan) { startError = ''; openPlan(plan); toast('Plan geladen'); go('home'); },
+      function (x) { e.textContent = x && x.user ? x.message : 'Plan konnte nicht gelesen werden.'; });
+  }
+  var file = h('input', { type: 'file', accept: '.json,application/json,text/plain', style: 'display:none', onchange: function () {
+    var f = file.files && file.files[0]; file.value = ''; if (!f) return;
+    if (f.size > LIM.raw) { e.textContent = 'Die Datei ist zu groß.'; return; }
+    var r = new FileReader(); r.onerror = function () { e.textContent = 'Datei konnte nicht gelesen werden.'; };
+    r.onload = function () { tryLoad(parseAnyInput(String(r.result))); }; r.readAsText(f);
+  } });
+  out.push(ta, e, h('div', { class: 'actions' },
+    h('button', { class: 'btn', type: 'button', text: 'Datei wählen', onclick: function () { file.click(); } }),
+    h('button', { class: 'btn pri', type: 'button', text: 'Plan laden', onclick: function () { tryLoad(parseAnyInput(ta.value)); } })), file);
+  var idx = readIndex();
+  if (idx.length) {
+    out.push(h('h2', { text: 'Auf diesem Gerät' }));
+    var list = h('div', { class: 'list' });
+    idx.forEach(function (x) {
+      var armed = false, del = h('button', { class: 'btn ghost danger', type: 'button', text: 'Löschen', 'aria-label': 'Plan löschen' });
+      del.addEventListener('click', function () {
+        if (!armed) { armed = true; del.textContent = 'Sicher?'; setTimeout(function () { armed = false; del.textContent = 'Löschen'; }, 3000); return; }
+        lsDel(PFX + x.id); lsSet(IDX_KEY, JSON.stringify(readIndex().filter(function (y) { return y.id !== x.id; })));
+        if (lsGet(LAST_KEY, '') === x.id) lsDel(LAST_KEY);
+        if (rec && rec.plan.id === x.id) rec = null;
+        render();
+      });
+      list.appendChild(h('div', { class: 'card quiet' }, h('div', { class: 'row' },
+        h('div', { class: 'grow' }, h('div', { class: 'title', text: x.title || 'Trainingsplan' }), h('div', { class: 'meta', text: (x.week ? 'Woche ' + x.week : '') + (x.ts ? ' · zuletzt ' + fmtTs(x.ts) : '') })),
+        del, h('button', { class: 'btn blue', type: 'button', text: 'Öffnen', onclick: function () { var r = loadRec(x.id); if (!r) { e.textContent = 'Dieser Stand ist nicht mehr lesbar.'; return; } rec = r; lsSet(LAST_KEY, x.id); go('home'); } }))));
+    });
+    out.push(list);
+  }
+  out.push(h('div', { class: 'foot', text: 'Keine Anmeldung, keine Cloud. Alles bleibt in diesem Browser.' }));
+  return out;
+}
+
+function viewHome() {
+  var p = rec.plan, out = [header()].concat(infoBanner());
+  out.push(h('h1', { text: p.title || 'Trainingsplan' }), h('div', { class: 'sub', text: 'Woche ' + p.week + (p.weeks ? ' von ' + p.weeks : '') + ' · ' + p.sessions.length + (p.sessions.length === 1 ? ' Einheit' : ' Einheiten') }));
+  if (p.notes) out.push(h('div', { class: 'card quiet' }, h('div', { class: 'lab title', text: 'Hinweise' }), h('div', { class: 'meta', text: p.notes })));
+  out.push(h('h2', { text: 'Einheiten' }));
+  p.sessions.forEach(function (s, si) {
+    var pr = sessProgress(s), pct = pr.total ? Math.round(pr.done / pr.total * 100) : 0;
+    out.push(h('div', { class: 'card' + (pr.total && pr.done === pr.total ? ' ok' : pr.done ? '' : ' quiet') },
+      h('div', { class: 'title', text: s.name }),
+      s.focus ? h('div', { class: 'meta', text: s.focus }) : null,
+      h('div', { class: 'prog', role: 'progressbar', 'aria-valuemin': '0', 'aria-valuemax': String(pr.total), 'aria-valuenow': String(pr.done), 'aria-label': 'Fortschritt ' + s.name }, h('i', { style: 'width:' + pct + '%' })),
+      h('div', { class: 'meta', text: pr.done + ' von ' + pr.total + ' Übungen eingetragen' }),
+      h('div', { class: 'actions' }, h('button', { class: 'btn ' + (pr.done ? 'blue' : 'pri'), type: 'button', text: pr.done ? 'Weiter eintragen' : 'Einheit öffnen', onclick: function () { go('sess', si); } }))));
+  });
+  out.push(h('h2', { text: 'Wochenabschluss' }));
+  out.push(h('div', { class: 'card' + (rec.exportedAt ? ' ok' : '') },
+    h('div', { class: 'title', text: '5 Wochenfragen und senden' }),
+    h('div', { class: 'meta', text: rec.exportedAt ? 'Zuletzt exportiert: ' + fmtTs(rec.exportedAt) + '. Änderungen danach einfach erneut senden.' : 'Noch nicht exportiert.' }),
+    h('div', { class: 'actions' }, h('button', { class: 'btn pri', type: 'button', text: 'Woche abschließen', onclick: function () { go('week'); } }))));
+  out.push(h('button', { class: 'btn ghost full', type: 'button', style: 'margin-top:18px', text: 'Anderen Plan öffnen', onclick: function () { startError = ''; go('start'); } }));
+  return out;
+}
+
+function viewSession() {
+  var s = rec.plan.sessions[view.si];
+  if (!s) { view.name = 'home'; return viewHome(); }
+  var cnt = h('span', { class: 'c' });
+  function upd() { var pr = sessProgress(s); cnt.textContent = pr.done + '/' + pr.total; }
+  upd();
+  var out = [h('div', { class: 'stick' }, h('button', { class: 'back', type: 'button', text: '‹ Woche', 'aria-label': 'Zurück zur Woche', onclick: function () { history.length > 1 && history.state ? history.back() : go('home'); } }), h('div', { class: 't', text: s.name }), cnt)];
+  out = out.concat(infoBanner());
+  out.push(h('h1', { text: s.name }));
+  if (s.focus) out.push(h('div', { class: 'sub', text: s.focus }));
+  if (s.note) out.push(h('div', { class: 'card quiet' }, h('div', { class: 'meta', text: s.note })));
+  s.blocks.forEach(function (b) {
+    out.push(h('h2', null, h('span', { class: 'dot', style: 'background:' + b.color }), b.name || 'Block'));
+    b.ex.forEach(function (x) { out.push(exCard(s, x, upd)); });
+  });
+  out.push(h('button', { class: 'btn blue full', type: 'button', style: 'margin-top:16px', text: 'Fertig – zurück zur Woche', onclick: function () { go('home'); } }));
+  return out;
+}
+
+function exCard(s, x, upd) {
+  var cols = rec.plan.cols, chips = [];
+  cols.forEach(function (c, i) { if (x.m[i]) chips.push(h('span', { class: 'chip' }, h('b', { text: c.l }), x.m[i])); });
+  var sets = setsOf(s.id, x) || (function () { var n = plannedSets(x), a = []; while (a.length < n) a.push({ r: '', l: '', e: '' }); return a; })();
+  var rows = h('div', { class: 'sets' }), lbl = h('b'), e = h('div', { class: 'err', role: 'alert' });
+  function persist() { rec.log[s.id] = rec.log[s.id] || {}; rec.log[s.id][x.id] = sets; save(); upd(); }
+  function inp(z, k, label, mode, neg) {
+    var el = h('input', { type: 'text', inputmode: mode, enterkeyhint: 'next', placeholder: label, value: z[k], maxlength: 6, autocomplete: 'off', 'aria-label': x.name + ' Satz ' + (sets.indexOf(z) + 1) + ' ' + label });
+    function mark() { el.classList.toggle('fill', !!el.value); var bad = k === 'e' && !rpeOk(z.e); el.classList.toggle('bad', bad); e.textContent = sets.some(function (q) { return !rpeOk(q.e); }) ? 'RPE bitte zwischen 1 und 10.' : ''; }
+    el.addEventListener('input', function () {
+      var v = el.value.replace(/,/g, '.').replace(neg ? /[^0-9.\-]/g : /[^0-9.]/g, '');
+      var parts = v.split('.'); if (parts.length > 2) v = parts[0] + '.' + parts.slice(1).join('');
+      if (neg) v = v.charAt(0) + v.slice(1).replace(/-/g, '');
+      if (v !== el.value) el.value = v;
+      z[k] = v; mark(); persist();
+    });
+    mark(); return el;
+  }
+  function paint() {
+    rows.textContent = '';
+    sets.forEach(function (z, i) { rows.appendChild(h('div', { class: 'setrow' }, h('span', { class: 'sn', text: String(i + 1) }), inp(z, 'r', 'Wdh', 'numeric'), inp(z, 'l', 'Last', 'decimal', true), inp(z, 'e', 'RPE', 'decimal'))); });
+    lbl.textContent = sets.length + (sets.length === 1 ? ' Satz' : ' Sätze');
+  }
+  function setCnt(d) {
+    var n = sets.length + d; if (n < 1 || n > LIM.sets) return;
+    if (d > 0) sets.push({ r: '', l: sets.length ? sets[sets.length - 1].l : '', e: '' });
+    else { var last = sets[sets.length - 1]; if (filled(last) && !confirm('Satz ' + sets.length + ' enthält Werte. Trotzdem entfernen?')) return; sets.pop(); }
+    persist(); paint();
+  }
+  paint();
+  return h('div', { class: 'card' },
+    h('div', { class: 'title', text: x.name }),
+    chips.length ? h('div', { class: 'chips', 'aria-label': 'Vorgabe' }, chips) : null,
+    x.cue ? h('div', { class: 'meta', text: x.cue }) : null,
+    x.video ? h('a', { class: 'vid', href: x.video, target: '_blank', rel: 'noopener noreferrer', text: '▶ Video ansehen' }) : null,
+    h('div', { class: 'sethead' }, h('span', { text: '#' }), h('span', { text: 'Wdh' }), h('span', { text: 'Last' }), h('span', { text: 'RPE' })),
+    rows, e,
+    h('div', { class: 'stp' }, h('button', { type: 'button', text: '−', 'aria-label': 'Einen Satz weniger', onclick: function () { setCnt(-1); } }), lbl, h('button', { type: 'button', text: '+', 'aria-label': 'Einen Satz mehr', onclick: function () { setCnt(1); } })));
+}
+
+function opts(cls, values, cur, onPick, label, disabled) {
+  var wrap = h('div', { class: 'opts ' + cls, role: 'group', 'aria-label': label });
+  values.forEach(function (v) {
+    var b = h('button', { type: 'button', text: v.t, 'aria-pressed': cur === v.v ? 'true' : 'false', class: cur === v.v ? 'on' : null, disabled: disabled ? true : null, onclick: function () { onPick(cur === v.v ? null : v.v); } });
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+function missing() {
+  var a = rec.ans, m = [];
+  if (!rec.consent) m.push('Einwilligung');
+  if (!a.umfang) m.push('Umfang');
+  if (a.belastung == null) m.push('Belastung');
+  if (a.schlaf == null) m.push('Schlaf & Erholung');
+  if (a.beschwerden == null) m.push('Beschwerden');
+  var bad = false; rec.plan.sessions.forEach(function (s) { allEx(s).forEach(function (x) { var z = setsOf(s.id, x); if (z && z.some(function (q) { return !rpeOk(q.e); })) bad = true; }); });
+  if (bad) m.push('RPE-Werte zwischen 1 und 10');
+  return m;
+}
+function viewWeek() {
+  var a = rec.ans;
+  function set(k, v) { a[k] = v; save(); render(); }
+  var out = [h('div', { class: 'stick' }, h('button', { class: 'back', type: 'button', text: '‹ Woche', 'aria-label': 'Zurück zur Woche', onclick: function () { history.state ? history.back() : go('home'); } }), h('div', { class: 't', text: 'Wochenabschluss · Woche ' + rec.plan.week }))];
+  out = out.concat(infoBanner());
+  out.push(h('h1', { text: 'Wochenabschluss' }), h('div', { class: 'sub', text: '5 kurze Fragen. Danach sendest du die Datei selbst per Mail oder Messenger.' }));
+
+  var cb = h('input', { type: 'checkbox', id: 'consent', checked: rec.consent ? true : null, onchange: function () {
+    rec.consent = cb.checked; rec.consentAt = cb.checked ? new Date().toISOString() : '';
+    if (!cb.checked) a.beschwerden = null; // Widerruf: Angabe wird verworfen
+    save(); render();
+  } });
+  out.push(h('label', { class: 'consent', for: 'consent' }, cb, h('span', null, h('span', { class: 'req', text: 'Pflicht · Einwilligung' }), CONSENT_TEXT)));
+
+  out.push(h('div', { class: 'q', text: '1. Wie viele Einheiten hast du diese Woche absolviert?' }),
+    opts('c6', UMFANG.map(function (v) { return { v: v, t: v }; }), a.umfang || null, function (v) { set('umfang', v || ''); }, 'Umfang absolviert'));
+  out.push(h('div', { class: 'q', text: '2. Belastungsempfinden der Woche' }), h('div', { class: 'qh', text: '1 = sehr leicht · 10 = maximal' }),
+    opts('c5', [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (v) { return { v: v, t: String(v) }; }), a.belastung, function (v) { set('belastung', v); }, 'Belastungsempfinden'));
+  out.push(h('div', { class: 'q', text: '3. Schlaf & Erholung' }), h('div', { class: 'qh', text: '1 = schlecht · 5 = sehr gut' }),
+    opts('c5', [1, 2, 3, 4, 5].map(function (v) { return { v: v, t: String(v) }; }), a.schlaf, function (v) { set('schlaf', v); }, 'Schlaf und Erholung'));
+  out.push(h('div', { class: 'q', text: '4. Hattest du Beschwerden?' }),
+    rec.consent ? null : h('div', { class: 'qh', text: 'Erst nach der Einwilligung oben auswählbar.' }),
+    opts('c2', [{ v: true, t: 'Ja' }, { v: false, t: 'Nein' }], a.beschwerden, function (v) { set('beschwerden', v); }, 'Beschwerden', !rec.consent));
+  if (a.beschwerden === true) out.push(h('div', { class: 'banner amber', role: 'note', text: PAIN_HINT }));
+  var note = h('textarea', { maxlength: 500, placeholder: 'Optional', 'aria-label': 'Anmerkung', value: a.anmerkung });
+  note.addEventListener('input', function () { a.anmerkung = note.value.slice(0, 500); save(); });
+  out.push(h('div', { class: 'q', text: '5. Anmerkung (optional)' }), note, h('div', { class: 'hint', text: 'Bitte keine Gesundheitsdetails (keine Diagnosen, Schmerzbeschreibungen o. Ä.).' }));
+
+  var nm = h('input', { type: 'text', maxlength: 60, placeholder: 'Optional', 'aria-label': 'Name (optional)', value: rec.name, autocomplete: 'off' });
+  nm.addEventListener('input', function () { rec.name = nm.value.slice(0, 60); save(); });
+  out.push(h('label', { class: 'f', text: 'Name (optional)' }), nm, h('div', { class: 'hint', text: 'Nur ausfüllen, wenn er in der Datei stehen soll. Der Dateiname enthält ihn nie.' }));
+
+  var miss = missing();
+  out.push(miss.length ? h('div', { class: 'missing', role: 'status', text: 'Noch offen: ' + miss.join(', ') }) : null);
+  out.push(h('button', { class: 'btn pri full', type: 'button', style: 'margin-top:14px', 'aria-disabled': miss.length ? 'true' : 'false', text: 'Woche abschließen und senden', onclick: function () {
+    var m = missing(); if (m.length) { toast('Noch offen: ' + m.join(', ')); return; }
+    sendWeek();
+  } }));
+  out.push(h('button', { class: 'btn full', type: 'button', style: 'margin-top:10px', text: 'Nur PDF / Drucken', onclick: printWeek }));
+  return out;
+}
+
+/* ───────── Export ───────── */
+function setOut(z) { return { wdh: nz(z.r), last: nz(z.l), rpe: rpeOk(z.e) ? nz(z.e) : null }; }
+function buildExport() {
+  var p = rec.plan, a = rec.ans;
+  return {
+    app: 'perform-player', v: 1, planId: p.id, titel: p.title, kuerzel: p.ref, woche: p.week, name: str(rec.name, 60),
+    sessions: p.sessions.map(function (s) {
+      return { id: s.id, name: s.name, ex: allEx(s).map(function (x) {
+        var z = (setsOf(s.id, x) || []).filter(filled);
+        if (!z.length) return null;
+        var vg = {}; p.cols.forEach(function (c, i) { if (x.m[i]) vg[c.l] = x.m[i]; });
+        return { id: x.id, name: x.name, vorgabe: vg, sets: z.map(setOut) };
+      }).filter(Boolean) };
+    }),
+    antworten: { umfang: a.umfang, belastung: a.belastung, schlaf: a.schlaf, beschwerden: a.beschwerden, anmerkung: str(a.anmerkung, 500) },
+    einwilligung: { beschwerden: rec.consent, zeitpunkt: rec.consentAt },
+    exportiert: new Date().toISOString()
+  };
+}
+function fileName() { return 'PERFORM_Woche' + rec.plan.week + (rec.plan.ref ? '_' + rec.plan.ref : '') + '_' + today() + '.json'; }
+function download(blob, name) {
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+}
+function sendWeek() {
+  var data = buildExport(), name = fileName(), blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+  function done(how) {
+    if (how === 'abort') { toast('Senden abgebrochen.'); return; }
+    rec.exportedAt = data.exportiert; save();
+    sheetDone(how, name);
+  }
+  try {
+    if (typeof File === 'function' && navigator.canShare && navigator.share) {
+      var f = new File([blob], name, { type: 'application/json' });
+      if (navigator.canShare({ files: [f] })) {
+        navigator.share({ files: [f], title: name }).then(function () { done('share'); }, function (e) {
+          if (e && e.name === 'AbortError') done('abort'); else { download(blob, name); done('download'); }
+        });
+        return;
+      }
+    }
+  } catch (e) { /* weiter mit Download */ }
+  download(blob, name); done('download');
+}
+function closeSheet() { document.getElementById('layer').textContent = ''; }
+function sheet(title, body) {
+  closeSheet();
+  var ov = h('div', { class: 'ov', onclick: function (e) { if (e.target === ov) closeSheet(); } }, h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, h('div', { class: 'grab' }), h('h3', { text: title }), body));
+  document.getElementById('layer').appendChild(ov);
+}
+function sheetDone(how, name) {
+  sheet('Woche exportiert', [
+    h('div', { class: 'meta', text: how === 'share' ? 'Die Datei wurde an die gewählte App übergeben.' : 'Datei gespeichert: ' + name + '. Hänge sie in Mail oder Messenger an und sende sie an deinen Coach.' }),
+    h('div', { class: 'meta', text: 'Zum Lesen gibt es zusätzlich eine PDF-Ansicht: „PDF / Drucken“ → „Als PDF sichern“.' }),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', type: 'button', text: 'Schließen', onclick: function () { closeSheet(); go('home'); } }), h('button', { class: 'btn blue', type: 'button', text: 'PDF / Drucken', onclick: function () { closeSheet(); printWeek(); } }))
+  ]);
+}
+
+/* ───────── Druckansicht (ein Blatt pro Einheit) ───────── */
+function setTxt(z) { var o = setOut(z); return (o.wdh != null ? o.wdh : '–') + (o.last != null ? ' × ' + String(o.last).replace('.', ',') : '') + (o.rpe != null ? ' @' + String(o.rpe).replace('.', ',') : ''); }
+function printWeek() {
+  var root = document.getElementById('print-root'), p = rec.plan, a = rec.ans;
+  root.textContent = '';
+  function head(name, focus) {
+    return h('div', { class: 'ph' }, h('div', { class: 'top' }, h('div', { class: 'lg' }, 'PERFORM', h('span', { text: '.' })), h('div', { class: 'mt', text: 'Woche ' + p.week + (p.ref ? ' · ' + p.ref : '') + ' · Stand ' + fmtTs(new Date().toISOString()) })),
+      h('div', { class: 'mt', text: p.title }), h('div', { class: 'nm', text: name }), focus ? h('div', { class: 'fc', text: focus }) : null);
+  }
+  p.sessions.forEach(function (s) {
+    var page = h('div', { class: 'pp' }, head(s.name, s.focus));
+    s.blocks.forEach(function (b) {
+      page.appendChild(h('div', { class: 'pb', text: b.name || 'Block' }));
+      var tb = h('tbody');
+      b.ex.forEach(function (x) {
+        var vg = []; p.cols.forEach(function (c, i) { if (x.m[i]) vg.push(c.l + ' ' + x.m[i]); });
+        var z = (setsOf(s.id, x) || []).filter(filled);
+        tb.appendChild(h('tr', null, h('td', { class: 'pe', text: x.name }), h('td', { text: vg.join(' · ') }), h('td', { text: z.length ? z.map(setTxt).join('  |  ') : 'nicht eingetragen' })));
+      });
+      page.appendChild(h('table', { class: 'pt' }, h('colgroup', null, h('col', { style: 'width:30%' }), h('col', { style: 'width:30%' }), h('col', { style: 'width:40%' })),
+        h('thead', null, h('tr', null, h('th', { text: 'Übung' }), h('th', { text: 'Vorgabe' }), h('th', { text: 'Ist (Wdh × Last @RPE)' }))), tb));
+    });
+    root.appendChild(page);
+  });
+  function row(k, v) { return h('div', null, h('b', { text: k }), v == null || v === '' ? '–' : String(v)); }
+  root.appendChild(h('div', { class: 'pp' }, head('Wochenfragen', ''), h('div', { class: 'pa' },
+    rec.name ? row('Name', rec.name) : null,
+    row('Einheiten absolviert', a.umfang), row('Belastungsempfinden (1–10)', a.belastung), row('Schlaf & Erholung (1–5)', a.schlaf),
+    row('Beschwerden', a.beschwerden == null ? '' : a.beschwerden ? 'Ja' : 'Nein'), row('Anmerkung', a.anmerkung.trim())),
+    h('div', { class: 'pn', text: rec.consent ? 'Einwilligung zur Angabe „Beschwerden (Ja/Nein)“ erteilt am ' + fmtTs(rec.consentAt) + '.' : 'Keine Einwilligung erteilt.' })));
+  setTimeout(function () { window.print(); }, 50);
+}
+window.addEventListener('afterprint', function () { document.getElementById('print-root').textContent = ''; });
+
+/* ───────── Render & Start ───────── */
+function render() {
+  var app = document.getElementById('app'); app.textContent = '';
+  var nodes = !rec || view.name === 'start' ? viewStart() : view.name === 'sess' ? viewSession() : view.name === 'week' ? viewWeek() : viewHome();
+  (function add(list) { list.forEach(function (n) { if (Array.isArray(n)) add(n); else if (n) app.appendChild(n); }); })(nodes);
+}
+function boot() {
+  var hash = location.hash || '';
+  var m = hash.match(/^#p=(.*)$/);
+  if (m) {
+    decodeCode(m[1]).then(function (plan) {
+      openPlan(plan);
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      go('home', 0, false);
+    }, function (e) {
+      startError = (e && e.user ? e.message : 'Der Link konnte nicht gelesen werden.') + ' Deine gespeicherten Daten sind unverändert.';
+      rec = null; go('start', 0, false);
+    });
+    return;
+  }
+  var last = lsGet(LAST_KEY, '');
+  if (last && idOk(last)) rec = loadRec(last);
+  var st = history.state; // nach Reload in derselben Ansicht bleiben
+  if (rec && st && (st.v === 'sess' || st.v === 'week')) go(st.v, int(st.si, 0, LIM.sessions) || 0, false);
+  else go(rec ? 'home' : 'start', 0, false);
+}
+try { localStorage.setItem('perform_player_probe', '1'); localStorage.removeItem('perform_player_probe'); } catch (e) { storageOK = false; }
+window.__pl = { parseAnyInput: parseAnyInput, sanitizePlan: sanitizePlan, buildExport: buildExport, get rec() { return rec; } };
+boot();
+})();
+</script>
+</body>
+</html>

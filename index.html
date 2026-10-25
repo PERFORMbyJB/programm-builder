@@ -445,6 +445,7 @@ textarea.form-control { resize:vertical; min-height:60px; }
       <div class="meta-tag">🎯 <input type="text" class="meta-input" id="prog-level" list="level-list" onchange="saveMeta()"></div>
       <div id="prog-vol-badge" class="vol-badge"></div>
       <button class="print-btn" onclick="openColumnsModal()" title="Kennzahlen-Spalten umbenennen, entfernen oder hinzufügen" style="background:#3a2f6b">⚙ Spalten</button>
+      <button class="print-btn" onclick="openPlayerModal()" title="Link für die Spieler-App: Plan steckt komprimiert im Link, ohne Server" style="background:#1D4579;color:#fff">📱 Spieler-Link</button>
       <button class="print-btn" onclick="printProgram(false)" title="Nur die aktuell geöffnete Einheit exportieren">🖨 Diese Einheit</button>
       <button class="print-btn" onclick="printProgram(true)" title="Alle Einheiten des Programms exportieren, jede auf eigener Seite" style="background:#1e3a8a">🖨 Alle Einheiten</button>
     </div>
@@ -532,6 +533,41 @@ textarea.form-control { resize:vertical; min-height:60px; }
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeCopyModal()">Abbrechen</button>
       <button class="btn btn-primary" onclick="confirmCopySession()">Kopieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- Spieler-Link Modal -->
+<div class="overlay" id="player-overlay" onclick="if(event.target===this)closePlayerModal()">
+  <div class="modal" style="max-width:560px">
+    <h3>Spieler-Link</h3>
+    <p class="modal-hint">Der Plan steckt komprimiert im Link hinter dem #. Dieser Teil wird nie an einen Server gesendet. Enthalten sind nur Übungen, Vorgaben, Cues und Video-Links – keine Namen, keine Gesundheitsdaten.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Woche</label>
+        <input type="number" class="form-control" id="pl-week" min="1" max="52" value="1" oninput="updatePlayerLink()">
+      </div>
+      <div class="form-group">
+        <label>Kürzel (optional)</label>
+        <input type="text" class="form-control" id="pl-ref" maxlength="12" placeholder="z. B. S07 – kein Name" oninput="updatePlayerLink()">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Titel für den Spieler</label>
+      <input type="text" class="form-control" id="pl-title" maxlength="80" oninput="updatePlayerLink()">
+      <div class="backup-info">Keine Spielernamen in Titel oder Kürzel. Das Kürzel ordnet die Rückmeldung in der Auswertung zu.</div>
+    </div>
+    <div class="form-group">
+      <label>Link</label>
+      <textarea class="form-control" id="pl-link" readonly rows="4" style="font-size:11px;word-break:break-all"></textarea>
+      <div class="backup-info" id="pl-info"></div>
+    </div>
+    <div class="modal-footer" style="flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="setPlayerBase()" title="Adresse der Spieler-App ändern">Adresse…</button>
+      <button class="btn btn-ghost" onclick="copyPlayerJson()" title="Fallback, wenn der Link zu lang ist: Spieler fügt den Text in der App ein">Plan als Text</button>
+      <button class="btn btn-ghost" onclick="downloadPlayerJson()" title="Fallback: Plan als Datei senden">Als Datei</button>
+      <button class="btn btn-ghost" onclick="openPlayerLink()">Testen</button>
+      <button class="btn btn-primary" onclick="copyPlayerLink()">Link kopieren</button>
     </div>
   </div>
 </div>
@@ -1424,6 +1460,121 @@ function importPrograms(input) {
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
+function bytesToB64url(bytes) {
+  let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+// ── Spieler-Link (Plan komprimiert im URL-Fragment #p=…, Format {app:'perform-plan', v:1}) ──
+// Nur Übungen, Vorgaben, Cues, Video-Links. Programmbeschreibung und Namen bleiben draußen.
+const PLAYER_URL_KEY = 'perform_player_url';
+// Ab dieser Länge kann der Link in Mail-Programmen umbrechen oder abgeschnitten werden (alte Outlook-/IE-Grenze ~2083).
+const PLAYER_LINK_WARN = 2000;
+// WhatsApp lässt maximal 65.536 Zeichen pro Nachricht zu; darüber geht nur noch "Als Datei".
+const PLAYER_LINK_MAX = 65000;
+let playerLink = '', playerPlan = null, playerSeq = 0;
+
+function playerBase() {
+  const saved = lsGet(PLAYER_URL_KEY, '').trim();
+  if (saved) return saved;
+  return new URL('spieler/', location.href.split('#')[0]).href;
+}
+function setPlayerBase() {
+  const cur = playerBase();
+  const url = prompt('Adresse der Spieler-App (spieler/index.html).\nLeer lassen = Standard neben dem Builder.', cur);
+  if (url === null) return;
+  const clean = url.trim().split('#')[0];
+  if (clean && !/^https:\/\//i.test(clean) && !/^file:\/\//i.test(clean) && !/^http:\/\/localhost/i.test(clean)) { alert('Die Adresse muss mit https:// beginnen.'); return; }
+  lsSet(PLAYER_URL_KEY, clean);
+  updatePlayerLink();
+}
+function playerPlanId(p, week, ref) {
+  const pid = String(p.id || 'p').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 20) || 'p';
+  return pid + '-w' + week + (ref ? '-' + ref : '');
+}
+function buildPlayerPlan(p, week, title, ref) {
+  const cols = p.columns || defaultColumns();
+  return {
+    app: 'perform-plan', v: 1, id: playerPlanId(p, week, ref), title, week, weeks: +p.weeks || null, ref,
+    notes: p.notes || '',
+    cols: cols.map(c => [c.key, c.label]),
+    sessions: p.sessions.map(s => ({
+      id: s.id, name: s.name || '', focus: s.focus || '', note: s.note || '',
+      blocks: s.blocks.map(bl => ({
+        name: bl.name || '', color: bl.color || '',
+        ex: bl.exercises.filter(ex => (ex.name || '').trim()).map(ex => ({
+          id: ex.id, name: ex.name.trim(),
+          m: cols.map(c => String((ex.metrics && ex.metrics[c.key]) || '')),
+          cue: ex.notes || '', video: safeUrl(ex.videoUrl) || ''
+        }))
+      })).filter(bl => bl.ex.length)
+    })).filter(s => s.blocks.length)
+  };
+}
+async function packPlan(obj) {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  if (typeof CompressionStream !== 'undefined') {
+    try {
+      const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+      return 'd' + bytesToB64url(new Uint8Array(await new Response(stream).arrayBuffer()));
+    } catch (e) { /* unkomprimiert */ }
+  }
+  return 'r' + bytesToB64url(bytes);
+}
+function openPlayerModal() {
+  const p = programs[activeProg];
+  if (!p) return;
+  document.getElementById('pl-title').value = p.name || '';
+  const w = document.getElementById('pl-week');
+  w.max = Math.max(1, Math.min(52, +p.weeks || 52));
+  if (+w.value > +w.max) w.value = 1;
+  document.getElementById('player-overlay').classList.add('open');
+  updatePlayerLink();
+}
+function closePlayerModal() { document.getElementById('player-overlay').classList.remove('open'); }
+async function updatePlayerLink() {
+  const p = programs[activeProg];
+  if (!p) return;
+  const info = document.getElementById('pl-info');
+  const week = parseInt(document.getElementById('pl-week').value, 10);
+  const refEl = document.getElementById('pl-ref');
+  const ref = refEl.value.trim();
+  const title = document.getElementById('pl-title').value.trim().slice(0, 80);
+  playerLink = ''; playerPlan = null;
+  const seq = ++playerSeq;
+  if (!(week >= 1 && week <= 52)) { info.textContent = 'Woche muss zwischen 1 und 52 liegen.'; info.className = 'backup-info err'; document.getElementById('pl-link').value = ''; return; }
+  if (!/^[A-Za-z0-9-]{0,12}$/.test(ref)) { info.textContent = 'Kürzel: nur Buchstaben, Ziffern und Bindestrich, max. 12 Zeichen.'; info.className = 'backup-info err'; document.getElementById('pl-link').value = ''; return; }
+  const plan = buildPlayerPlan(p, week, title, ref);
+  if (!plan.sessions.length) { info.textContent = 'Das Programm enthält noch keine benannten Übungen.'; info.className = 'backup-info err'; document.getElementById('pl-link').value = ''; return; }
+  const code = await packPlan(plan);
+  if (seq !== playerSeq) return; // neuere Eingabe ist schon unterwegs
+  playerPlan = plan;
+  playerLink = playerBase() + '#p=' + code;
+  document.getElementById('pl-link').value = playerLink;
+  const n = playerLink.length;
+  const sess = plan.sessions.length + (plan.sessions.length === 1 ? ' Einheit' : ' Einheiten');
+  if (n <= PLAYER_LINK_WARN) { info.textContent = n + ' Zeichen · ' + sess + ' · passt in Mail und Messenger.'; info.className = 'backup-info'; }
+  else if (n <= PLAYER_LINK_MAX) { info.textContent = n + ' Zeichen · ' + sess + ' · lang: in Messengern okay, manche Mail-Programme kürzen lange Links. Im Zweifel „Plan als Text“ oder „Als Datei“ senden.'; info.className = 'backup-info warn'; }
+  else { info.textContent = n + ' Zeichen · zu lang für einen Link. Bitte „Als Datei“ senden.'; info.className = 'backup-info err'; }
+}
+function copyText(text, okMsg) {
+  const done = () => { const i = document.getElementById('pl-info'); i.textContent = okMsg; i.className = 'backup-info'; };
+  if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).then(done, () => fallbackCopy(text, done)); }
+  else fallbackCopy(text, done);
+}
+function fallbackCopy(text, done) {
+  const t = document.createElement('textarea'); t.value = text; t.style.position = 'fixed'; t.style.opacity = '0';
+  document.body.appendChild(t); t.select();
+  try { document.execCommand('copy'); done(); } catch (e) { alert('Kopieren nicht möglich. Bitte manuell markieren.'); }
+  t.remove();
+}
+function copyPlayerLink() { if (playerLink) copyText(playerLink, 'Link kopiert (' + playerLink.length + ' Zeichen).'); }
+function copyPlayerJson() { if (playerPlan) copyText(JSON.stringify(playerPlan), 'Plan-Text kopiert. Spieler fügt ihn in der App unter „Trainingsplan öffnen“ ein.'); }
+function downloadPlayerJson() {
+  if (!playerPlan) return;
+  downloadBlob(new Blob([JSON.stringify(playerPlan)], { type: 'application/json' }), 'PERFORM_Plan_Woche' + playerPlan.week + (playerPlan.ref ? '_' + playerPlan.ref : '') + '.json');
+}
+function openPlayerLink() { if (playerLink) window.open(playerLink, '_blank', 'noopener'); }
+
 // ── Print ──────────────────────────────────────────────────────────────
 function printProgram(allSessions) {
   const p = programs[activeProg];
@@ -1468,7 +1619,7 @@ function printProgram(allSessions) {
 function closeModal() { document.getElementById('overlay').classList.remove('open'); }
 function closeOverlay(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { closeModal(); closeCopyModal(); closeColumnsModal(); }
+  if (e.key === 'Escape') { closeModal(); closeCopyModal(); closeColumnsModal(); closePlayerModal(); }
   if (e.key === 'Enter' && e.ctrlKey && document.getElementById('overlay').classList.contains('open')) createProgram();
 });
 
