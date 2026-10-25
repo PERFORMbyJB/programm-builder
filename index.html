@@ -676,6 +676,68 @@ function migrateProgramToColumns(p) {
   });
 }
 
+// IDs und Spalten-Keys landen in onclick-Handlern ('${bl.id}'), Farben und Breiten
+// in style-Attributen — dort schützt esc() nicht. Daten aus Import/Speicher werden
+// deshalb hier streng geprüft; ungültige Werte werden ersetzt statt übernommen.
+const SAFE_ID = /^[A-Za-z0-9_-]{1,64}$/;
+const SAFE_KEY = /^[A-Za-z0-9_]{1,64}$/;
+const SAFE_COLOR = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
+function safeColor(c) { return typeof c === 'string' && SAFE_COLOR.test(c) ? c : BLOCK_COLORS[0]; }
+
+function sanitizeProgram(p) {
+  const str = v => v == null ? '' : String(v);
+  const objs = a => Array.isArray(a) ? a.filter(o => o && typeof o === 'object') : [];
+  const seen = new Set();
+  const fixId = id => {
+    let out = typeof id === 'string' && SAFE_ID.test(id) ? id : genId();
+    while (seen.has(out)) out = genId();
+    seen.add(out);
+    return out;
+  };
+
+  p.id = fixId(p.id);
+  p.name = str(p.name); p.category = str(p.category); p.level = str(p.level);
+  p.description = str(p.description); p.notes = str(p.notes);
+  const weeks = parseInt(p.weeks, 10);
+  p.weeks = weeks > 0 ? weeks : 1;
+
+  // Ungültige Spalten-Keys bekommen einen neuen Key; die Werte der Übungen ziehen mit um.
+  const keyMap = {};
+  const keys = new Set();
+  p.columns = objs(p.columns || defaultColumns()).map(c => {
+    const key = typeof c.key === 'string' && SAFE_KEY.test(c.key) && !keys.has(c.key) ? c.key : 'col_' + genId();
+    keys.add(key);
+    if (key !== c.key && typeof c.key === 'string' && !(c.key in keyMap)) keyMap[c.key] = key;
+    const width = parseInt(c.width, 10);
+    return { key, label: str(c.label) || key, width: width > 0 && width < 1000 ? width : 60 };
+  });
+
+  p.sessions = objs(p.sessions);
+  p.sessions.forEach(sess => {
+    sess.id = fixId(sess.id);
+    sess.name = str(sess.name); sess.focus = str(sess.focus); sess.note = str(sess.note);
+    sess.blocks = objs(sess.blocks);
+    sess.blocks.forEach(bl => {
+      bl.id = fixId(bl.id);
+      bl.name = str(bl.name);
+      bl.color = safeColor(bl.color);
+      bl.collapsed = !!bl.collapsed;
+      bl.exercises = objs(bl.exercises);
+      bl.exercises.forEach(ex => {
+        ex.id = fixId(ex.id);
+        ex.name = str(ex.name); ex.notes = str(ex.notes); ex.videoUrl = str(ex.videoUrl);
+        const metrics = {};
+        Object.keys(ex.metrics && typeof ex.metrics === 'object' ? ex.metrics : {}).forEach(k => {
+          const target = keyMap[k] || (SAFE_KEY.test(k) ? k : null);
+          if (target) metrics[target] = str(ex.metrics[k]);
+        });
+        ex.metrics = metrics;
+      });
+    });
+  });
+  return p;
+}
+
 // ────────────────────────────────────────────────────────
 // Persistence
 // ────────────────────────────────────────────────────────
@@ -684,7 +746,11 @@ function load() {
   const raw = localStorage.getItem(KEY);
   if (raw) {
     programs = JSON.parse(raw);
-    programs.forEach(migrateProgramToColumns);
+    if (!Array.isArray(programs)) programs = [];
+    programs = programs.filter(p => p && typeof p === 'object');
+    programs.forEach(p => { migrateProgramToColumns(p); sanitizeProgram(p); });
+    // Bereinigte Daten zurückschreiben, damit ersetzte IDs stabil bleiben (Spieler-Link nutzt sie)
+    if (JSON.stringify(programs) !== raw) save();
     return;
   }
   // Demo program
@@ -756,7 +822,7 @@ function renderSidebar() {
       <div class="prog-item-dot" style="background:${COLORS[p.category]||'#3b82f6'}"></div>
       <div class="prog-item-info">
         <div class="prog-item-name">${esc(p.name)}</div>
-        <div class="prog-item-meta">${esc(p.category)} · ${p.weeks}W · ${p.sessions.length} Einheiten</div>
+        <div class="prog-item-meta">${esc(p.category)} · ${esc(p.weeks)}W · ${p.sessions.length} Einheiten</div>
       </div>
       <button class="prog-item-del" onclick="event.stopPropagation();deleteProg(${i})" title="Löschen">✕</button>
     </div>`
@@ -789,7 +855,7 @@ function renderEditor() {
   const tabsEl = document.getElementById('sess-tabs');
   tabsEl.innerHTML = p.sessions.map((s,i)=>
     `<button class="sess-tab${i===activeSess?' active':''}" onclick="selectSess(${i})">
-      ${s.name}
+      ${esc(s.name)}
       <span class="sess-tab-dup" onclick="event.stopPropagation();duplicateSess(${i})" title="Einheit duplizieren">⧉</span>
       <span class="sess-tab-del" onclick="event.stopPropagation();deleteSess(${i})">✕</span>
     </button>`
@@ -825,7 +891,7 @@ function renderSessionHTML(sess, editable, columns) {
   html += sess.blocks.map((bl,bi) => `
     <div class="block" id="${editable?'bl-'+bl.id:''}">
       <div class="block-header" ${editable?`onclick="toggleBlock('${bl.id}')"`:''}>
-        <div class="block-color-dot" style="background:${bl.color}"></div>
+        <div class="block-color-dot" style="background:${safeColor(bl.color)}"></div>
         ${editable
           ? `<div class="block-name" contenteditable="true" spellcheck="false"
                onclick="event.stopPropagation()"
@@ -848,7 +914,7 @@ function renderSessionHTML(sess, editable, columns) {
           <thead><tr>
             ${editable?'<th style="width:28px"></th>':''}
             <th>Übung</th>
-            ${cols.map(c => `<th style="width:${c.width||60}px">${esc(c.label)}</th>`).join('')}
+            ${cols.map(c => `<th style="width:${parseInt(c.width, 10) || 60}px">${esc(c.label)}</th>`).join('')}
             <th>Coaching-Cue</th>
             ${editable?'<th style="width:34px"></th>':''}
           </tr></thead>
@@ -922,7 +988,7 @@ function safeUrl(url) {
   return '';
 }
 
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s) { return (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ────────────────────────────────────────────────────────
 // Actions
@@ -1437,13 +1503,12 @@ function importPrograms(input) {
       if (!list) throw new Error('format');
       const ok = list.filter(p => p && typeof p === 'object' && typeof p.name === 'string' && Array.isArray(p.sessions));
       if (!ok.length) throw new Error('empty');
-      ok.forEach(p => { if (!p.id) p.id = genId(); });
+      ok.forEach(p => { migrateProgramToColumns(p); sanitizeProgram(p); });
       const ids = new Set(programs.map(p => p.id));
       const overlap = ok.filter(p => ids.has(p.id)).length;
       if (overlap && !confirm(overlap + ' Programm(e) gibt es hier schon und werden mit dem Stand aus der Datei überschrieben.\n\nFortfahren?')) return;
       let added = 0;
       ok.forEach(p => {
-        migrateProgramToColumns(p);
         const idx = programs.findIndex(x => x.id === p.id);
         if (idx >= 0) programs[idx] = p; else { programs.push(p); added++; }
       });
@@ -1605,7 +1670,7 @@ function printProgram(allSessions) {
       <div class="print-header">
         <div class="print-header-top">
           <div class="print-logo">PERFORM<span>.</span></div>
-          <div class="print-meta">${esc(p.category)} · ${esc(p.level)} · ${p.weeks} Wochen</div>
+          <div class="print-meta">${esc(p.category)} · ${esc(p.level)} · ${esc(p.weeks)} Wochen</div>
         </div>
         <div class="print-prog-name">${esc(p.name)}</div>
       </div>
