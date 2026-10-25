@@ -359,13 +359,6 @@ textarea.form-control { resize:vertical; min-height:60px; }
 .print-logo span { color:#1D4579; }
 .print-meta { font-size:11px; color:#555; font-weight:600; }
 .print-prog-name { font-size:20px; font-weight:800; color:#000; }
-.print-log-link-wrap { margin-top:10px; }
-.print-log-link {
-  display:inline-block; background:#1D4579; color:#fff !important; font-weight:700; font-size:12.5px;
-  padding:8px 16px; border-radius:6px; text-decoration:none;
-  -webkit-print-color-adjust:exact; print-color-adjust:exact;
-}
-.print-log-hint { display:inline-block; margin-left:10px; font-size:10.5px; color:#555; font-weight:600; }
 .print-prog-notes {
   font-size:11.5px; color:#333; background:#f0f0f0; border-left:3px solid #1D4579;
   padding:8px 12px; margin-bottom:18px; line-height:1.5; border-radius:0 4px 4px 0;
@@ -452,8 +445,6 @@ textarea.form-control { resize:vertical; min-height:60px; }
       <div class="meta-tag">🎯 <input type="text" class="meta-input" id="prog-level" list="level-list" onchange="saveMeta()"></div>
       <div id="prog-vol-badge" class="vol-badge"></div>
       <button class="print-btn" onclick="openColumnsModal()" title="Kennzahlen-Spalten umbenennen, entfernen oder hinzufügen" style="background:#3a2f6b">⚙ Spalten</button>
-      <button class="print-btn" onclick="openLogSettings()" title="Adresse der Log-Seite und WhatsApp-Nummer einstellen" style="background:#0f5132">🔗 Log-Link</button>
-      <label class="meta-tag" title="Fügt jeder exportierten Einheit einen Link zum Loggen am Handy hinzu" style="cursor:pointer"><input type="checkbox" id="log-link-toggle" onchange="setLogLinkOn(this.checked)"> Log-Link im PDF</label>
       <button class="print-btn" onclick="printProgram(false)" title="Nur die aktuell geöffnete Einheit exportieren">🖨 Diese Einheit</button>
       <button class="print-btn" onclick="printProgram(true)" title="Alle Einheiten des Programms exportieren, jede auf eigener Seite" style="background:#1e3a8a">🖨 Alle Einheiten</button>
     </div>
@@ -1430,79 +1421,11 @@ function importPrograms(input) {
   r.readAsText(f);
 }
 
-// ── Log-Link (Plan wird komprimiert in den URL-Hash der Log-Seite gepackt) ──
-// Der Hash (#...) wird nie an einen Server gesendet, der Plan bleibt also im Link selbst.
-const LOG_URL_KEY = 'perform_log_url';
-const LOG_PHONE_KEY = 'perform_log_phone';
-const LOG_ON_KEY = 'perform_log_on';
-const DEFAULT_PHONE = '491605951455';
-
 function lsGet(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
 function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-function getLogUrl() { return lsGet(LOG_URL_KEY, '').trim(); }
-function logLinkOn() { return lsGet(LOG_ON_KEY, '1') === '1' && !!getLogUrl(); }
-function setLogLinkOn(on) { lsSet(LOG_ON_KEY, on ? '1' : '0'); }
-function syncLogToggle() {
-  const t = document.getElementById('log-link-toggle');
-  if (t) { t.checked = lsGet(LOG_ON_KEY, '1') === '1' && !!getLogUrl(); t.disabled = !getLogUrl(); }
-}
-function openLogSettings() {
-  const cur = getLogUrl();
-  const url = prompt('Adresse der Log-Seite (perform-log.html), z. B. https://…/perform-log.html\n\nLeer lassen = kein Log-Link im PDF.', cur);
-  if (url === null) return;
-  const clean = url.trim();
-  if (clean && !/^https:\/\//i.test(clean)) { alert('Die Adresse muss mit https:// beginnen.'); return; }
-  lsSet(LOG_URL_KEY, clean.split('#')[0]);
-  const ph = prompt('WhatsApp-Nummer, an die der Spieler sendet (nur Ziffern, mit Ländervorwahl):', lsGet(LOG_PHONE_KEY, DEFAULT_PHONE));
-  if (ph !== null) {
-    const digits = ph.replace(/\D/g, '');
-    lsSet(LOG_PHONE_KEY, digits || DEFAULT_PHONE);
-  }
-  if (clean) lsSet(LOG_ON_KEY, '1');
-  syncLogToggle();
-}
-
-function bytesToB64url(bytes) {
-  let bin = ''; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-function buildLogPayload(p, sess) {
-  const cols = p.columns || defaultColumns();
-  return {
-    v: 1, pr: p.name || '', s: sess.name || '', f: sess.focus || '', nt: sess.note || '',
-    ph: lsGet(LOG_PHONE_KEY, DEFAULT_PHONE),
-    c: cols.map(c => [c.key, c.label]),
-    b: sess.blocks.map(bl => ({
-      n: bl.name,
-      e: bl.exercises.filter(ex => (ex.name || '').trim()).map(ex => ({
-        n: ex.name.trim(),
-        m: cols.map(c => String((ex.metrics && ex.metrics[c.key]) || '')),
-        c: ex.notes || '',
-        u: safeUrl(ex.videoUrl) || ''
-      }))
-    })).filter(bl => bl.e.length)
-  };
-}
-async function encodeLogPayload(obj) {
-  const bytes = new TextEncoder().encode(JSON.stringify(obj));
-  if (typeof CompressionStream !== 'undefined') {
-    try {
-      const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
-      const packed = new Uint8Array(await new Response(stream).arrayBuffer());
-      return 'v1.d.' + bytesToB64url(packed);
-    } catch (e) { /* Fallback unten */ }
-  }
-  return 'v1.r.' + bytesToB64url(bytes);
-}
-async function buildLogUrl(p, sess) {
-  const base = getLogUrl();
-  if (!base) return '';
-  return base + '#' + await encodeLogPayload(buildLogPayload(p, sess));
-}
-
 // ── Print ──────────────────────────────────────────────────────────────
-async function printProgram(allSessions) {
+function printProgram(allSessions) {
   const p = programs[activeProg];
   if (!p) return;
 
@@ -1510,8 +1433,6 @@ async function printProgram(allSessions) {
   printRoot.innerHTML = '';
 
   const sessionsToPrint = allSessions ? p.sessions : [p.sessions[activeSess]];
-  const withLink = logLinkOn();
-  const logUrls = withLink ? await Promise.all(sessionsToPrint.map(s => s ? buildLogUrl(p, s) : '')) : [];
 
   sessionsToPrint.forEach((sess, idx) => {
     if (!sess) return;
@@ -1529,7 +1450,6 @@ async function printProgram(allSessions) {
           <div class="print-meta">${esc(p.category)} · ${esc(p.level)} · ${p.weeks} Wochen</div>
         </div>
         <div class="print-prog-name">${esc(p.name)}</div>
-        ${logUrls[idx] ? `<div class="print-log-link-wrap"><a class="print-log-link" href="${esc(logUrls[idx])}" target="_blank" rel="noopener noreferrer">▶ Einheit am Handy loggen</a><span class="print-log-hint">Antippen · Sätze abhaken · Gewicht eintragen · per WhatsApp senden</span></div>` : ''}
       </div>
       ${notesBlock}
       ${renderSessionHTML(sess, false, p.columns)}
@@ -1555,7 +1475,6 @@ document.addEventListener('keydown', e => {
 // ── Init ──────────────────────────────────────────────────────────────
 load();
 updateMetaDatalists();
-syncLogToggle();
 if (programs.length > 0) activeProg = 0;
 render();
 renderBackupInfo();
