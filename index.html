@@ -542,7 +542,7 @@ textarea.form-control { resize:vertical; min-height:60px; }
 <div class="overlay" id="player-overlay" onclick="if(event.target===this)closePlayerModal()">
   <div class="modal" style="max-width:560px">
     <h3>Spieler-Link</h3>
-    <p class="modal-hint">Der Plan steckt komprimiert im Link hinter dem #. Dieser Teil wird nie an einen Server gesendet. Enthalten sind nur Übungen, Vorgaben, Cues und Video-Links – keine Namen, keine Gesundheitsdaten.</p>
+    <p class="modal-hint">Der Plan steckt komprimiert im Link hinter dem #. Dieser Teil wird nie an einen Server gesendet. Enthalten sind: Titel, Woche, Kürzel, Übungen mit Vorgaben, Cues, Video-Links, Einheiten-Notizen und die „Allgemeinen Hinweise“. Die Programmbeschreibung bleibt draußen. Bitte in keinem dieser Texte Namen oder Gesundheitsdaten.</p>
     <div class="form-row">
       <div class="form-group">
         <label>Woche</label>
@@ -1546,13 +1546,19 @@ async function updatePlayerLink() {
   if (!/^[A-Za-z0-9-]{0,12}$/.test(ref)) { info.textContent = 'Kürzel: nur Buchstaben, Ziffern und Bindestrich, max. 12 Zeichen.'; info.className = 'backup-info err'; document.getElementById('pl-link').value = ''; return; }
   const plan = buildPlayerPlan(p, week, title, ref);
   if (!plan.sessions.length) { info.textContent = 'Das Programm enthält noch keine benannten Übungen.'; info.className = 'backup-info err'; document.getElementById('pl-link').value = ''; return; }
+  // Gleiche Grenzen wie in der Spieler-App (spieler/index.html, LIM), sonst lehnt sie den Plan ab
+  const tooBig = plan.sessions.length > 14 ? 'mehr als 14 Einheiten'
+    : plan.cols.length > 10 ? 'mehr als 10 Spalten'
+    : plan.sessions.some(s => s.blocks.length > 12) ? 'mehr als 12 Blöcke in einer Einheit'
+    : plan.sessions.some(s => s.blocks.some(b => b.ex.length > 40)) ? 'mehr als 40 Übungen in einem Block' : '';
+  if (tooBig) { info.textContent = 'Die Spieler-App kann diesen Plan nicht öffnen: ' + tooBig + '.'; info.className = 'backup-info err'; document.getElementById('pl-link').value = ''; return; }
   const code = await packPlan(plan);
   if (seq !== playerSeq) return; // neuere Eingabe ist schon unterwegs
   playerPlan = plan;
   playerLink = playerBase() + '#p=' + code;
   document.getElementById('pl-link').value = playerLink;
   const n = playerLink.length;
-  const sess = plan.sessions.length + (plan.sessions.length === 1 ? ' Einheit' : ' Einheiten');
+  const sess = plan.sessions.length + (plan.sessions.length === 1 ? ' Einheit' : ' Einheiten') + (p.weeks && week > p.weeks ? ' · Achtung: Programm hat nur ' + p.weeks + ' Wochen' : '');
   if (n <= PLAYER_LINK_WARN) { info.textContent = n + ' Zeichen · ' + sess + ' · passt in Mail und Messenger.'; info.className = 'backup-info'; }
   else if (n <= PLAYER_LINK_MAX) { info.textContent = n + ' Zeichen · ' + sess + ' · lang: in Messengern okay, manche Mail-Programme kürzen lange Links. Im Zweifel „Plan als Text“ oder „Als Datei“ senden.'; info.className = 'backup-info warn'; }
   else { info.textContent = n + ' Zeichen · zu lang für einen Link. Bitte „Als Datei“ senden.'; info.className = 'backup-info err'; }

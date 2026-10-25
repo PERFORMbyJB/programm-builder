@@ -54,7 +54,7 @@ select{background:var(--card2);border:1px solid transparent;border-radius:12px;p
 .tile .l{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:5px}
 .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px}
 .chart{width:100%;height:auto;display:block}
-.chart text{fill:var(--muted);font-size:10.5px;font-family:inherit}
+.chart text{fill:var(--muted);font-size:13px;font-family:inherit}
 .ct{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;display:flex;gap:14px;flex-wrap:wrap}
 .lg{display:inline-flex;align-items:center;gap:5px}
 .lg i{display:inline-block;width:12px;height:3px;border-radius:2px}
@@ -149,8 +149,9 @@ function sanitizeExport(o) {
   var a = isObj(o.antworten) ? o.antworten : {};
   var consent = isObj(o.einwilligung) && o.einwilligung.beschwerden === true;
   var kz = str(o.kuerzel, 12); if (!/^[A-Za-z0-9-]*$/.test(kz)) kz = '';
+  var xid = typeof o.id === 'string' && /^[0-9a-f]{16}$/.test(o.id) ? o.id : '';
   return {
-    planId: o.planId, titel: str(o.titel, 80), kuerzel: kz, name: str(o.name, 60), woche: woche, exportiert: d.toISOString(), sessions: sessions,
+    id: xid, planId: o.planId, titel: str(o.titel, 80), kuerzel: kz, name: str(o.name, 60), woche: woche, exportiert: d.toISOString(), sessions: sessions,
     antworten: {
       umfang: UMFANG.indexOf(a.umfang) >= 0 ? a.umfang : '',
       belastung: int(a.belastung, 1, 10), schlaf: int(a.schlaf, 1, 5),
@@ -163,10 +164,12 @@ function sanitizeExport(o) {
 
 /* ───────── Speicher (nur dieser Browser) ───────── */
 function load() {
-  try { var d = JSON.parse(lsGet(KEY, 'null')); if (isObj(d) && Array.isArray(d.entries)) return d.entries.map(function (e) { try { return sanitizeExport(Object.assign({ app: 'perform-player', v: 1, einwilligung: { beschwerden: e.antworten && e.antworten.beschwerden != null } }, e)); } catch (x) { return null; } }).filter(Boolean); } catch (e) {}
+  var raw = lsGet(KEY, null);
+  try { var d = JSON.parse(raw || 'null'); if (isObj(d) && Array.isArray(d.entries)) return d.entries.map(function (e) { try { return sanitizeExport(Object.assign({ app: 'perform-player', v: 1, einwilligung: { beschwerden: e.antworten && e.antworten.beschwerden != null } }, e)); } catch (x) { return null; } }).filter(Boolean); } catch (e) {}
+  if (raw) { lsSet(KEY + ':defekt', raw); brokenStore = true; } // nicht beim nächsten Import still überschreiben
   return [];
 }
-var entries = load(), storageOK = true, logLines = [];
+var brokenStore = false, entries = load(), storageOK = true, logLines = [];
 function save() { storageOK = lsSet(KEY, JSON.stringify({ v: 1, entries: entries })); }
 
 function addText(text, label) {
@@ -176,13 +179,16 @@ function addText(text, label) {
   list.slice(0, 200).forEach(function (item, i) {
     var lbl = label + (list.length > 1 ? ' #' + (i + 1) : '');
     var e; try { e = sanitizeExport(item); } catch (x) { logLines.push(['no', lbl + ': abgelehnt (' + (x.user ? x.message : 'ungültig') + ')']); return; }
-    var j = -1; entries.forEach(function (x, k) { if (x.planId === e.planId && x.name === e.name) j = k; }); // gleiche Woche desselben Spielers
+    var j = -1; entries.forEach(function (x, k) { if (sameWeek(x, e)) j = k; });
     if (j >= 0 && entries[j].exportiert >= e.exportiert) { logLines.push(['info', lbl + ': ' + who(e) + ' Woche ' + e.woche + ' ist schon in gleichem oder neuerem Stand da']); return; }
     if (j >= 0) entries[j] = e; else entries.push(e);
     ok++; logLines.push(['ok', lbl + ': ' + who(e) + ' · Woche ' + e.woche + (j >= 0 ? ' aktualisiert' : ' übernommen')]);
   });
   if (ok) { if (entries.length > LIM.entries) entries = entries.slice(-LIM.entries); save(); }
 }
+// Gleiche Woche desselben Spielers: über die zufällige ID aus der Spieler-App (bleibt bei erneutem Export gleich).
+// Ältere Dateien ohne ID: nur bei gleichem Plan, Namen und Exportzeitpunkt.
+function sameWeek(x, e) { return x.planId === e.planId && (x.id && e.id ? x.id === e.id : x.name === e.name && x.exportiert === e.exportiert); }
 function readFiles(files) {
   logLines = [];
   var list = Array.prototype.slice.call(files || [], 0, 100), left = list.length;
@@ -197,8 +203,8 @@ function readFiles(files) {
 }
 
 /* ───────── Kennzahlen ───────── */
-function who(e) { return e.kuerzel || e.name || 'ohne Kürzel'; }
-function groupKey(e) { return e.kuerzel ? 'k:' + e.kuerzel : e.name ? 'n:' + e.name : 'p:' + e.planId.replace(/-w\d+$/, ''); }
+function who(e) { return e.kuerzel || e.name || 'ohne Kürzel · ' + (e.id || e.exportiert).slice(0, 4); }
+function groupKey(e) { return e.kuerzel ? 'k:' + e.kuerzel : e.name ? 'n:' + e.name : 'i:' + (e.id || e.planId + e.exportiert); }
 function groups() {
   var g = {}; entries.forEach(function (e) { var k = groupKey(e); (g[k] = g[k] || { key: k, label: who(e), n: 0 }).n++; });
   return Object.keys(g).map(function (k) { return g[k]; }).sort(function (a, b) { return a.label.localeCompare(b.label, 'de'); });
@@ -245,6 +251,7 @@ function render() {
   var out = [h('div', { class: 'logo' }, 'PERFORM', h('span', { text: '.' }), h('small', { text: 'AUSWERTUNG' })),
     h('h1', { text: 'Spieler-Rückmeldungen' }),
     h('div', { class: 'sub', text: 'Importiere die Wochendateien deiner Spieler. Alles bleibt in diesem Browser – nichts wird hochgeladen.' })];
+  if (brokenStore) out.push(h('div', { class: 'banner red', role: 'alert', text: 'Der gespeicherte Stand war beschädigt und wurde unter „perform_auswertung_v1:defekt“ gesichert. Bitte Dateien neu importieren.' }));
   if (!storageOK) out.push(h('div', { class: 'banner red', role: 'alert', text: 'Speichern im Browser nicht möglich. Importierte Daten gehen beim Schließen verloren.' }));
 
   // Import
@@ -280,7 +287,7 @@ function render() {
 
   // Verläufe
   if (sel) {
-    var labels = list.map(function (e) { return 'W' + e.woche; });
+    var labels = list.map(function (e) { return 'W' + e.woche + ' ' + fmtD(e.exportiert).slice(0, 6); });
     out.push(h('h2', { text: 'Verlauf' }), h('div', { class: 'charts' },
       h('div', { class: 'card' }, h('div', { class: 'ct' }, h('span', { class: 'lg' }, h('i', { style: 'background:#4B8EF0' }), 'Belastung (1–10)'), h('span', { class: 'lg' }, h('i', { style: 'background:#F5B041' }), 'Ø RPE')),
         lineChart(labels, [{ name: 'Belastung', color: '#4B8EF0', vals: list.map(function (e) { return e.antworten.belastung; }) }, { name: 'Ø RPE', color: '#F5B041', vals: list.map(avgRpe) }], 0, 10, [0, 2, 4, 6, 8, 10])),
@@ -294,7 +301,7 @@ function render() {
   var tb = h('tbody');
   list.slice().reverse().forEach(function (e) {
     var armed = false, del = h('button', { class: 'btn sm ghost danger', type: 'button', text: 'Entfernen', 'aria-label': 'Woche entfernen' });
-    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Sicher?'; return; } entries = entries.filter(function (x) { return x !== e; }); save(); render(); });
+    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Sicher?'; setTimeout(function () { armed = false; del.textContent = 'Entfernen'; }, 3000); return; } entries = entries.filter(function (x) { return x !== e; }); save(); render(); });
     var b = e.antworten.beschwerden;
     tb.appendChild(h('tr', null, h('td', { text: who(e) }), h('td', { text: e.titel || '–' }), h('td', { class: 'n', text: String(e.woche) }), h('td', { class: 'n', text: fmtD(e.exportiert) }),
       h('td', { class: 'n', text: e.antworten.umfang || '–' }), h('td', { class: 'n', text: String(setCount(e)) }), h('td', { class: 'n', text: f1(avgRpe(e)) }),
@@ -313,7 +320,7 @@ function render() {
   }); }); });
   var vrows = Object.keys(vol).map(function (k) { return vol[k]; }).sort(function (a, b) { return b.kg - a.kg || b.sets - a.sets; });
   out.push(h('h2', { text: 'Volumen je Übung' }), vrows.length ? h('div', { class: 'tw' }, h('table', null,
-    h('thead', null, h('tr', null, ['Übung', 'Wochen', 'Sätze', 'Wdh', 'Volumen (Wdh × kg)', 'Max. Last', 'Ø RPE'].map(function (t, i) { return h('th', { class: i ? 'n' : null, text: t }); }))),
+    h('thead', null, h('tr', null, ['Übung', 'Wochen', 'Sätze', 'Wdh', 'Volumen (Wdh × Last)', 'Max. Last', 'Ø RPE'].map(function (t, i) { return h('th', { class: i ? 'n' : null, text: t }); }))),
     h('tbody', null, vrows.map(function (v) { return h('tr', null, h('td', { text: v.name }), h('td', { class: 'n', text: String(Object.keys(v.weeks).length) }), h('td', { class: 'n', text: String(v.sets) }), h('td', { class: 'n', text: String(Math.round(v.reps)) }),
       h('td', { class: 'n', text: Math.round(v.kg).toLocaleString('de-DE') + ' kg' }), h('td', { class: 'n', text: v.max == null ? '–' : String(v.max).replace('.', ',') }), h('td', { class: 'n', text: f1(mean(v.rpe)) })); })))) : h('div', { class: 'empty', text: 'Keine Sätze eingetragen.' }));
 

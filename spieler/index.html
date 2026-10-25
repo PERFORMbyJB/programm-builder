@@ -312,15 +312,16 @@ function sanitizeRec(o) {
   var ans = { umfang: UMFANG.indexOf(a.umfang) >= 0 ? a.umfang : '', belastung: int(a.belastung, 1, 10), schlaf: int(a.schlaf, 1, 5), beschwerden: typeof a.beschwerden === 'boolean' ? a.beschwerden : null, anmerkung: typeof a.anmerkung === 'string' ? a.anmerkung.slice(0, 500) : '' };
   var consent = o.consent === true;
   if (!consent) ans.beschwerden = null;
-  return { v: 1, plan: plan, log: log, ans: ans, consent: consent, consentAt: consent ? str(o.consentAt, 30) : '', name: typeof o.name === 'string' ? o.name.slice(0, 60) : '', exportedAt: str(o.exportedAt, 30) };
+  return { v: 1, uid: typeof o.uid === 'string' && /^[0-9a-f]{16}$/.test(o.uid) ? o.uid : rid(), plan: plan, log: log, ans: ans, consent: consent, consentAt: consent ? str(o.consentAt, 30) : '', name: typeof o.name === 'string' ? o.name.slice(0, 60) : '', exportedAt: str(o.exportedAt, 30) };
 }
-function newRec(plan) { return { v: 1, plan: plan, log: {}, ans: emptyAns(), consent: false, consentAt: '', name: '', exportedAt: '' }; }
+function rid() { var a = new Uint8Array(8); crypto.getRandomValues(a); return Array.prototype.map.call(a, function (b) { return pad(b.toString(16)); }).join(''); }
+function newRec(plan) { return { v: 1, uid: rid(), plan: plan, log: {}, ans: emptyAns(), consent: false, consentAt: '', name: '', exportedAt: '' }; }
 function loadRec(id) {
   var raw = lsGet(PFX + id, null); if (!raw) return null;
   try { return sanitizeRec(JSON.parse(raw)); }
-  catch (e) { lsSet(PFX + id + ':defekt', raw); return null; } // kaputten Stand aufheben statt still zu verwerfen
+  catch (e) { lsSet(PFX + id + ':defekt', raw); brokenNotice = true; return null; } // kaputten Stand aufheben statt still zu verwerfen
 }
-var storageOK = true, rec = null;
+var storageOK = true, rec = null, brokenNotice = false;
 function save() {
   if (!rec) return;
   if (!lsSet(PFX + rec.plan.id, JSON.stringify(rec))) { storageOK = false; return; }
@@ -358,7 +359,7 @@ function ensureSets(sid, x) {
   if (!rec.log[sid][x.id]) { var n = plannedSets(x), a = []; while (a.length < n) a.push({ r: '', l: '', e: '' }); rec.log[sid][x.id] = a; }
   return rec.log[sid][x.id];
 }
-function rpeOk(v) { var n = nz(v); return v === '' || (n != null && n >= 0 && n <= 10); }
+function rpeOk(v) { var n = nz(v); return v === '' || (n != null && n >= 1 && n <= 10); }
 
 /* ───────── Navigation ───────── */
 var view = { name: 'start', si: 0 }, startError = '';
@@ -377,7 +378,8 @@ window.addEventListener('popstate', function (e) {
 function header() { return h('div', { class: 'logo' }, 'PERFORM', h('span', { text: '.' }), h('small', { text: 'SPIELER' })); }
 function infoBanner() {
   return [h('div', { class: 'banner', text: 'Daten liegen nur auf diesem Gerät. Exportiere nach jeder Woche.' }),
-    storageOK ? null : h('div', { class: 'banner red', role: 'alert', text: 'Speichern auf diesem Gerät klappt gerade nicht (privater Modus oder Speicher voll). Exportiere jetzt, sonst gehen Eingaben verloren.' })];
+    storageOK ? null : h('div', { class: 'banner red', role: 'alert', text: 'Speichern auf diesem Gerät klappt gerade nicht (privater Modus oder Speicher voll). Exportiere jetzt, sonst gehen Eingaben verloren.' }),
+    brokenNotice ? h('div', { class: 'banner amber', role: 'alert', text: 'Ein gespeicherter Stand war beschädigt und wurde beiseitegelegt. Bitte deinem Coach Bescheid geben.' }) : null];
 }
 
 function viewStart() {
@@ -569,7 +571,7 @@ function setOut(z) { return { wdh: nz(z.r), last: nz(z.l), rpe: rpeOk(z.e) ? nz(
 function buildExport() {
   var p = rec.plan, a = rec.ans;
   return {
-    app: 'perform-player', v: 1, planId: p.id, titel: p.title, kuerzel: p.ref, woche: p.week, name: str(rec.name, 60),
+    app: 'perform-player', v: 1, id: rec.uid, planId: p.id, titel: p.title, kuerzel: p.ref, woche: p.week, name: str(rec.name, 60),
     sessions: p.sessions.map(function (s) {
       return { id: s.id, name: s.name, ex: allEx(s).map(function (x) {
         var z = (setsOf(s.id, x) || []).filter(filled);
@@ -683,6 +685,7 @@ function boot() {
   if (rec && st && (st.v === 'sess' || st.v === 'week')) go(st.v, int(st.si, 0, LIM.sessions) || 0, false);
   else go(rec ? 'home' : 'start', 0, false);
 }
+window.addEventListener('hashchange', function () { if (/^#p=/.test(location.hash)) { closeSheet(); boot(); } });
 try { localStorage.setItem('perform_player_probe', '1'); localStorage.removeItem('perform_player_probe'); } catch (e) { storageOK = false; }
 window.__pl = { parseAnyInput: parseAnyInput, sanitizePlan: sanitizePlan, buildExport: buildExport, get rec() { return rec; } };
 boot();
