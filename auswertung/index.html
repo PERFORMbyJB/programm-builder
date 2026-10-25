@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="theme-color" content="#1C1F26">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<title>PERFORM. Auswertung</title>
+<style>
+@font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
+:root{
+  color-scheme:dark;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
+  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#9BA8C0; --dim:#6C7890;
+  --red:#F87171; --amber:#F5B041; --green:#4ADE80;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",-apple-system,system-ui,sans-serif;font-size:14.5px;line-height:1.4}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+.logo{font-size:15px;font-weight:700;letter-spacing:3px}
+.logo span{color:var(--acc)}
+.logo small{display:block;font-size:10.5px;letter-spacing:2px;color:var(--muted);font-weight:600;margin-top:1px}
+h1{font-size:24px;font-weight:700;margin:14px 0 2px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc);margin:26px 2px 10px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px}
+.btn{min-height:44px;border-radius:12px;padding:0 16px;font-weight:700;font-size:14px;background:var(--card2);color:var(--text)}
+.btn.pri{background:var(--acc);color:#0f1218}
+.btn.ghost{background:none;color:var(--muted)}
+.btn.danger{color:var(--red)}
+.btn.sm{min-height:36px;font-size:12.5px;padding:0 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.banner{background:#22385c;color:#cfe0fb;border-radius:12px;padding:10px 14px;font-size:13px;margin:10px 0}
+.banner.red{background:#4a2227;color:#f4a3a3}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:18px;text-align:center;color:var(--muted);font-size:13.5px}
+.drop.on{border-color:var(--acc);color:var(--text)}
+textarea{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:10px 12px;font-size:13px;min-height:70px;outline:none;resize:vertical;margin-top:10px}
+textarea:focus,select:focus{border-color:var(--acc)}
+select{background:var(--card2);border:1px solid transparent;border-radius:12px;padding:0 12px;min-height:44px;font-size:14px;outline:none;min-width:220px}
+.log{font-size:12.5px;margin-top:10px}
+.log div{padding:2px 0}
+.log .ok{color:var(--green)} .log .no{color:var(--red)} .log .info{color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.tile{background:var(--card);border-radius:14px;padding:12px 14px}
+.tile .v{font-size:24px;font-weight:700;line-height:1.1}
+.tile .v small{font-size:12px;color:var(--muted);font-weight:600;margin-left:3px}
+.tile .l{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:10px}
+.chart{width:100%;height:auto;display:block}
+.chart text{fill:var(--muted);font-size:10.5px;font-family:inherit}
+.ct{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;display:flex;gap:14px;flex-wrap:wrap}
+.lg{display:inline-flex;align-items:center;gap:5px}
+.lg i{display:inline-block;width:12px;height:3px;border-radius:2px}
+.tw{overflow-x:auto;background:var(--card);border-radius:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);text-align:left;padding:10px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;white-space:nowrap}
+.yes{color:var(--amber);font-weight:700}
+.note{color:var(--muted);font-size:12.5px;max-width:280px;overflow-wrap:anywhere;white-space:pre-wrap}
+.empty{color:var(--muted);text-align:center;padding:30px 10px}
+.foot{font-size:11.5px;color:var(--dim);text-align:center;margin-top:30px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+'use strict';
+
+var KEY = 'perform_auswertung_v1', SEL_KEY = 'perform_auswertung_sel';
+var UMFANG = ['0', '1', '2', '3', '4', '5+'];
+var LIM = { file: 2000000, sessions: 14, ex: 600, sets: 20, entries: 2000 };
+
+/* ───────── Helfer ───────── */
+function h(tag, props) {
+  var e = document.createElement(tag);
+  if (props) for (var k in props) {
+    var v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'value') e.value = v;
+    else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  (function add(list) {
+    for (var j = 0; j < list.length; j++) {
+      var c = list[j];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(c);
+      else e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+  })(Array.prototype.slice.call(arguments, 2));
+  return e;
+}
+function s(tag, attrs, text) {
+  var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+function err(m) { var e = new Error(m); e.user = true; return e; }
+function isObj(o) { return !!o && typeof o === 'object' && !Array.isArray(o); }
+function str(v, max) {
+  if (typeof v === 'number' && isFinite(v)) v = String(v);
+  if (typeof v !== 'string') return '';
+  return v.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F‪-‮⁦-⁩]/g, '').trim().slice(0, max);
+}
+function idOk(v) { return typeof v === 'string' && /^[A-Za-z0-9_-]{1,60}$/.test(v); }
+function int(v, lo, hi) { return typeof v === 'number' && v === Math.floor(v) && v >= lo && v <= hi ? v : null; }
+function numIn(v, lo, hi) { return typeof v === 'number' && isFinite(v) && v >= lo && v <= hi ? v : null; }
+function lsGet(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+function pad(n) { return String(n).padStart(2, '0'); }
+function fmtD(iso) { var d = new Date(iso); return isNaN(d) ? '' : pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + String(d.getFullYear()).slice(2); }
+function mean(a) { a = a.filter(function (x) { return x != null; }); return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+function f1(n) { return n == null ? '–' : n.toFixed(1).replace('.', ','); }
+function umfangNum(u) { return u === '5+' ? 5 : u === '' ? null : parseInt(u, 10); }
+
+/* ───────── Import: perform-player v1 streng prüfen ───────── */
+function sanitizeExport(o) {
+  if (!isObj(o)) throw err('kein Objekt');
+  if (o.app !== 'perform-player') throw err('keine PERFORM-Spieler-Datei');
+  if (o.v !== 1) throw err('Version ' + str(o.v, 6) + ' wird nicht unterstützt');
+  if (!idOk(o.planId)) throw err('Plan-ID fehlt');
+  var woche = int(o.woche, 1, 52); if (woche == null) throw err('Woche ungültig');
+  var ts = str(o.exportiert, 40), d = new Date(ts); if (!ts || isNaN(d)) throw err('Exportzeit ungültig');
+  if (!Array.isArray(o.sessions) || o.sessions.length > LIM.sessions) throw err('Einheiten fehlen oder zu viele');
+  var exCount = 0;
+  var sessions = o.sessions.filter(isObj).map(function (se) {
+    if (!Array.isArray(se.ex)) throw err('Einheit ohne Übungsliste');
+    return { id: str(se.id, 60), name: str(se.name, 80), ex: se.ex.filter(isObj).map(function (x) {
+      if (++exCount > LIM.ex) throw err('zu viele Übungen');
+      if (!Array.isArray(x.sets) || x.sets.length > LIM.sets) throw err('Satzliste ungültig');
+      return { id: str(x.id, 60), name: str(x.name, 100), sets: x.sets.filter(isObj).map(function (z) {
+        return { wdh: numIn(z.wdh, 0, 9999), last: numIn(z.last, -999, 9999), rpe: numIn(z.rpe, 0, 10) };
+      }) };
+    }).filter(function (x) { return x.name; }) };
+  });
+  var a = isObj(o.antworten) ? o.antworten : {};
+  var consent = isObj(o.einwilligung) && o.einwilligung.beschwerden === true;
+  var kz = str(o.kuerzel, 12); if (!/^[A-Za-z0-9-]*$/.test(kz)) kz = '';
+  return {
+    planId: o.planId, titel: str(o.titel, 80), kuerzel: kz, name: str(o.name, 60), woche: woche, exportiert: d.toISOString(), sessions: sessions,
+    antworten: {
+      umfang: UMFANG.indexOf(a.umfang) >= 0 ? a.umfang : '',
+      belastung: int(a.belastung, 1, 10), schlaf: int(a.schlaf, 1, 5),
+      // Beschwerden nur mit Einwilligung übernehmen
+      beschwerden: consent && typeof a.beschwerden === 'boolean' ? a.beschwerden : null,
+      anmerkung: str(a.anmerkung, 500)
+    }
+  };
+}
+
+/* ───────── Speicher (nur dieser Browser) ───────── */
+function load() {
+  try { var d = JSON.parse(lsGet(KEY, 'null')); if (isObj(d) && Array.isArray(d.entries)) return d.entries.map(function (e) { try { return sanitizeExport(Object.assign({ app: 'perform-player', v: 1, einwilligung: { beschwerden: e.antworten && e.antworten.beschwerden != null } }, e)); } catch (x) { return null; } }).filter(Boolean); } catch (e) {}
+  return [];
+}
+var entries = load(), storageOK = true, logLines = [];
+function save() { storageOK = lsSet(KEY, JSON.stringify({ v: 1, entries: entries })); }
+
+function addText(text, label) {
+  var o;
+  try { o = JSON.parse(text); } catch (e) { logLines.push(['no', label + ': kein gültiges JSON – nichts übernommen']); return; }
+  var list = Array.isArray(o) ? o : [o], ok = 0;
+  list.slice(0, 200).forEach(function (item, i) {
+    var lbl = label + (list.length > 1 ? ' #' + (i + 1) : '');
+    var e; try { e = sanitizeExport(item); } catch (x) { logLines.push(['no', lbl + ': abgelehnt (' + (x.user ? x.message : 'ungültig') + ')']); return; }
+    var j = -1; entries.forEach(function (x, k) { if (x.planId === e.planId && x.name === e.name) j = k; }); // gleiche Woche desselben Spielers
+    if (j >= 0 && entries[j].exportiert >= e.exportiert) { logLines.push(['info', lbl + ': ' + who(e) + ' Woche ' + e.woche + ' ist schon in gleichem oder neuerem Stand da']); return; }
+    if (j >= 0) entries[j] = e; else entries.push(e);
+    ok++; logLines.push(['ok', lbl + ': ' + who(e) + ' · Woche ' + e.woche + (j >= 0 ? ' aktualisiert' : ' übernommen')]);
+  });
+  if (ok) { if (entries.length > LIM.entries) entries = entries.slice(-LIM.entries); save(); }
+}
+function readFiles(files) {
+  logLines = [];
+  var list = Array.prototype.slice.call(files || [], 0, 100), left = list.length;
+  if (!left) return;
+  list.forEach(function (f) {
+    if (f.size > LIM.file) { logLines.push(['no', f.name + ': zu groß']); if (!--left) render(); return; }
+    var r = new FileReader();
+    r.onload = function () { addText(String(r.result), f.name); if (!--left) render(); };
+    r.onerror = function () { logLines.push(['no', f.name + ': nicht lesbar']); if (!--left) render(); };
+    r.readAsText(f);
+  });
+}
+
+/* ───────── Kennzahlen ───────── */
+function who(e) { return e.kuerzel || e.name || 'ohne Kürzel'; }
+function groupKey(e) { return e.kuerzel ? 'k:' + e.kuerzel : e.name ? 'n:' + e.name : 'p:' + e.planId.replace(/-w\d+$/, ''); }
+function groups() {
+  var g = {}; entries.forEach(function (e) { var k = groupKey(e); (g[k] = g[k] || { key: k, label: who(e), n: 0 }).n++; });
+  return Object.keys(g).map(function (k) { return g[k]; }).sort(function (a, b) { return a.label.localeCompare(b.label, 'de'); });
+}
+function allSets(e) { var out = []; e.sessions.forEach(function (se) { se.ex.forEach(function (x) { x.sets.forEach(function (z) { out.push(z); }); }); }); return out; }
+function avgRpe(e) { return mean(allSets(e).map(function (z) { return z.rpe; })); }
+function setCount(e) { return allSets(e).length; }
+
+/* ───────── Diagramme ───────── */
+function lineChart(labels, series, lo, hi, ticks) {
+  var W = 520, H = 200, L = 30, R = 10, T = 12, B = 28, pw = W - L - R, ph = H - T - B, n = labels.length;
+  var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'chart', role: 'img' });
+  function X(i) { return L + (n > 1 ? i * pw / (n - 1) : pw / 2); }
+  function Y(v) { return T + ph - (v - lo) / (hi - lo) * ph; }
+  ticks.forEach(function (v) { svg.appendChild(s('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: '#3D4F73', 'stroke-opacity': '.45' })); svg.appendChild(s('text', { x: L - 6, y: Y(v) + 3.5, 'text-anchor': 'end' }, String(v))); });
+  var step = Math.max(1, Math.ceil(n / 8));
+  labels.forEach(function (lb, i) { if (i % step === 0 || i === n - 1) svg.appendChild(s('text', { x: X(i), y: H - 8, 'text-anchor': 'middle' }, lb)); });
+  series.forEach(function (sr) {
+    var seg = [], cur = [];
+    sr.vals.forEach(function (v, i) { if (v == null) { if (cur.length) seg.push(cur); cur = []; } else cur.push(X(i).toFixed(1) + ',' + Y(v).toFixed(1)); });
+    if (cur.length) seg.push(cur);
+    seg.forEach(function (p) { if (p.length > 1) svg.appendChild(s('polyline', { fill: 'none', stroke: sr.color, 'stroke-width': '2.4', 'stroke-linejoin': 'round', 'stroke-linecap': 'round', points: p.join(' ') })); });
+    sr.vals.forEach(function (v, i) { if (v != null) { var c = s('circle', { cx: X(i), cy: Y(v), r: '3.6', fill: sr.color }); c.appendChild(s('title', {}, sr.name + ' ' + labels[i] + ': ' + f1(v))); svg.appendChild(c); } });
+  });
+  return svg;
+}
+function barChart(labels, vals, hi, colors) {
+  var W = 520, H = 200, L = 30, R = 10, T = 16, B = 28, pw = W - L - R, ph = H - T - B, n = labels.length, bw = pw / Math.max(n, 1);
+  var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, class: 'chart', role: 'img' });
+  (hi <= 10 ? Array.apply(null, Array(hi + 1)).map(function (_, i) { return i; }) : [0, Math.round(hi / 2), hi]).forEach(function (v) { var y = T + ph - v / hi * ph; svg.appendChild(s('line', { x1: L, x2: W - R, y1: y, y2: y, stroke: '#3D4F73', 'stroke-opacity': '.45' })); svg.appendChild(s('text', { x: L - 6, y: y + 3.5, 'text-anchor': 'end' }, String(v))); });
+  var step = Math.max(1, Math.ceil(n / 8));
+  vals.forEach(function (v, i) {
+    var x = L + i * bw + bw * .2, bh = v == null ? 0 : Math.max(2, v / hi * ph);
+    if (v != null) { var r = s('rect', { x: x, y: T + ph - bh, width: bw * .6, height: bh, rx: '3', fill: colors ? colors[i] : '#4B8EF0' }); r.appendChild(s('title', {}, labels[i] + ': ' + v)); svg.appendChild(r); }
+    if (i % step === 0 || i === n - 1) svg.appendChild(s('text', { x: x + bw * .3, y: H - 8, 'text-anchor': 'middle' }, labels[i]));
+  });
+  return svg;
+}
+
+/* ───────── Ansicht ───────── */
+function tile(v, unit, l) { return h('div', { class: 'tile' }, h('div', { class: 'v' }, v, unit ? h('small', { text: unit }) : null), h('div', { class: 'l', text: l })); }
+function render() {
+  var app = document.getElementById('app'); app.textContent = '';
+  var out = [h('div', { class: 'logo' }, 'PERFORM', h('span', { text: '.' }), h('small', { text: 'AUSWERTUNG' })),
+    h('h1', { text: 'Spieler-Rückmeldungen' }),
+    h('div', { class: 'sub', text: 'Importiere die Wochendateien deiner Spieler. Alles bleibt in diesem Browser – nichts wird hochgeladen.' })];
+  if (!storageOK) out.push(h('div', { class: 'banner red', role: 'alert', text: 'Speichern im Browser nicht möglich. Importierte Daten gehen beim Schließen verloren.' }));
+
+  // Import
+  var file = h('input', { type: 'file', multiple: true, accept: '.json,application/json', style: 'display:none', onchange: function () { readFiles(file.files); file.value = ''; } });
+  var drop = h('div', { class: 'drop' }, 'Dateien hierher ziehen oder ', h('button', { class: 'btn sm', type: 'button', text: 'Dateien wählen', onclick: function () { file.click(); } }), file);
+  drop.addEventListener('dragover', function (e) { e.preventDefault(); drop.classList.add('on'); });
+  drop.addEventListener('dragleave', function () { drop.classList.remove('on'); });
+  drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('on'); readFiles(e.dataTransfer.files); });
+  var ta = h('textarea', { placeholder: 'Oder Inhalt einer Datei einfügen', 'aria-label': 'Dateiinhalt einfügen', spellcheck: 'false' });
+  out.push(h('div', { class: 'card' }, drop, ta, h('div', { class: 'row', style: 'margin-top:8px' }, h('button', { class: 'btn', type: 'button', text: 'Text importieren', onclick: function () { logLines = []; if (ta.value.length > LIM.file) logLines.push(['no', 'Text zu groß']); else addText(ta.value, 'Text'); render(); } })),
+    logLines.length ? h('div', { class: 'log', role: 'status' }, logLines.map(function (l) { return h('div', { class: l[0], text: (l[0] === 'ok' ? '✓ ' : l[0] === 'no' ? '✕ ' : '· ') + l[1] }); })) : null));
+
+  if (!entries.length) { out.push(h('div', { class: 'empty', text: 'Noch keine Daten importiert.' })); mount(app, out); return; }
+
+  // Filter
+  var gs = groups(), sel = lsGet(SEL_KEY, '');
+  if (gs.length === 1) sel = gs[0].key;
+  if (sel && !gs.some(function (g) { return g.key === sel; })) sel = '';
+  var selEl = h('select', { 'aria-label': 'Spieler wählen', onchange: function () { lsSet(SEL_KEY, selEl.value); render(); } },
+    h('option', { value: '', text: 'Alle Spieler (' + entries.length + ' Wochen)' }),
+    gs.map(function (g) { return h('option', { value: g.key, text: g.label + ' (' + g.n + ')', selected: g.key === sel ? true : null }); }));
+  out.push(h('h2', { text: 'Auswahl' }), h('div', { class: 'row' }, selEl));
+
+  var list = entries.filter(function (e) { return !sel || groupKey(e) === sel; }).sort(function (a, b) { return a.exportiert < b.exportiert ? -1 : 1; });
+  var bes = list.filter(function (e) { return e.antworten.beschwerden != null; }), yes = bes.filter(function (e) { return e.antworten.beschwerden; }).length;
+  out.push(h('h2', { text: 'Überblick' }), h('div', { class: 'tiles' },
+    tile(String(list.length), '', 'Wochen'),
+    tile(f1(mean(list.map(function (e) { return umfangNum(e.antworten.umfang); }))), '', 'Ø Umfang (Einheiten)'),
+    tile(f1(mean(list.map(avgRpe))), '', 'Ø RPE'),
+    tile(f1(mean(list.map(function (e) { return e.antworten.belastung; }))), '/10', 'Ø Belastung'),
+    tile(f1(mean(list.map(function (e) { return e.antworten.schlaf; }))), '/5', 'Ø Schlaf & Erholung'),
+    tile(bes.length ? Math.round(yes / bes.length * 100) + ' %' : '–', bes.length ? yes + ' von ' + bes.length : '', 'Beschwerden Ja')));
+
+  // Verläufe
+  if (sel) {
+    var labels = list.map(function (e) { return 'W' + e.woche; });
+    out.push(h('h2', { text: 'Verlauf' }), h('div', { class: 'charts' },
+      h('div', { class: 'card' }, h('div', { class: 'ct' }, h('span', { class: 'lg' }, h('i', { style: 'background:#4B8EF0' }), 'Belastung (1–10)'), h('span', { class: 'lg' }, h('i', { style: 'background:#F5B041' }), 'Ø RPE')),
+        lineChart(labels, [{ name: 'Belastung', color: '#4B8EF0', vals: list.map(function (e) { return e.antworten.belastung; }) }, { name: 'Ø RPE', color: '#F5B041', vals: list.map(avgRpe) }], 0, 10, [0, 2, 4, 6, 8, 10])),
+      h('div', { class: 'card' }, h('div', { class: 'ct' }, h('span', { class: 'lg' }, h('i', { style: 'background:#4ADE80' }), 'Schlaf & Erholung (1–5)')),
+        lineChart(labels, [{ name: 'Schlaf & Erholung', color: '#4ADE80', vals: list.map(function (e) { return e.antworten.schlaf; }) }], 1, 5, [1, 2, 3, 4, 5])),
+      h('div', { class: 'card' }, h('div', { class: 'ct' }, h('span', { text: 'Umfang (Einheiten absolviert) · orange = Beschwerden Ja' })),
+        barChart(labels, list.map(function (e) { return umfangNum(e.antworten.umfang); }), 5, list.map(function (e) { return e.antworten.beschwerden ? '#F5B041' : '#4B8EF0'; })))));
+  } else if (gs.length > 1) out.push(h('div', { class: 'banner', text: 'Für Verläufe oben einen Spieler wählen.' }));
+
+  // Wochen-Tabelle
+  var tb = h('tbody');
+  list.slice().reverse().forEach(function (e) {
+    var armed = false, del = h('button', { class: 'btn sm ghost danger', type: 'button', text: 'Entfernen', 'aria-label': 'Woche entfernen' });
+    del.addEventListener('click', function () { if (!armed) { armed = true; del.textContent = 'Sicher?'; return; } entries = entries.filter(function (x) { return x !== e; }); save(); render(); });
+    var b = e.antworten.beschwerden;
+    tb.appendChild(h('tr', null, h('td', { text: who(e) }), h('td', { text: e.titel || '–' }), h('td', { class: 'n', text: String(e.woche) }), h('td', { class: 'n', text: fmtD(e.exportiert) }),
+      h('td', { class: 'n', text: e.antworten.umfang || '–' }), h('td', { class: 'n', text: String(setCount(e)) }), h('td', { class: 'n', text: f1(avgRpe(e)) }),
+      h('td', { class: 'n', text: e.antworten.belastung == null ? '–' : String(e.antworten.belastung) }), h('td', { class: 'n', text: e.antworten.schlaf == null ? '–' : String(e.antworten.schlaf) }),
+      h('td', { class: b ? 'yes' : null, text: b == null ? '–' : b ? 'Ja' : 'Nein' }), h('td', { class: 'note', text: e.antworten.anmerkung || '' }), h('td', null, del)));
+  });
+  out.push(h('h2', { text: 'Wochen' }), h('div', { class: 'tw' }, h('table', null, h('thead', null, h('tr', null,
+    ['Spieler', 'Programm', 'Woche', 'Export', 'Umfang', 'Sätze', 'Ø RPE', 'Belastung', 'Schlaf', 'Beschwerden', 'Anmerkung', ''].map(function (t, i) { return h('th', { class: i >= 2 && i <= 8 ? 'n' : null, text: t }); }))), tb)));
+
+  // Volumen je Übung
+  var vol = {};
+  list.forEach(function (e) { e.sessions.forEach(function (se) { se.ex.forEach(function (x) {
+    var k = x.name.toLowerCase(), v = vol[k] || (vol[k] = { name: x.name, sets: 0, reps: 0, kg: 0, rpe: [], max: null, weeks: {} });
+    v.weeks[e.planId] = 1;
+    x.sets.forEach(function (z) { v.sets++; if (z.wdh != null) v.reps += z.wdh; if (z.wdh != null && z.last != null && z.last > 0) v.kg += z.wdh * z.last; if (z.rpe != null) v.rpe.push(z.rpe); if (z.last != null && (v.max == null || z.last > v.max)) v.max = z.last; });
+  }); }); });
+  var vrows = Object.keys(vol).map(function (k) { return vol[k]; }).sort(function (a, b) { return b.kg - a.kg || b.sets - a.sets; });
+  out.push(h('h2', { text: 'Volumen je Übung' }), vrows.length ? h('div', { class: 'tw' }, h('table', null,
+    h('thead', null, h('tr', null, ['Übung', 'Wochen', 'Sätze', 'Wdh', 'Volumen (Wdh × kg)', 'Max. Last', 'Ø RPE'].map(function (t, i) { return h('th', { class: i ? 'n' : null, text: t }); }))),
+    h('tbody', null, vrows.map(function (v) { return h('tr', null, h('td', { text: v.name }), h('td', { class: 'n', text: String(Object.keys(v.weeks).length) }), h('td', { class: 'n', text: String(v.sets) }), h('td', { class: 'n', text: String(Math.round(v.reps)) }),
+      h('td', { class: 'n', text: Math.round(v.kg).toLocaleString('de-DE') + ' kg' }), h('td', { class: 'n', text: v.max == null ? '–' : String(v.max).replace('.', ',') }), h('td', { class: 'n', text: f1(mean(v.rpe)) })); })))) : h('div', { class: 'empty', text: 'Keine Sätze eingetragen.' }));
+
+  var armedAll = false, clr = h('button', { class: 'btn ghost danger', type: 'button', text: 'Alle importierten Daten löschen' });
+  clr.addEventListener('click', function () { if (!armedAll) { armedAll = true; clr.textContent = 'Nochmal tippen: ' + entries.length + ' Wochen werden gelöscht'; return; } entries = []; logLines = []; save(); render(); });
+  out.push(h('div', { class: 'row', style: 'margin-top:20px;justify-content:center' }, clr), h('div', { class: 'foot', text: 'Daten liegen nur in diesem Browser (localStorage). Original-Dateien aufbewahren.' }));
+  mount(app, out);
+}
+function mount(app, out) { (function add(l) { l.forEach(function (n) { if (Array.isArray(n)) add(n); else if (n) app.appendChild(n); }); })(out); }
+
+window.__aw = { addText: addText, get entries() { return entries; }, render: render };
+render();
+})();
+</script>
+</body>
+</html>
