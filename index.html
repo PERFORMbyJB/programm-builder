@@ -445,6 +445,7 @@ textarea.form-control { resize:vertical; min-height:60px; }
       <div class="meta-tag">📅 <input type="number" id="prog-weeks" min="1" max="52" value="4" style="width:36px" onchange="saveMeta()"> Wochen</div>
       <div class="meta-tag">🎯 <input type="text" class="meta-input" id="prog-level" list="level-list" onchange="saveMeta()"></div>
       <div id="prog-vol-badge" class="vol-badge"></div>
+      <button class="print-btn" onclick="duplicateProgram()" title="Ganzes Programm als Kopie anlegen (z. B. Baukasten-Plan für einen Kunden)" style="background:#0f5132">⧉ Programm kopieren</button>
       <button class="print-btn" onclick="openColumnsModal()" title="Kennzahlen-Spalten umbenennen, entfernen oder hinzufügen" style="background:#3a2f6b">⚙ Spalten</button>
       <button class="print-btn" onclick="openPlayerModal()" title="Link für die Spieler-App: Plan steckt komprimiert im Link, ohne Server" style="background:#1D4579;color:#fff">📱 Spieler-Link</button>
       <button class="print-btn" onclick="printProgram(false)" title="Nur die aktuell geöffnete Einheit exportieren">🖨 Diese Einheit</button>
@@ -1035,6 +1036,22 @@ function duplicateSess(i) {
   p.sessions.splice(i + 1, 0, copy);
   activeSess = i + 1;
   save(); renderEditor();
+}
+
+// Ganzes Programm kopieren (neue IDs, eigene Spalten) – z. B. Baukasten-Plan je Kunde.
+function duplicateProgram() {
+  const p = programs[activeProg];
+  if (!p) return;
+  const copy = {
+    ...p,
+    id: genId(),
+    name: p.name + ' (Kopie)',
+    columns: (p.columns || defaultColumns()).map(c => ({ ...c })),
+    sessions: p.sessions.map(s => cloneSessionWithFreshIds(s))
+  };
+  programs.push(copy);
+  save();
+  selectProg(programs.length - 1);
 }
 
 // ── Copy session to another program ─────────────────────────────────────
