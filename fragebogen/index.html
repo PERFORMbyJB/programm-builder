@@ -14,8 +14,8 @@
 @font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
 :root{
   color-scheme:dark;
-  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
-  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#AEB8CC; --dim:#8591A8;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#4A5878;
+  --blue:#1D4579; --acc:#4B8EF0; --accT:#6FA6F5; --text:#F0F4FF; --muted:#AEB8CC; --dim:#9BA8C0;
   --red:#F87171; --amber:#F5B041; --green:#4ADE80;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -27,12 +27,13 @@ header img{display:block;width:260px;max-width:70%;height:auto;margin:0 auto}
 header h1{margin:4px 0 6px;font-size:24px;line-height:1.2;font-weight:700}
 header p{margin:0 0 18px;color:var(--muted);font-size:15px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 16px;margin-top:16px}
-.card h2{margin:0 0 4px;font-size:13px;letter-spacing:2px;font-weight:700;color:var(--acc);text-transform:uppercase}
+.card h2{margin:0 0 4px;font-size:13px;letter-spacing:2px;font-weight:700;color:var(--accT);text-transform:uppercase}
 .card h2 span{display:inline-block;min-width:28px;color:var(--text)}
 .sub{margin:0 0 14px;color:var(--muted);font-size:14px}
 label.l,.lbl{display:block;margin:16px 0 6px;font-weight:600;font-size:15px}
 .hint{font-weight:400;color:var(--dim);font-size:13px}
-input[type=text],input[type=date],textarea{width:100%;min-height:52px;padding:12px 14px;background:var(--bg);color:var(--text);border:2px solid var(--line);border-radius:10px;font:inherit;font-size:16px;appearance:none;-webkit-appearance:none}
+input[type=text],input[type=date],textarea{width:100%;min-height:52px;padding:12px 14px;background:var(--bg);color:var(--text);border:2px solid var(--line);border-radius:10px;font:inherit;font-size:16px}
+input[type=text],textarea{appearance:none;-webkit-appearance:none}
 input[type=date]{min-width:0}
 textarea{min-height:96px;resize:vertical}
 input:focus,textarea:focus{outline:none;border-color:var(--acc)}
@@ -45,7 +46,11 @@ input:focus,textarea:focus{outline:none;border-color:var(--acc)}
 .chip input:disabled+span{opacity:.4}
 .chips.col .chip{flex:1 1 100%}
 .chips.col .chip span{justify-content:flex-start}
-.chips.num .chip{flex:1 1 0}
+.chips.num{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.chips.num.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.chips.num.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.chips.num.c7{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.chips.num .chip span{min-width:0;padding:10px 4px}
 .row2{display:grid;grid-template-columns:1fr;gap:0}
 @media(min-width:520px){.row2{grid-template-columns:1fr 1fr;gap:12px}}
 .note{margin-top:14px;padding:12px 14px;border-left:4px solid var(--amber);background:var(--card2);border-radius:0 10px 10px 0;font-size:14px}
@@ -94,7 +99,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <input type="text" id="niveau" maxlength="60">
     <div class="err">Bitte Spielniveau eintragen.</div>
   </div>
-  <label class="l" for="position">Position</label>
+  <label class="l" for="position">Position <span class="hint">optional</span></label>
   <input type="text" id="position" maxlength="60">
 
   <div data-req="team">
@@ -143,9 +148,9 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <label class="chip"><input type="checkbox" name="erf" value="Trainiere nach festem Plan"><span>Trainiere nach festem Plan</span></label>
     <label class="chip"><input type="checkbox" name="erf" value="Keine nennenswerte" data-excl="1"><span>Keine nennenswerte</span></label>
   </div>
-  <label class="l" for="seit">Krafttraining seit <span class="hint">Jahre</span></label>
+  <label class="l" for="seit">Krafttraining seit <span class="hint">Jahre, optional</span></label>
   <input type="text" id="seit" inputmode="decimal" maxlength="5">
-  <label class="l" for="plan">Aktueller Plan <span class="hint">Stichpunkte</span></label>
+  <label class="l" for="plan">Aktueller Plan <span class="hint">Stichpunkte, optional</span></label>
   <textarea id="plan" maxlength="400"></textarea>
 </section>
 
@@ -163,7 +168,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     </div>
     <div class="err">Bitte mindestens ein Ziel auswählen.</div>
   </div>
-  <label class="l" for="wziel">Wichtigstes Ziel <span class="hint">Stichpunkte</span></label>
+  <label class="l" for="wziel">Wichtigstes Ziel <span class="hint">Stichpunkte, optional</span></label>
   <textarea id="wziel" maxlength="300"></textarea>
 </section>
 
@@ -182,14 +187,14 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
       <div class="err" id="rr-err">Bitte Datum wählen.</div>
     </div>
   </div>
-  <div class="note" id="kurz" style="display:none">Zwischen Start und erstem Spiel liegen weniger als 6 Wochen. Justus passt den Plan darauf an.</div>
+  <div class="note" id="kurz" style="display:none">Zwischen Start und erstem Spiel liegen weniger als 6 Wochen. Justus prüft den Plan dazu.</div>
 </section>
 
 <section class="card">
   <h2><span>06</span>Trainingstage</h2>
   <div data-req="tage">
     <div class="lbl">Mögliche Trainingstage</div>
-    <div class="chips num" id="tage">
+    <div class="chips num c7" id="tage" role="group" aria-label="Trainingstage">
       <label class="chip"><input type="checkbox" name="tag" value="Mo"><span>Mo</span></label>
       <label class="chip"><input type="checkbox" name="tag" value="Di"><span>Di</span></label>
       <label class="chip"><input type="checkbox" name="tag" value="Mi"><span>Mi</span></label>
@@ -202,7 +207,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
   </div>
   <div data-req="epw">
     <div class="lbl">Einheiten pro Woche möglich</div>
-    <div class="chips num" role="radiogroup" aria-label="Einheiten pro Woche">
+    <div class="chips num c4" role="radiogroup" aria-label="Einheiten pro Woche">
       <label class="chip"><input type="radio" name="epw" value="1"><span>1</span></label>
       <label class="chip"><input type="radio" name="epw" value="2"><span>2</span></label>
       <label class="chip"><input type="radio" name="epw" value="3"><span>3</span></label>
@@ -241,7 +246,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
   <h2><span>08</span>Beschwerden</h2>
   <div data-req="besch">
     <div class="lbl">Hast du aktuell Beschwerden oder eine Verletzung?</div>
-    <div class="chips num" role="radiogroup" aria-label="Beschwerden">
+    <div class="chips num c2" role="radiogroup" aria-label="Beschwerden">
       <label class="chip"><input type="radio" name="besch" value="Nein"><span>Nein</span></label>
       <label class="chip"><input type="radio" name="besch" value="Ja"><span>Ja</span></label>
     </div>
@@ -263,16 +268,20 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <label class="consent"><input type="checkbox" id="consent"><span>Ich willige ein, dass PERFORM. (Justus Böhm) meine Angaben, auch zu Beschwerden, ausschließlich zur Erstellung meines Trainingsplans verarbeitet. Das Senden per WhatsApp mache ich freiwillig. Ich kann die Einwilligung jederzeit widerrufen.</span></label>
     <div class="err">Ohne Einwilligung kann der Plan nicht erstellt werden.</div>
   </div>
+  <p class="sub" style="margin-top:14px">Verantwortlich: Justus Böhm (PERFORM.). Zweck: Erstellung deines Trainingsplans. Widerruf: kurze Nachricht an Justus per WhatsApp oder Instagram @perform.jb. Die Übertragung läuft über WhatsApp (Meta). Diese Seite selbst speichert und sendet nichts.</p>
   <button type="button" class="btn" id="next">Antworten prüfen</button>
+  <div class="err" id="sum" role="alert" style="display:none">Bitte die rot markierten Felder prüfen.</div>
 </section>
 
 <section class="card" id="review" aria-live="polite">
   <h2><span>10</span>Prüfen &amp; senden</h2>
   <p class="sub">Dieser Text geht an Justus. Du kannst ihn vor dem Senden in WhatsApp noch ändern.</p>
   <pre id="msg"></pre>
+  <div class="note" id="nophone" style="display:none">In WhatsApp bitte Justus als Empfänger auswählen.</div>
   <a class="btn wa" id="send" href="#" rel="noopener">In WhatsApp senden</a>
   <button type="button" class="btn sec" id="copy">Text kopieren</button>
   <div class="ok" id="copied">Text kopiert. In WhatsApp einfügen und senden.</div>
+  <div class="err" id="copyfail" style="display:none">Kopieren hat nicht geklappt. Text oben markieren und manuell kopieren.</div>
   <button type="button" class="btn sec" id="back">Antworten ändern</button>
 </section>
 
@@ -289,7 +298,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
   // WhatsApp-Nummer kommt nur aus dem Link (#n=49...), nie aus dem Code.
   var phone = "";
   (function(){
-    var m = /(?:^|[#&])n=(\d{8,15})(?:&|$)/.exec(location.hash || "");
+    var m = /(?:^|[#&])n=([1-9]\d{7,14})(?:&|$)/.exec(location.hash || "");
     if (m) phone = m[1];
   })();
 
@@ -336,11 +345,18 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
   });
 
   // Zeitraum-Hinweis
+  (function(){
+    var d = new Date(), y = d.getFullYear();
+    var min = y+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+    var max = (y+2)+"-12-31";
+    ["start","rr"].forEach(function(id){ $("#"+id).min = min; $("#"+id).max = max; });
+  })();
   function dateDiffDays(a, b){
     var da = new Date(a+"T00:00:00"), db = new Date(b+"T00:00:00");
     return Math.round((db - da) / 86400000);
   }
   function checkRange(){
+    ["start","rr"].forEach(function(k){ var e=$('[data-req="'+k+'"]'); if(e) e.classList.remove("has-err"); });
     var s = $("#start").value, r = $("#rr").value;
     var note = $("#kurz");
     note.style.display = "none";
@@ -370,13 +386,16 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     add("extra", !one("extra"));
     add("spieltag", !one("spieltag"));
     add("ziele", checked("ziel").length === 0);
-    add("start", !s, "Bitte Datum wählen.");
+    var sMsg = "Bitte Datum wählen.", sBad = !s;
+    if (s) { var t = new Date(); var iso = t.getFullYear()+"-"+pad(t.getMonth()+1)+"-"+pad(t.getDate()); if (s < iso) { sBad = true; sMsg = "Das Startdatum liegt in der Vergangenheit."; } }
+    add("start", sBad, sMsg);
     var rrMsg = "Bitte Datum wählen.";
     var rrBad = !r;
     if (r && s && dateDiffDays(s, r) < 0) { rrBad = true; rrMsg = "Das Rückrundenspiel liegt vor dem Start."; }
     add("rr", rrBad, rrMsg);
     add("tage", checked("tag").length === 0);
-    add("epw", !one("epw"));
+    var epwV = one("epw"), epwN = epwV === "4+" ? 4 : parseInt(epwV, 10);
+    add("epw", !epwV || (epwN > checked("tag").length), !epwV ? "Bitte auswählen." : "Du hast weniger Trainingstage gewählt als Einheiten pro Woche.");
     add("orte", checked("ort").length === 0);
     add("equip", checked("eq").length === 0);
     add("besch", !one("besch"));
@@ -385,7 +404,9 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     if (bad.length) {
       var first = $('[data-req="'+bad[0]+'"]');
       first.scrollIntoView({behavior:"smooth", block:"center"});
+      var f = $("input,textarea", first); if (f) { try { f.focus({preventScroll:true}); } catch (e) {} }
     }
+    $("#sum").style.display = bad.length ? "block" : "none";
     return bad.length === 0;
   }
   // Fehler beim Ändern wieder ausblenden
@@ -394,6 +415,8 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
   function clearErr(e){
     var p = e.target.closest ? e.target.closest("[data-req]") : null;
     if (p) p.classList.remove("has-err");
+    if (e.target.closest && !e.target.closest("#review") && $("#review").style.display === "block") $("#review").style.display = "none";
+    $("#sum").style.display = "none";
   }
 
   function list(a){ return a.join(", "); }
@@ -412,7 +435,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     L.push("");
     var erf = checked("erf");
     L.push("Vorerfahrung: " + (erf.length ? list(erf) : "keine Angabe"));
-    if (val("seit")) L.push("Krafttraining seit: " + val("seit") + " Jahren");
+    if (val("seit")) L.push("Krafttraining seit (Jahre): " + val("seit"));
     if (val("plan")) L.push("Aktueller Plan: " + val("plan"));
     L.push("");
     L.push("Ziele: " + list(checked("ziel")));
@@ -439,12 +462,20 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
   }
 
   var text = "";
+  var cur = "";
+  function enc(t){
+    try { return encodeURIComponent(t.toWellFormed ? t.toWellFormed() : t); }
+    catch (e) { return encodeURIComponent(t.replace(/[\uD800-\uDFFF]/g, "")); }
+  }
   $("#next").addEventListener("click", function(){
+    $("#review").style.display = "none";
     if (!validate()) return;
     text = build();
     $("#msg").textContent = text;
     var base = phone ? "https://wa.me/" + phone : "https://wa.me/";
-    $("#send").href = base + "?text=" + encodeURIComponent(text);
+    $("#send").href = base + "?text=" + enc(text);
+    $("#nophone").style.display = phone ? "none" : "block";
+    $("#copyfail").style.display = "none";
     $("#review").style.display = "block";
     $("#copied").style.display = "none";
     $("#review").scrollIntoView({behavior:"smooth", block:"start"});
@@ -454,15 +485,17 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     $("#form").scrollIntoView({behavior:"smooth", block:"start"});
   });
   $("#copy").addEventListener("click", function(){
-    var done = function(){ $("#copied").style.display = "block"; };
+    var done = function(){ $("#copied").style.display = "block"; $("#copyfail").style.display = "none"; };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(done, fallback);
     } else { fallback(); }
     function fallback(){
       var ta = document.createElement("textarea");
-      ta.value = text; ta.className = "sr"; document.body.appendChild(ta);
+      ta.value = text; ta.className = "sr"; ta.readOnly = false; document.body.appendChild(ta); ta.focus();
       ta.select();
-      try { document.execCommand("copy"); done(); } catch (e) {}
+      var ok = false;
+      try { ta.setSelectionRange(0, ta.value.length); ok = document.execCommand("copy"); } catch (e) {}
+      if (ok) done(); else $("#copyfail").style.display = "block";
       document.body.removeChild(ta);
     }
   });
