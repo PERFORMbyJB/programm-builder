@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#1C1F26">
+<title>PERFORM. Fragebogen Wintercoaching</title>
+<style>
+@font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
+:root{
+  color-scheme:dark;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
+  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#AEB8CC; --dim:#8591A8;
+  --red:#F87171; --amber:#F5B041; --green:#4ADE80;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding:0 16px calc(48px + env(safe-area-inset-bottom,0px))}
+header{background:var(--bg);text-align:center;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 8px;border-bottom:3px solid var(--acc)}
+header img{display:block;width:260px;max-width:70%;height:auto;margin:0 auto}
+header h1{margin:4px 0 6px;font-size:24px;line-height:1.2;font-weight:700}
+header p{margin:0 0 18px;color:var(--muted);font-size:15px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 16px;margin-top:16px}
+.card h2{margin:0 0 4px;font-size:13px;letter-spacing:2px;font-weight:700;color:var(--acc);text-transform:uppercase}
+.card h2 span{display:inline-block;min-width:28px;color:var(--text)}
+.sub{margin:0 0 14px;color:var(--muted);font-size:14px}
+label.l,.lbl{display:block;margin:16px 0 6px;font-weight:600;font-size:15px}
+.hint{font-weight:400;color:var(--dim);font-size:13px}
+input[type=text],input[type=date],textarea{width:100%;min-height:52px;padding:12px 14px;background:var(--bg);color:var(--text);border:2px solid var(--line);border-radius:10px;font:inherit;font-size:16px;appearance:none;-webkit-appearance:none}
+input[type=date]{min-width:0}
+textarea{min-height:96px;resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--acc)}
+.chips{display:flex;flex-wrap:wrap;gap:10px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.chip span{display:flex;align-items:center;justify-content:center;min-height:52px;min-width:52px;padding:10px 16px;background:var(--bg);border:2px solid var(--line);border-radius:10px;font-weight:600;font-size:15px;text-align:center}
+.chip input:checked+span{background:var(--blue);border-color:var(--acc);color:#fff}
+.chip input:focus-visible+span{outline:3px solid var(--acc);outline-offset:2px}
+.chip input:disabled+span{opacity:.4}
+.chips.col .chip{flex:1 1 100%}
+.chips.col .chip span{justify-content:flex-start}
+.chips.num .chip{flex:1 1 0}
+.row2{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:520px){.row2{grid-template-columns:1fr 1fr;gap:12px}}
+.note{margin-top:14px;padding:12px 14px;border-left:4px solid var(--amber);background:var(--card2);border-radius:0 10px 10px 0;font-size:14px}
+.note b{font-weight:700}
+.err{display:none;margin-top:6px;color:var(--red);font-size:14px;font-weight:600}
+.has-err .err{display:block}
+.has-err input[type=text],.has-err input[type=date],.has-err textarea{border-color:var(--red)}
+.has-err .chip span{border-color:var(--red)}
+.consent{display:flex;gap:14px;align-items:flex-start;margin-top:14px;padding:14px;background:var(--bg);border:2px solid var(--line);border-radius:10px;cursor:pointer}
+.consent input{flex:none;width:28px;height:28px;margin:2px 0 0;accent-color:var(--acc)}
+.consent span{font-size:14px}
+.has-err .consent{border-color:var(--red)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin-top:16px;padding:14px 18px;border:0;border-radius:12px;background:var(--acc);color:#0F1217;font:inherit;font-size:17px;font-weight:700;cursor:pointer;text-decoration:none}
+.btn.sec{background:transparent;color:var(--text);border:2px solid var(--line)}
+.btn.wa{background:#25D366}
+.btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;background:var(--bg);border:2px solid var(--line);border-radius:10px;font:inherit;font-size:14px;line-height:1.55;color:var(--text)}
+#review{display:none}
+.foot{margin:20px 4px 0;color:var(--dim);font-size:13px}
+.ok{display:none;margin-top:10px;color:var(--green);font-weight:600;font-size:14px}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<header>
+  <img src="logo.png" alt="PERFORM. by JB" width="516" height="180">
+  <h1>Fragebogen Wintercoaching</h1>
+  <p>Ca. 4 Minuten. Am Ende schickst du die Antworten per WhatsApp an Justus.</p>
+</header>
+
+<main class="wrap" id="form">
+
+<section class="card" data-field="angaben">
+  <h2><span>01</span>Angaben</h2>
+  <div data-req="name">
+    <label class="l" for="name">Name</label>
+    <input type="text" id="name" autocomplete="name" maxlength="80">
+    <div class="err">Bitte Namen eintragen.</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span>02</span>Niveau &amp; Umfang</h2>
+  <div data-req="niveau">
+    <label class="l" for="niveau">Spielniveau <span class="hint">z.&nbsp;B. Kreisliga</span></label>
+    <input type="text" id="niveau" maxlength="60">
+    <div class="err">Bitte Spielniveau eintragen.</div>
+  </div>
+  <label class="l" for="position">Position</label>
+  <input type="text" id="position" maxlength="60">
+
+  <div data-req="team">
+    <div class="lbl">Mannschaftstraining <span class="hint">Einheiten pro Woche</span></div>
+    <div class="chips num" role="radiogroup" aria-label="Mannschaftstraining pro Woche">
+      <label class="chip"><input type="radio" name="team" value="0"><span>0</span></label>
+      <label class="chip"><input type="radio" name="team" value="1"><span>1</span></label>
+      <label class="chip"><input type="radio" name="team" value="2"><span>2</span></label>
+      <label class="chip"><input type="radio" name="team" value="3"><span>3</span></label>
+      <label class="chip"><input type="radio" name="team" value="4+"><span>4+</span></label>
+    </div>
+    <div class="err">Bitte auswählen.</div>
+  </div>
+
+  <div data-req="extra">
+    <div class="lbl">Zusätzliches Training, z.&nbsp;B. Gym <span class="hint">Einheiten pro Woche</span></div>
+    <div class="chips num" role="radiogroup" aria-label="Zusätzliches Training pro Woche">
+      <label class="chip"><input type="radio" name="extra" value="0"><span>0</span></label>
+      <label class="chip"><input type="radio" name="extra" value="1"><span>1</span></label>
+      <label class="chip"><input type="radio" name="extra" value="2"><span>2</span></label>
+      <label class="chip"><input type="radio" name="extra" value="3"><span>3</span></label>
+      <label class="chip"><input type="radio" name="extra" value="4+"><span>4+</span></label>
+    </div>
+    <div class="err">Bitte auswählen.</div>
+  </div>
+
+  <div data-req="spieltag">
+    <div class="lbl">Spieltag</div>
+    <div class="chips" role="radiogroup" aria-label="Spieltag">
+      <label class="chip"><input type="radio" name="spieltag" value="Samstag"><span>Samstag</span></label>
+      <label class="chip"><input type="radio" name="spieltag" value="Sonntag"><span>Sonntag</span></label>
+      <label class="chip"><input type="radio" name="spieltag" value="Unter der Woche"><span>Unter der Woche</span></label>
+    </div>
+    <div class="err">Bitte auswählen.</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span>03</span>Vorerfahrung</h2>
+  <p class="sub">Zutreffendes antippen.</p>
+  <div class="chips col" id="erf">
+    <label class="chip"><input type="checkbox" name="erf" value="Krafttraining (Gym)"><span>Krafttraining (Gym)</span></label>
+    <label class="chip"><input type="checkbox" name="erf" value="Sprint-/Schnelligkeitstraining"><span>Sprint-/Schnelligkeitstraining</span></label>
+    <label class="chip"><input type="checkbox" name="erf" value="Athletiktraining im Verein"><span>Athletiktraining im Verein</span></label>
+    <label class="chip"><input type="checkbox" name="erf" value="Individuelles Coaching"><span>Individuelles Coaching</span></label>
+    <label class="chip"><input type="checkbox" name="erf" value="Trainiere nach festem Plan"><span>Trainiere nach festem Plan</span></label>
+    <label class="chip"><input type="checkbox" name="erf" value="Keine nennenswerte" data-excl="1"><span>Keine nennenswerte</span></label>
+  </div>
+  <label class="l" for="seit">Krafttraining seit <span class="hint">Jahre</span></label>
+  <input type="text" id="seit" inputmode="decimal" maxlength="5">
+  <label class="l" for="plan">Aktueller Plan <span class="hint">Stichpunkte</span></label>
+  <textarea id="plan" maxlength="400"></textarea>
+</section>
+
+<section class="card">
+  <h2><span>04</span>Ziele</h2>
+  <p class="sub">Bis zu drei antippen.</p>
+  <div data-req="ziele">
+    <div class="chips col" id="ziele">
+      <label class="chip"><input type="checkbox" name="ziel" value="Schneller / explosiver"><span>Schneller / explosiver</span></label>
+      <label class="chip"><input type="checkbox" name="ziel" value="Stärker"><span>Stärker</span></label>
+      <label class="chip"><input type="checkbox" name="ziel" value="Belastbarer / robuster"><span>Belastbarer / robuster</span></label>
+      <label class="chip"><input type="checkbox" name="ziel" value="Fitter für die Saison"><span>Fitter für die Saison</span></label>
+      <label class="chip"><input type="checkbox" name="ziel" value="Leistung stabil halten"><span>Leistung stabil halten</span></label>
+      <label class="chip"><input type="checkbox" name="ziel" value="Sonstiges"><span>Sonstiges</span></label>
+    </div>
+    <div class="err">Bitte mindestens ein Ziel auswählen.</div>
+  </div>
+  <label class="l" for="wziel">Wichtigstes Ziel <span class="hint">Stichpunkte</span></label>
+  <textarea id="wziel" maxlength="300"></textarea>
+</section>
+
+<section class="card">
+  <h2><span>05</span>Zeitraum</h2>
+  <p class="sub">Der Plan dauert 6 Wochen.</p>
+  <div class="row2">
+    <div data-req="start">
+      <label class="l" for="start">Startdatum</label>
+      <input type="date" id="start">
+      <div class="err" id="start-err">Bitte Datum wählen.</div>
+    </div>
+    <div data-req="rr">
+      <label class="l" for="rr">Erstes Spiel Rückrunde</label>
+      <input type="date" id="rr">
+      <div class="err" id="rr-err">Bitte Datum wählen.</div>
+    </div>
+  </div>
+  <div class="note" id="kurz" style="display:none">Zwischen Start und erstem Spiel liegen weniger als 6 Wochen. Justus passt den Plan darauf an.</div>
+</section>
+
+<section class="card">
+  <h2><span>06</span>Trainingstage</h2>
+  <div data-req="tage">
+    <div class="lbl">Mögliche Trainingstage</div>
+    <div class="chips num" id="tage">
+      <label class="chip"><input type="checkbox" name="tag" value="Mo"><span>Mo</span></label>
+      <label class="chip"><input type="checkbox" name="tag" value="Di"><span>Di</span></label>
+      <label class="chip"><input type="checkbox" name="tag" value="Mi"><span>Mi</span></label>
+      <label class="chip"><input type="checkbox" name="tag" value="Do"><span>Do</span></label>
+      <label class="chip"><input type="checkbox" name="tag" value="Fr"><span>Fr</span></label>
+      <label class="chip"><input type="checkbox" name="tag" value="Sa"><span>Sa</span></label>
+      <label class="chip"><input type="checkbox" name="tag" value="So"><span>So</span></label>
+    </div>
+    <div class="err">Bitte mindestens einen Tag auswählen.</div>
+  </div>
+  <div data-req="epw">
+    <div class="lbl">Einheiten pro Woche möglich</div>
+    <div class="chips num" role="radiogroup" aria-label="Einheiten pro Woche">
+      <label class="chip"><input type="radio" name="epw" value="1"><span>1</span></label>
+      <label class="chip"><input type="radio" name="epw" value="2"><span>2</span></label>
+      <label class="chip"><input type="radio" name="epw" value="3"><span>3</span></label>
+      <label class="chip"><input type="radio" name="epw" value="4+"><span>4+</span></label>
+    </div>
+    <div class="err">Bitte auswählen.</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span>07</span>Zugang</h2>
+  <div data-req="orte">
+    <div class="lbl">Wo kannst du trainieren? <span class="hint">Mehrfachauswahl</span></div>
+    <div class="chips" id="orte">
+      <label class="chip"><input type="checkbox" name="ort" value="Platz"><span>Platz</span></label>
+      <label class="chip"><input type="checkbox" name="ort" value="Gym"><span>Gym</span></label>
+      <label class="chip"><input type="checkbox" name="ort" value="Zuhause"><span>Zuhause</span></label>
+    </div>
+    <div class="err">Bitte mindestens einen Ort auswählen.</div>
+  </div>
+  <div data-req="equip">
+    <div class="lbl">Was ist verfügbar? <span class="hint">Mehrfachauswahl</span></div>
+    <div class="chips" id="equip">
+      <label class="chip"><input type="checkbox" name="eq" value="Langhantel"><span>Langhantel</span></label>
+      <label class="chip"><input type="checkbox" name="eq" value="Kurzhanteln"><span>Kurzhanteln</span></label>
+      <label class="chip"><input type="checkbox" name="eq" value="Kettlebell"><span>Kettlebell</span></label>
+      <label class="chip"><input type="checkbox" name="eq" value="Widerstandsband"><span>Widerstandsband</span></label>
+      <label class="chip"><input type="checkbox" name="eq" value="Klimmzugstange"><span>Klimmzugstange</span></label>
+      <label class="chip"><input type="checkbox" name="eq" value="Nichts davon" data-excl="1"><span>Nichts davon</span></label>
+    </div>
+    <div class="err">Bitte auswählen. „Nichts davon“ zählt auch.</div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span>08</span>Beschwerden</h2>
+  <div data-req="besch">
+    <div class="lbl">Hast du aktuell Beschwerden oder eine Verletzung?</div>
+    <div class="chips num" role="radiogroup" aria-label="Beschwerden">
+      <label class="chip"><input type="radio" name="besch" value="Nein"><span>Nein</span></label>
+      <label class="chip"><input type="radio" name="besch" value="Ja"><span>Ja</span></label>
+    </div>
+    <div class="err">Bitte auswählen.</div>
+  </div>
+  <div id="besch-ja" style="display:none">
+    <div class="note"><b>Bei Beschwerden:</b> Bitte erst mit Arzt oder Physio klären, ob Training möglich ist. Justus erstellt den Plan erst nach dieser Freigabe.</div>
+    <div data-req="beschtext">
+      <label class="l" for="beschtext">Was genau? <span class="hint">Körperstelle, seit wann, Stichpunkte</span></label>
+      <textarea id="beschtext" maxlength="400"></textarea>
+      <div class="err">Bitte kurz beschreiben.</div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <h2><span>09</span>Einwilligung</h2>
+  <div data-req="consent">
+    <label class="consent"><input type="checkbox" id="consent"><span>Ich willige ein, dass PERFORM. (Justus Böhm) meine Angaben, auch zu Beschwerden, ausschließlich zur Erstellung meines Trainingsplans verarbeitet. Das Senden per WhatsApp mache ich freiwillig. Ich kann die Einwilligung jederzeit widerrufen.</span></label>
+    <div class="err">Ohne Einwilligung kann der Plan nicht erstellt werden.</div>
+  </div>
+  <button type="button" class="btn" id="next">Antworten prüfen</button>
+</section>
+
+<section class="card" id="review" aria-live="polite">
+  <h2><span>10</span>Prüfen &amp; senden</h2>
+  <p class="sub">Dieser Text geht an Justus. Du kannst ihn vor dem Senden in WhatsApp noch ändern.</p>
+  <pre id="msg"></pre>
+  <a class="btn wa" id="send" href="#" rel="noopener">In WhatsApp senden</a>
+  <button type="button" class="btn sec" id="copy">Text kopieren</button>
+  <div class="ok" id="copied">Text kopiert. In WhatsApp einfügen und senden.</div>
+  <button type="button" class="btn sec" id="back">Antworten ändern</button>
+</section>
+
+<p class="foot">Die Angaben dienen der Trainingsplanung. Sie sind keine Zusage von Ergebnissen. Der Plan ersetzt keine medizinische Behandlung. Diese Seite speichert nichts.<br><br>PERFORM. by Justus Böhm · @perform.jb</p>
+
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(s, r){ return (r||document).querySelector(s); };
+  var $$ = function(s, r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+
+  // WhatsApp-Nummer kommt nur aus dem Link (#n=49...), nie aus dem Code.
+  var phone = "";
+  (function(){
+    var m = /(?:^|[#&])n=(\d{8,15})(?:&|$)/.exec(location.hash || "");
+    if (m) phone = m[1];
+  })();
+
+  function val(id){ return ($("#"+id).value || "").trim(); }
+  function checked(name){ return $$('input[name="'+name+'"]:checked').map(function(i){ return i.value; }); }
+  function one(name){ var c = checked(name); return c.length ? c[0] : ""; }
+  function pad(n){ return (n<10?"0":"")+n; }
+  function fmtDate(iso){
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+    return m ? m[3]+"."+m[2]+"."+m[1] : "";
+  }
+  function today(){ var d = new Date(); return pad(d.getDate())+"."+pad(d.getMonth()+1)+"."+d.getFullYear(); }
+
+  // "Keine"/"Nichts davon" schließt die übrigen aus
+  function bindExclusive(containerId){
+    var box = $("#"+containerId);
+    box.addEventListener("change", function(e){
+      var t = e.target;
+      if (t.type !== "checkbox") return;
+      var boxes = $$("input", box);
+      if (t.getAttribute("data-excl") && t.checked) {
+        boxes.forEach(function(b){ if (b !== t) b.checked = false; });
+      } else if (t.checked) {
+        boxes.forEach(function(b){ if (b.getAttribute("data-excl")) b.checked = false; });
+      }
+    });
+  }
+  bindExclusive("erf");
+  bindExclusive("equip");
+
+  // Ziele: maximal drei
+  var zBox = $("#ziele");
+  zBox.addEventListener("change", function(){
+    var boxes = $$("input", zBox);
+    var n = boxes.filter(function(b){ return b.checked; }).length;
+    boxes.forEach(function(b){ b.disabled = (n >= 3 && !b.checked); });
+  });
+
+  // Beschwerden: Zusatzfelder
+  $$('input[name="besch"]').forEach(function(r){
+    r.addEventListener("change", function(){
+      $("#besch-ja").style.display = (one("besch") === "Ja") ? "block" : "none";
+    });
+  });
+
+  // Zeitraum-Hinweis
+  function dateDiffDays(a, b){
+    var da = new Date(a+"T00:00:00"), db = new Date(b+"T00:00:00");
+    return Math.round((db - da) / 86400000);
+  }
+  function checkRange(){
+    var s = $("#start").value, r = $("#rr").value;
+    var note = $("#kurz");
+    note.style.display = "none";
+    if (s && r) {
+      var d = dateDiffDays(s, r);
+      if (d >= 0 && d < 42) note.style.display = "block";
+    }
+  }
+  $("#start").addEventListener("change", checkRange);
+  $("#rr").addEventListener("change", checkRange);
+
+  // Validierung
+  function setErr(key, bad, msg){
+    var el = $('[data-req="'+key+'"]');
+    if (!el) return false;
+    el.classList.toggle("has-err", !!bad);
+    if (bad && msg) { var e = $(".err", el); if (e) e.textContent = msg; }
+    return !!bad;
+  }
+  function validate(){
+    var bad = [];
+    function add(key, cond, msg){ if (setErr(key, cond, msg)) bad.push(key); }
+    var s = $("#start").value, r = $("#rr").value;
+    add("name", !val("name"));
+    add("niveau", !val("niveau"));
+    add("team", !one("team"));
+    add("extra", !one("extra"));
+    add("spieltag", !one("spieltag"));
+    add("ziele", checked("ziel").length === 0);
+    add("start", !s, "Bitte Datum wählen.");
+    var rrMsg = "Bitte Datum wählen.";
+    var rrBad = !r;
+    if (r && s && dateDiffDays(s, r) < 0) { rrBad = true; rrMsg = "Das Rückrundenspiel liegt vor dem Start."; }
+    add("rr", rrBad, rrMsg);
+    add("tage", checked("tag").length === 0);
+    add("epw", !one("epw"));
+    add("orte", checked("ort").length === 0);
+    add("equip", checked("eq").length === 0);
+    add("besch", !one("besch"));
+    add("beschtext", one("besch") === "Ja" && !val("beschtext"));
+    add("consent", !$("#consent").checked);
+    if (bad.length) {
+      var first = $('[data-req="'+bad[0]+'"]');
+      first.scrollIntoView({behavior:"smooth", block:"center"});
+    }
+    return bad.length === 0;
+  }
+  // Fehler beim Ändern wieder ausblenden
+  document.addEventListener("input", clearErr);
+  document.addEventListener("change", clearErr);
+  function clearErr(e){
+    var p = e.target.closest ? e.target.closest("[data-req]") : null;
+    if (p) p.classList.remove("has-err");
+  }
+
+  function list(a){ return a.join(", "); }
+  function build(){
+    var L = [];
+    L.push("PERFORM. Fragebogen Wintercoaching");
+    L.push("");
+    L.push("Name: " + val("name"));
+    L.push("Datum: " + today());
+    L.push("");
+    L.push("Spielniveau: " + val("niveau"));
+    if (val("position")) L.push("Position: " + val("position"));
+    L.push("Mannschaftstraining: " + one("team") + " pro Woche");
+    L.push("Zusätzliches Training: " + one("extra") + " pro Woche");
+    L.push("Spieltag: " + one("spieltag"));
+    L.push("");
+    var erf = checked("erf");
+    L.push("Vorerfahrung: " + (erf.length ? list(erf) : "keine Angabe"));
+    if (val("seit")) L.push("Krafttraining seit: " + val("seit") + " Jahren");
+    if (val("plan")) L.push("Aktueller Plan: " + val("plan"));
+    L.push("");
+    L.push("Ziele: " + list(checked("ziel")));
+    if (val("wziel")) L.push("Wichtigstes Ziel: " + val("wziel"));
+    L.push("");
+    L.push("Planstart: " + fmtDate($("#start").value));
+    L.push("Erstes Spiel Rückrunde: " + fmtDate($("#rr").value));
+    L.push("Plandauer: 6 Wochen");
+    L.push("Trainingstage: " + list(checked("tag")));
+    L.push("Einheiten pro Woche: " + one("epw"));
+    L.push("");
+    L.push("Trainingsorte: " + list(checked("ort")));
+    L.push("Equipment: " + list(checked("eq")));
+    L.push("");
+    if (one("besch") === "Ja") {
+      L.push("Beschwerden: Ja. " + val("beschtext"));
+      L.push("Hinweis: Plan erst nach Freigabe durch Arzt/Physio.");
+    } else {
+      L.push("Beschwerden: Nein");
+    }
+    L.push("");
+    L.push("Einwilligung zur Verarbeitung meiner Angaben für die Planerstellung: erteilt am " + today());
+    return L.join("\n");
+  }
+
+  var text = "";
+  $("#next").addEventListener("click", function(){
+    if (!validate()) return;
+    text = build();
+    $("#msg").textContent = text;
+    var base = phone ? "https://wa.me/" + phone : "https://wa.me/";
+    $("#send").href = base + "?text=" + encodeURIComponent(text);
+    $("#review").style.display = "block";
+    $("#copied").style.display = "none";
+    $("#review").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+  $("#back").addEventListener("click", function(){
+    $("#review").style.display = "none";
+    $("#form").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+  $("#copy").addEventListener("click", function(){
+    var done = function(){ $("#copied").style.display = "block"; };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else { fallback(); }
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.className = "sr"; document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+  });
+})();
+</script>
+</body>
+</html>
