@@ -53,6 +53,9 @@ h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;
 .pill.s-Absage{background:#4a2227;color:#f4a3a3}
 .pill.s-kalt{background:#2a2f3a;color:var(--dim)}
 .pill.fmt{background:#22385c;color:#9cc0f7}
+.pill.p-aktiv{background:#14412a;color:var(--green)}
+.pill.p-abgeschlossen{background:#2a2f3a;color:var(--dim)}
+.pill.p-Coaching-Interesse{background:#4a3a14;color:var(--amber)}
 button.pill{min-height:40px;padding:0 12px}
 .tag{font-size:10.5px;font-weight:600;color:var(--muted);background:var(--card2);padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:1px}
 .actions{display:flex;gap:8px;margin-top:12px}
@@ -68,7 +71,7 @@ button.pill{min-height:40px;padding:0 12px}
 .chip{flex:none;min-height:40px;padding:0 14px;border-radius:99px;background:var(--card);color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
 .chip.on{background:var(--blue);color:#fff}
 .seg{display:flex;background:var(--card);border-radius:12px;padding:4px;margin-bottom:14px}
-.seg button{flex:1;min-height:42px;border-radius:9px;font-weight:700;font-size:13px;color:var(--muted)}
+.seg button{flex:1;min-height:44px;border-radius:9px;font-weight:700;font-size:13px;color:var(--muted)}
 .seg button.on{background:var(--blue);color:#fff}
 .big{font-size:56px;font-weight:700;line-height:1;letter-spacing:-1px}
 .big small{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:6px}
@@ -94,7 +97,7 @@ label.f{display:block;font-size:11px;font-weight:700;letter-spacing:1px;text-tra
 .review{background:linear-gradient(135deg,#1D4579,#162338);border-left-color:transparent}
 .mini button{min-height:36px;padding:0 12px;border-radius:99px;background:var(--card2);font-size:12.5px;font-weight:600;color:var(--muted)}
 .opts{display:grid;gap:8px}
-.opts.c3{grid-template-columns:repeat(3,1fr)} .opts.c2{grid-template-columns:repeat(2,1fr)}
+.opts.c1{grid-template-columns:1fr} .opts.c3{grid-template-columns:repeat(3,1fr)} .opts.c2{grid-template-columns:repeat(2,1fr)}
 .opts button{min-height:48px;border-radius:12px;background:var(--card2);font-weight:600;font-size:13.5px;color:var(--muted)}
 .opts button.on{background:var(--blue);color:#fff}
 /* Tab bar */
@@ -144,6 +147,7 @@ var STATUSES = ['offen', 'antwortet', 'Gespräch', 'Zusage', 'Absage', 'kalt'];
 var CLOSED = ['Zusage', 'Absage', 'kalt'];
 var FORMATS = ['Reel', 'Carousel', 'Story', 'Beitrag'];
 var SOURCES = ['Reel', 'Story', 'Empfehlung', 'Mannschaft', 'Workshop', 'Trainer'];
+var PLAN_STATUS = ['aktiv', 'abgeschlossen', 'Coaching-Interesse'], PLAN_CAT = 'Plan-Kunden';
 var WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 var WDL = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 var MON = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -201,10 +205,11 @@ var IC = {
 var storageOK = true;
 var PALETTE = ['#4B8EF0', '#2DD4BF', '#4ADE80', '#FACC15', '#FB923C', '#F87171', '#F472B6', '#A78BFA'];
 var DEFAULT_TPL = [{"id": "vl-1", "title": "Erstantwort Spieler", "text": "Hey [Name], danke für deine Nachricht! 💪\n\nKurz zu mir: Ich bin Justus, Sportwissenschaftler und Athletiktrainer für Fußballer. Bei PERFORM. geht es darum, schneller zu werden und länger auf dem Platz zu bleiben, mit einem Plan, der zu deiner Woche passt.\n\nDamit ich dir etwas Sinnvolles sagen kann: Auf welchem Niveau spielst du, und was willst du verbessern?"}, {"id": "vl-2", "title": "Winter-Coaching erklären", "text": "Das Winter-Coaching läuft über die Winterpause bis zum Start der Saisonvorbereitung. Du bekommst einen individuellen Trainingsplan, den ich anhand deiner Rückmeldungen anpasse, und bist mit Rückfragen direkt bei mir.\n\nIch nehme nur 5 Spieler an, damit ich mich um jeden wirklich kümmern kann. Anmeldeschluss ist der 10.11.\n\nWenn das für dich passt, machen wir ein kurzes Kennenlerngespräch. Preis: [Preis]."}, {"id": "vl-3", "title": "Erstgespräch vorschlagen", "text": "Dann lass uns kurz telefonieren oder per Video sprechen, ca. 20 Minuten. Da klären wir, wo du stehst, wie dein Training gerade aussieht und ob das Coaching zu dir passt.\n\nIch hätte [Tag] um [Uhrzeit] oder [Tag] um [Uhrzeit] Zeit. Passt eins davon? Sonst nenn mir gern einen Termin."}, {"id": "vl-4", "title": "Nachfassen Spieler (nach ca. 3 Tagen)", "text": "Hey [Name], ich wollte kurz nachhaken, ob meine Nachricht bei dir angekommen ist. Wenn du noch Fragen hast, schreib mir einfach. Und wenn es gerade nicht passt, ist das auch völlig in Ordnung."}, {"id": "vl-5", "title": "Letzte Erinnerung vor Anmeldeschluss", "text": "Hey [Name], kurze Info: Der Anmeldeschluss fürs Winter-Coaching ist am 10.11., aktuell sind noch [Anzahl] Plätze frei. Wenn du dabei sein willst, gib mir bis dahin Bescheid. Wenn nicht, sag es mir gern kurz, dann plane ich anders."}, {"id": "vl-6", "title": "Platz bestätigen", "text": "Super, [Name], du bist dabei! 🎉\n\nSo geht es weiter:\n1. Ich schicke dir die Betreuungsvereinbarung und den Anamnesebogen zum Ausfüllen.\n2. Danach machen wir einen kurzen Termin zum Durchsprechen.\n3. Dann bekommst du deinen Plan, Start ist am [Datum].\n\nBei Fragen melde dich jederzeit."}, {"id": "vl-7", "title": "Warteliste", "text": "Aktuell sind alle Plätze im Winter-Coaching vergeben. Ich setze dich gern auf die Warteliste. Sobald ein Platz frei wird, melde ich mich direkt bei dir. Soll ich dich eintragen?"}, {"id": "vl-8", "title": "Absage, wenn voll", "text": "Danke für dein Interesse, [Name]. Das Winter-Coaching ist leider voll. Wenn du magst, melde ich mich, sobald ich die nächste Runde plane. Ein paar Grundlagen findest du bis dahin regelmäßig auf @perform.jb."}, {"id": "vl-9", "title": "Verein: Erstansprache", "text": "Hallo [Name],\n\nich bin Justus Böhm, Sportwissenschaftler und Athletiktrainer für Fußball (PERFORM.). Ich biete Vereinen im Raum Franken praxisnahe Athletik-Einheiten für die ganze Mannschaft an, mit Schwerpunkt Sprint, Sprünge und Prävention.\n\n[Konkreter Anlass / Bezug zum Verein]\n\nHätten Sie Interesse an einer Einheit in der Vorbereitung? Gern erkläre ich in einem kurzen Gespräch, wie so eine Einheit abläuft."}, {"id": "vl-10", "title": "Verein: Nachfassen", "text": "Hallo [Name], ich wollte kurz nachfragen, ob Sie meine Nachricht zur Athletik-Einheit für Ihre Mannschaft erhalten haben. Ich plane gerade die Termine für die Vorbereitung und würde mich über eine kurze Rückmeldung freuen, auch wenn es eine Absage ist."}];
-function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], cats: [], notes: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
-function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400), doneAt: isoOk(t.doneAt) ? t.doneAt : '' }; }
+function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], cats: [], notes: [], planKunden: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
+function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400), doneAt: isoOk(t.doneAt) ? t.doneAt : '', plan: str(t.plan, 40), ck: (t.ck === 3 || t.ck === 6) ? t.ck : 0 }; }
 function normContact(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 80), type: c.type === 'verein' ? 'verein' : 'spieler', status: STATUSES.indexOf(c.status) >= 0 ? c.status : 'offen', msgDate: isoOk(c.msgDate) ? c.msgDate : '', reason: str(c.reason, 400), source: str(c.source, 120), followDate: isoOk(c.followDate) ? c.followDate : '' }; }
 function normPost(p) { return { id: str(p.id, 40) || uid(), date: isoOk(p.date) ? p.date : today(), format: FORMATS.indexOf(p.format) >= 0 ? p.format : 'Reel', title: str(p.title, 300), source: str(p.source, 120), done: !!p.done }; }
+function normPlan(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 80), date: isoOk(c.date) ? c.date : today(), source: str(c.source, 120), status: PLAN_STATUS.indexOf(c.status) >= 0 ? c.status : 'aktiv' }; }
 function normCat(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 40), color: PALETTE.indexOf(c.color) >= 0 ? c.color : PALETTE[0] }; }
 function nextColor(cats) { var used = {}; cats.forEach(function (c) { used[c.color] = (used[c.color] || 0) + 1; }); var best = PALETTE[0], n = 1e9; PALETTE.forEach(function (col) { if ((used[col] || 0) < n) { n = used[col] || 0; best = col; } }); return best; }
 function ensureCats(st) {
@@ -228,7 +233,7 @@ function sanitize(d) {
   var base = defaults();
   d = d && typeof d === 'object' ? d : {};
   function arr(a, f, key) { return (Array.isArray(a) ? a : []).filter(function (x) { return x && typeof x === 'object'; }).map(f).filter(function (x) { return x[key]; }); }
-  return ensureCats({ v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), notes: arr(d.notes, normNote, 'title'), winter: normWinter(d.winter, base.winter), cats: arr(d.cats, normCat, 'name') });
+  return ensureCats({ v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), notes: arr(d.notes, normNote, 'title'), winter: normWinter(d.winter, base.winter), cats: arr(d.cats, normCat, 'name'), planKunden: (function () { var seen = {}; return arr(d.planKunden, normPlan, 'name').filter(function (x) { if (seen[x.id]) return false; seen[x.id] = 1; return true; }); })() });
 }
 function load() {
   try { var r = localStorage.getItem(KEY); if (r) { var o = JSON.parse(r), st = sanitize(o); if (!o || !Array.isArray(o.templates)) st.templates = defaults().templates; return st; } } catch (e) { storageOK = false; }
@@ -240,7 +245,7 @@ function save() {
   try { ok = lsSet(KEY, JSON.stringify(state)); } catch (e) { ok = false; }
   if (!ok) { storageOK = false; }
 }
-function counts() { return state.tasks.length + ' Aufgaben · ' + state.pipeline.length + ' Kontakte · ' + state.posts.length + ' Posts · ' + state.templates.length + ' Vorlagen · ' + state.notes.length + ' Notizen'; }
+function counts() { return state.tasks.length + ' Aufgaben · ' + state.pipeline.length + ' Kontakte · ' + state.posts.length + ' Posts · ' + state.templates.length + ' Vorlagen · ' + state.notes.length + ' Notizen · ' + state.planKunden.length + ' Plan-Kunden'; }
 
 /* ───────── UI-Zustand ───────── */
 var tab = lsGet(TAB_KEY, 'today');
@@ -479,6 +484,76 @@ function addWait() {
   ], onSave: function (v) { state.winter.waitlist.push({ id: uid(), name: str(v.name, 80), date: isoOk(v.date) ? v.date : '' }); changed(); } });
 }
 
+/* ───────── Plan-Kunden (59-€-Plan) ───────── */
+var cMode = 'winter';
+function mkCheckin(p, k) { return normTask({ id: uid(), title: 'Check-in Woche ' + k + ' · ' + p.name, due: addDays(p.date, 7 * k), done: false, group: PLAN_CAT, note: '', doneAt: '', plan: p.id, ck: k }); }
+function ensureCheckins(p) {
+  [3, 6].forEach(function (k) { if (!state.tasks.some(function (t) { return t.plan === p.id && t.ck === k; })) state.tasks.push(mkCheckin(p, k)); });
+  ensureCats(state);
+}
+function dropOpenCheckins(id) { state.tasks = state.tasks.filter(function (t) { return !(t.plan === id && !t.done); }); }
+function syncPlan(p, old) {
+  if (p.status === 'abgeschlossen') { dropOpenCheckins(p.id); return; }
+  if (old.status === 'abgeschlossen') ensureCheckins(p);
+  state.tasks.forEach(function (t) {
+    if (t.plan !== p.id || !t.ck) return;
+    if (old.name !== p.name && t.title === 'Check-in Woche ' + t.ck + ' · ' + old.name) t.title = 'Check-in Woche ' + t.ck + ' · ' + p.name;
+    if (old.date !== p.date && !t.done && t.due === addDays(old.date, 7 * t.ck)) t.due = addDays(p.date, 7 * t.ck);
+  });
+}
+function editPlan(c) {
+  var isNew = !c; c = c || { id: uid(), name: '', date: today(), source: '', status: 'aktiv' };
+  openSheet({ title: isNew ? 'Neuer Plan-Kunde' : 'Plan-Kunde', values: c, fields: [
+    { key: 'name', label: 'Name', type: 'text', req: true, ph: 'Spieler', cap: 'words', hint: 'Nur Name, Kaufdatum, Quelle und Status. Keine Gesundheitsdaten, Beschwerden oder Diagnosen.' },
+    { key: 'date', label: 'Kaufdatum', type: 'date', req: true, chips: [{ l: 'Heute', n: 0 }, { l: 'Gestern', n: -1 }] },
+    { key: 'source', label: 'Quelle', type: 'text', chips: SOURCES },
+    { key: 'status', label: 'Status', type: 'choice', cols: 1, options: PLAN_STATUS.map(function (s) { return { v: s, l: s.charAt(0).toUpperCase() + s.slice(1) }; }) }
+  ], actions: isNew ? [] : [{ label: 'Löschen (offene Check-ins entfallen)', danger: true, run: function () { state.planKunden = state.planKunden.filter(function (x) { return x.id !== c.id; }); dropOpenCheckins(c.id); changed(); } }],
+    onSave: function (v) {
+      var n = normPlan(Object.assign({}, c, v));
+      if (isNew) { state.planKunden.push(n); if (n.status !== 'abgeschlossen') ensureCheckins(n); }
+      else { var old = { name: c.name, date: c.date, status: c.status }; Object.assign(c, n); syncPlan(c, old); }
+      changed();
+    } });
+}
+function planCard(c) {
+  var t = today(), lines = [3, 6].map(function (k) {
+    var tk = state.tasks.filter(function (x) { return x.plan === c.id && x.ck === k; })[0];
+    if (!tk) return h('div', { class: 'meta', text: 'Woche ' + k + ': kein To-do' });
+    if (tk.done) return h('div', { class: 'meta', text: 'Woche ' + k + ': erledigt' + (tk.doneAt ? ' ' + fmtS(tk.doneAt) : '') });
+    var late = tk.due && tk.due < t;
+    return h('div', { class: 'meta' + (late ? ' red' : ''), text: 'Woche ' + k + ': fällig ' + fmt(tk.due) + ' (' + rel(tk.due) + ')' });
+  });
+  return h('div', { class: 'card' + (c.status === 'abgeschlossen' ? ' quiet' : '') },
+    h('div', { class: 'row' },
+      h('div', { class: 'grow', onclick: function () { editPlan(c); } },
+        h('div', { class: 'title', text: c.name }),
+        h('div', { class: 'meta', text: 'Gekauft ' + fmt(c.date) + ' ' + c.date.slice(0, 4) + (c.source ? ' · Quelle: ' + c.source : '') }),
+        c.status === 'abgeschlossen' ? null : lines),
+      h('span', { class: 'pill p-' + c.status, text: c.status })));
+}
+function viewPlan() {
+  var out = [h('div', { class: 'sub', text: '59-€-Plan · Check-ins nach 3 und 6 Wochen' })];
+  var by = function (st) { return state.planKunden.filter(function (x) { return x.status === st; }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; }); };
+  out.push(h('div', { class: 'card quiet' },
+    PLAN_STATUS.map(function (st) { return h('div', { class: 'kv' }, h('span', { text: st.charAt(0).toUpperCase() + st.slice(1) }), h('b', { text: String(by(st).length) })); })));
+  if (!state.planKunden.length) out.push(h('div', { class: 'note', text: 'Noch keine Plan-Kunden. Tippe auf +, um den ersten anzulegen. Dabei entstehen zwei To-dos (Woche 3 und Woche 6) in der Kategorie „' + PLAN_CAT + '“.' }));
+  PLAN_STATUS.forEach(function (st) {
+    var list = by(st); if (!list.length) return;
+    out.push(h('h2', { text: st.charAt(0).toUpperCase() + st.slice(1) + ' · ' + list.length }));
+    list.forEach(function (c) { out.push(planCard(c)); });
+  });
+  return out;
+}
+function viewCoaching() {
+  var w = viewWinter();
+  var seg = h('div', { class: 'seg' },
+    h('button', { class: cMode === 'winter' ? 'on' : '', type: 'button', text: 'Winter-Coaching', onclick: function () { cMode = 'winter'; render(); } }),
+    h('button', { class: cMode === 'plan' ? 'on' : '', type: 'button', text: 'Plan-Kunden', onclick: function () { cMode = 'plan'; render(); } }));
+  if (cMode === 'plan') return [h('h1', { text: 'Plan-Kunden' }), seg].concat(viewPlan());
+  return [w[0], seg].concat(w.slice(1));
+}
+
 /* ───────── Bausteine ───────── */
 function chk(on, handler, label) {
   return h('button', { class: 'chk' + (on ? ' on' : ''), type: 'button', 'aria-label': label, 'aria-pressed': on ? 'true' : 'false', onclick: handler }, svg(IC.check));
@@ -535,7 +610,7 @@ function viewToday() {
   var open = state.tasks.filter(function (x) { return !x.done; }), done = state.tasks.filter(function (x) { return x.done; });
   out.push(h('h1', { text: 'To-do' }), h('div', { class: 'sub', text: WDL[d.getDay()] + ', ' + d.getDate() + '. ' + MON[d.getMonth()] + ' · ' + open.length + ' offen · ' + done.length + ' erledigt' }));
   if (!storageOK) out.push(h('div', { class: 'banner red', text: 'Speichern im Browser nicht möglich. Daten gehen verloren – sichere sie unter „Mehr“.' }));
-  var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, hasData = state.tasks.length + state.pipeline.length + state.posts.length > 0;
+  var lb = parseInt(lsGet(BK_KEY, '0'), 10) || 0, hasData = state.tasks.length + state.pipeline.length + state.posts.length + state.planKunden.length > 0;
   if (hasData && (!lb || Date.now() - lb > 7 * 86400000)) out.push(h('button', { class: 'banner', onclick: function () { setTab('more'); }, text: lb ? 'Letztes Backup ist über 7 Tage her. Jetzt sichern →' : 'Noch kein Backup gemacht. Jetzt sichern →' }));
   var fol = state.pipeline.filter(function (c) { return c.followDate && c.followDate <= t && CLOSED.indexOf(c.status) < 0; }).sort(function (a, b) { return a.followDate < b.followDate ? -1 : 1; });
   var posts = state.posts.filter(function (p) { return !p.done && p.date <= t; }).sort(function (a, b) { return a.date < b.date ? -1 : 1; });
@@ -730,17 +805,18 @@ function viewCal() {
 }
 
 function exportJson() {
-  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates, cats: state.cats, notes: state.notes }, null, 1);
+  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates, cats: state.cats, notes: state.notes, planKunden: state.planKunden }, null, 1);
 }
 function applyImport(text, replace) {
   var data = JSON.parse(text);
-  if (!data || typeof data !== 'object' || !(data.tasks || data.pipeline || data.posts || data.winter || data.templates || data.notes)) throw new Error('format');
+  if (!data || typeof data !== 'object' || !(data.tasks || data.pipeline || data.posts || data.winter || data.templates || data.notes || data.planKunden)) throw new Error('format');
   var inc = sanitize(data), has = function (k) { return Array.isArray(data[k]); };
   function merge(cur, add) { var ids = {}; add.forEach(function (x) { ids[x.id] = x; }); return cur.filter(function (x) { return !ids[x.id]; }).concat(add); }
-  ['tasks', 'pipeline', 'posts', 'templates', 'cats', 'notes'].forEach(function (k) { if (has(k)) state[k] = replace ? inc[k] : merge(state[k], inc[k]); });
+  ['tasks', 'pipeline', 'posts', 'templates', 'cats', 'notes', 'planKunden'].forEach(function (k) { if (has(k)) state[k] = replace ? inc[k] : merge(state[k], inc[k]); });
   ensureCats(state);
+  state.planKunden.forEach(function (c) { if (c.status === 'abgeschlossen') dropOpenCheckins(c.id); });
   if (data.winter && typeof data.winter === 'object') state.winter = normWinter(data.winter, state.winter);
-  return inc.tasks.length + ' Aufgaben, ' + inc.pipeline.length + ' Kontakte, ' + inc.posts.length + ' Posts' + (has('templates') ? ', ' + inc.templates.length + ' Vorlagen' : '') + (has('notes') ? ', ' + inc.notes.length + ' Notizen' : '');
+  return inc.tasks.length + ' Aufgaben, ' + inc.pipeline.length + ' Kontakte, ' + inc.posts.length + ' Posts' + (has('templates') ? ', ' + inc.templates.length + ' Vorlagen' : '') + (has('notes') ? ', ' + inc.notes.length + ' Notizen' : '') + (has('planKunden') ? ', ' + inc.planKunden.length + ' Plan-Kunden' : '');
 }
 function viewMore() {
   var out = [h('h1', { text: 'Mehr' }), h('div', { class: 'sub', text: 'Sicherung der Daten' })];
@@ -783,14 +859,14 @@ function viewMore() {
   out.push(h('h2', { text: 'Wiederherstellen' }), imp,
     h('div', { class: 'actions' }, h('button', { class: 'btn blue flex', type: 'button', text: 'Zusammenführen', onclick: function () { run(false); } }), replaceBtn),
     h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:8px', text: 'Aus Datei laden', onclick: function () { fileIn.click(); } }), fileIn, msg2,
-    h('div', { class: 'note', text: 'Zusammenführen überschreibt Einträge mit gleicher Kennung und lässt den Rest unverändert. Die Daten liegen nur auf diesem Gerät, in dieser App. Wer das iPhone zurücksetzt oder die App löscht, verliert sie ohne Sicherung.' }));
+    h('div', { class: 'note', text: 'Zusammenführen überschreibt Einträge mit gleicher Kennung und lässt den Rest unverändert. Plan-Kunden und ihre Check-in-To-dos werden mitgesichert. Ein älteres Backup ohne Plan-Kunden ersetzt die To-dos, dann fehlen die Check-ins. Die Daten liegen nur auf diesem Gerät, in dieser App. Wer das iPhone zurücksetzt oder die App löscht, verliert sie ohne Sicherung.' }));
   return out;
 }
 
 /* ───────── Render ───────── */
 var TABS = [['today', 'To-do', IC.today], ['pipe', 'Kontakte', IC.pipe], ['winter', 'Coaching', IC.winter], ['tpl', 'Notizen', IC.note], ['cal', 'Content', IC.cal], ['more', 'Mehr', IC.more]];
 function render() {
-  var app = document.getElementById('app'), views = { today: viewToday, pipe: viewPipe, winter: viewWinter, tpl: viewTpl, cal: viewCal, more: viewMore };
+  var app = document.getElementById('app'), views = { today: viewToday, pipe: viewPipe, winter: viewCoaching, tpl: viewTpl, cal: viewCal, more: viewMore };
   var y = window.scrollY; app.textContent = ''; views[tab]().forEach(function (n) { app.appendChild(n); });
   var tabs = document.getElementById('tabs'); tabs.textContent = '';
   var n = openCount();
@@ -799,9 +875,9 @@ function render() {
       svg(t[2]), h('span', { text: t[1] }), t[0] === 'today' && n ? h('span', { class: 'badge', text: String(n) }) : null));
   });
   var fab = document.getElementById('fab'); fab.textContent = ''; fab.appendChild(svg(IC.plus));
-  var act = { today: editTask, pipe: editContact, winter: addWait, tpl: function () { if (nMode === 'notes') editNote(); else editTpl(); }, cal: editPost }[tab];
+  var act = { today: editTask, pipe: editContact, winter: function () { if (cMode === 'plan') editPlan(); else addWait(); }, tpl: function () { if (nMode === 'notes') editNote(); else editTpl(); }, cal: editPost }[tab];
   fab.style.display = act ? 'grid' : 'none'; fab.onclick = act ? function () { act(); } : null;
-  fab.setAttribute('aria-label', { today: 'Aufgabe hinzufügen', pipe: 'Kontakt hinzufügen', winter: 'Auf die Warteliste', tpl: nMode === 'notes' ? 'Notiz hinzufügen' : 'Vorlage hinzufügen', cal: 'Post hinzufügen' }[tab] || 'Hinzufügen');
+  fab.setAttribute('aria-label', { today: 'Aufgabe hinzufügen', pipe: 'Kontakt hinzufügen', winter: cMode === 'plan' ? 'Plan-Kunde hinzufügen' : 'Auf die Warteliste', tpl: nMode === 'notes' ? 'Notiz hinzufügen' : 'Vorlage hinzufügen', cal: 'Post hinzufügen' }[tab] || 'Hinzufügen');
   window.scrollTo(0, y);
 }
 document.addEventListener('visibilitychange', function () { if (!document.hidden && !document.getElementById('layer').firstChild) render(); });
