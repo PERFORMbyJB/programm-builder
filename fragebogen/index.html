@@ -7,7 +7,7 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
 <meta name="theme-color" content="#1C1F26">
-<title>PERFORM. Fragebogen Wintercoaching</title>
+<title>PERFORM. Fragebogen</title>
 <style>
 @font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
 @font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
@@ -24,7 +24,7 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",sy
 .wrap{max-width:640px;margin:0 auto;padding:0 16px calc(48px + env(safe-area-inset-bottom,0px))}
 header{background:var(--bg);text-align:center;padding:calc(20px + env(safe-area-inset-top,0px)) 16px 8px;border-bottom:3px solid var(--acc)}
 header img{display:block;width:260px;max-width:70%;height:auto;margin:0 auto}
-header h1{margin:4px 0 6px;font-size:24px;line-height:1.2;font-weight:700}
+header h1{margin:4px 0 18px;font-size:24px;line-height:1.2;font-weight:700}
 header p{margin:0 0 18px;color:var(--muted);font-size:15px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 16px;margin-top:16px}
 .card h2{margin:0 0 4px;font-size:13px;letter-spacing:2px;font-weight:700;color:var(--accT);text-transform:uppercase}
@@ -77,8 +77,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
 <body>
 <header>
   <img src="logo.png" alt="PERFORM. by JB" width="516" height="180">
-  <h1>Fragebogen Wintercoaching</h1>
-  <p>Ca. 4 Minuten. Am Ende schickst du die Antworten per WhatsApp an Justus.</p>
+  <h1>Fragebogen</h1>
 </header>
 
 <main class="wrap" id="form">
@@ -215,6 +214,8 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     </div>
     <div class="err">Bitte auswählen.</div>
   </div>
+  <label class="l" for="tkom">Kommentar zu Trainingstagen <span class="hint">wichtige Infos, optional</span></label>
+  <textarea id="tkom" maxlength="400"></textarea>
 </section>
 
 <section class="card">
@@ -232,6 +233,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <div class="lbl">Was ist verfügbar? <span class="hint">Mehrfachauswahl</span></div>
     <div class="chips" id="equip">
       <label class="chip"><input type="checkbox" name="eq" value="Langhantel"><span>Langhantel</span></label>
+      <label class="chip"><input type="checkbox" name="eq" value="Trap-Bar"><span>Trap-Bar</span></label>
       <label class="chip"><input type="checkbox" name="eq" value="Kurzhanteln"><span>Kurzhanteln</span></label>
       <label class="chip"><input type="checkbox" name="eq" value="Kettlebell"><span>Kettlebell</span></label>
       <label class="chip"><input type="checkbox" name="eq" value="Widerstandsband"><span>Widerstandsband</span></label>
@@ -240,6 +242,8 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     </div>
     <div class="err">Bitte auswählen. „Nichts davon“ zählt auch.</div>
   </div>
+  <label class="l" for="weq">Weitere Geräte <span class="hint">optional</span></label>
+  <textarea id="weq" maxlength="300"></textarea>
 </section>
 
 <section class="card">
@@ -253,7 +257,6 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <div class="err">Bitte auswählen.</div>
   </div>
   <div id="besch-ja" style="display:none">
-    <div class="note"><b>Bei Beschwerden:</b> Bitte erst mit Arzt oder Physio klären, ob Training möglich ist. Justus erstellt den Plan erst nach dieser Freigabe.</div>
     <div data-req="beschtext">
       <label class="l" for="beschtext">Was genau? <span class="hint">Körperstelle, seit wann, Stichpunkte</span></label>
       <textarea id="beschtext" maxlength="400"></textarea>
@@ -263,7 +266,13 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
 </section>
 
 <section class="card">
-  <h2><span>09</span>Einwilligung</h2>
+  <h2><span>09</span>Sonstiges</h2>
+  <label class="l" for="sonst">Kommentar <span class="hint">alles, was Justus noch wissen sollte, optional</span></label>
+  <textarea id="sonst" maxlength="500"></textarea>
+</section>
+
+<section class="card">
+  <h2><span>10</span>Einwilligung</h2>
   <div data-req="consent">
     <label class="consent"><input type="checkbox" id="consent"><span>Ich willige ein, dass PERFORM. (Justus Böhm) meine Angaben, auch zu Beschwerden, ausschließlich zur Erstellung meines Trainingsplans verarbeitet. Das Senden per WhatsApp mache ich freiwillig. Ich kann die Einwilligung jederzeit widerrufen.</span></label>
     <div class="err">Ohne Einwilligung kann der Plan nicht erstellt werden.</div>
@@ -274,7 +283,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
 </section>
 
 <section class="card" id="review" aria-live="polite">
-  <h2><span>10</span>Prüfen &amp; senden</h2>
+  <h2><span>11</span>Prüfen &amp; senden</h2>
   <p class="sub">Dieser Text geht an Justus. Du kannst ihn vor dem Senden in WhatsApp noch ändern.</p>
   <pre id="msg"></pre>
   <div class="note" id="nophone" style="display:none">In WhatsApp bitte Justus als Empfänger auswählen.</div>
@@ -446,16 +455,18 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     L.push("Plandauer: 6 Wochen");
     L.push("Trainingstage: " + list(checked("tag")));
     L.push("Einheiten pro Woche: " + one("epw"));
+    if (val("tkom")) L.push("Kommentar Trainingstage: " + val("tkom"));
     L.push("");
     L.push("Trainingsorte: " + list(checked("ort")));
     L.push("Equipment: " + list(checked("eq")));
+    if (val("weq")) L.push("Weitere Geräte: " + val("weq"));
     L.push("");
     if (one("besch") === "Ja") {
       L.push("Beschwerden: Ja. " + val("beschtext"));
-      L.push("Hinweis: Plan erst nach Freigabe durch Arzt/Physio.");
     } else {
       L.push("Beschwerden: Nein");
     }
+    if (val("sonst")) { L.push(""); L.push("Sonstiges: " + val("sonst")); }
     L.push("");
     L.push("Einwilligung zur Verarbeitung meiner Angaben für die Planerstellung: erteilt am " + today());
     return L.join("\n");
