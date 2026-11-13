@@ -116,6 +116,20 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <div class="err">Bitte auswählen.</div>
   </div>
 
+  <div data-req="teamtage">
+    <div class="lbl">Teamtraining wann? <span class="hint">Tage antippen, an denen die Mannschaft trainiert</span></div>
+    <div class="chips num c7" role="group" aria-label="Tage des Mannschaftstrainings">
+      <label class="chip"><input type="checkbox" name="tt" value="Mo"><span>Mo</span></label>
+      <label class="chip"><input type="checkbox" name="tt" value="Di"><span>Di</span></label>
+      <label class="chip"><input type="checkbox" name="tt" value="Mi"><span>Mi</span></label>
+      <label class="chip"><input type="checkbox" name="tt" value="Do"><span>Do</span></label>
+      <label class="chip"><input type="checkbox" name="tt" value="Fr"><span>Fr</span></label>
+      <label class="chip"><input type="checkbox" name="tt" value="Sa"><span>Sa</span></label>
+      <label class="chip"><input type="checkbox" name="tt" value="So"><span>So</span></label>
+    </div>
+    <div class="err">Bitte die Tage des Mannschaftstrainings auswählen.</div>
+  </div>
+
   <div data-req="extra">
     <div class="lbl">Zusätzliches Training, z.&nbsp;B. Gym <span class="hint">Einheiten pro Woche</span></div>
     <div class="chips num" role="radiogroup" aria-label="Zusätzliches Training pro Woche">
@@ -164,6 +178,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
       <label class="chip"><input type="checkbox" name="ziel" value="Schneller / explosiver"><span>Schneller / explosiver</span></label>
       <label class="chip"><input type="checkbox" name="ziel" value="Stärker"><span>Stärker</span></label>
       <label class="chip"><input type="checkbox" name="ziel" value="Belastbarer / robuster"><span>Belastbarer / robuster</span></label>
+      <label class="chip"><input type="checkbox" name="ziel" value="Verletzungsfrei bleiben"><span>Verletzungsfrei bleiben</span></label>
       <label class="chip"><input type="checkbox" name="ziel" value="Fitter für die Saison"><span>Fitter für die Saison</span></label>
       <label class="chip"><input type="checkbox" name="ziel" value="Leistung stabil halten"><span>Leistung stabil halten</span></label>
       <label class="chip"><input type="checkbox" name="ziel" value="Sonstiges"><span>Sonstiges</span></label>
@@ -193,9 +208,10 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
 </section>
 
 <section class="card">
-  <h2><span>06</span>Trainingstage</h2>
+  <h2><span>06</span>Trainingstage im PERFORM.-Plan</h2>
+  <p class="sub">Gemeint sind die Tage für deinen Plan, zusätzlich zum Mannschaftstraining.</p>
   <div data-req="tage">
-    <div class="lbl">Mögliche Trainingstage</div>
+    <div class="lbl">An welchen Tagen kannst du den Plan trainieren? <span class="hint">nicht das Mannschaftstraining</span></div>
     <div class="chips num c7" id="tage" role="group" aria-label="Trainingstage">
       <label class="chip"><input type="checkbox" name="tag" value="Mo"><span>Mo</span></label>
       <label class="chip"><input type="checkbox" name="tag" value="Di"><span>Di</span></label>
@@ -208,8 +224,8 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <div class="err">Bitte mindestens einen Tag auswählen.</div>
   </div>
   <div data-req="epw">
-    <div class="lbl">Einheiten pro Woche möglich <span class="hint">(inkl. Kraft, Cardio, Mobility, etc.)</span></div>
-    <div class="chips num c3" role="radiogroup" aria-label="Einheiten pro Woche inklusive Kraft, Cardio, Mobility und weiteres">
+    <div class="lbl">Einheiten pro Woche im Plan <span class="hint">(inkl. Kraft, Cardio, Mobility, etc.)</span></div>
+    <div class="chips num c3" role="radiogroup" aria-label="Einheiten pro Woche im Plan inklusive Kraft, Cardio, Mobility und weiteres">
       <label class="chip"><input type="radio" name="epw" value="1"><span>1</span></label>
       <label class="chip"><input type="radio" name="epw" value="2"><span>2</span></label>
       <label class="chip"><input type="radio" name="epw" value="3"><span>3</span></label>
@@ -351,6 +367,9 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     boxes.forEach(function(b){ b.disabled = (n >= 3 && !b.checked); });
   });
 
+  // Teamtraining 0: Tage-Fehler zurücknehmen
+  $$('input[name="team"]').forEach(function (r) { r.addEventListener("change", function () { $('[data-req="teamtage"]').classList.remove("has-err"); }); });
+
   // Beschwerden: Zusatzfelder
   $$('input[name="besch"]').forEach(function(r){
     r.addEventListener("change", function(){
@@ -397,6 +416,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     add("name", !val("name"));
     add("niveau", !val("niveau"));
     add("team", !one("team"));
+    add("teamtage", !!one("team") && one("team") !== "0" && checked("tt").length === 0);
     add("extra", !one("extra"));
     add("spieltag", !one("spieltag"));
     add("ziele", checked("ziel").length === 0);
@@ -442,7 +462,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     L.push("");
     L.push("Spielniveau: " + val("niveau"));
     if (val("position")) L.push("Position: " + val("position"));
-    L.push("Mannschaftstraining: " + one("team") + " pro Woche");
+    L.push("Mannschaftstraining: " + one("team") + " pro Woche" + (one("team") !== "0" && checked("tt").length ? " (" + list(checked("tt")) + ")" : ""));
     L.push("Zusätzliches Training: " + one("extra") + " pro Woche");
     L.push("Spieltag: " + one("spieltag"));
     L.push("");
@@ -457,9 +477,9 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     L.push("Planstart: " + fmtDate($("#start").value));
     L.push("Erstes Spiel Rückrunde: " + fmtDate($("#rr").value));
     L.push("Plandauer: 6 Wochen");
-    L.push("Trainingstage: " + list(checked("tag")));
-    L.push("Einheiten pro Woche: " + one("epw"));
-    if (val("tkom")) L.push("Kommentar Trainingstage: " + val("tkom"));
+    L.push("Trainingstage im Plan: " + list(checked("tag")));
+    L.push("Einheiten pro Woche im Plan: " + one("epw"));
+    if (val("tkom")) L.push("Kommentar Plan-Trainingstage: " + val("tkom"));
     L.push("");
     L.push("Trainingsorte: " + list(checked("ort")));
     L.push("Equipment: " + list(checked("eq")));
