@@ -51,6 +51,7 @@ input:focus,textarea:focus{outline:none;border-color:var(--acc)}
 .chips.num{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
 .chips.num.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
 .chips.num.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.chips.num.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .chips.num.c7{grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .chips.num .chip span{min-width:0;padding:10px 4px}
 .row2{display:grid;grid-template-columns:1fr;gap:0}
@@ -207,12 +208,14 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     <div class="err">Bitte mindestens einen Tag auswählen.</div>
   </div>
   <div data-req="epw">
-    <div class="lbl">Einheiten pro Woche möglich</div>
-    <div class="chips num c4" role="radiogroup" aria-label="Einheiten pro Woche">
+    <div class="lbl">Einheiten pro Woche möglich <span class="hint">(inkl. Kraft, Cardio, Mobility, etc.)</span></div>
+    <div class="chips num c3" role="radiogroup" aria-label="Einheiten pro Woche inklusive Kraft, Cardio, Mobility und weiteres">
       <label class="chip"><input type="radio" name="epw" value="1"><span>1</span></label>
       <label class="chip"><input type="radio" name="epw" value="2"><span>2</span></label>
       <label class="chip"><input type="radio" name="epw" value="3"><span>3</span></label>
-      <label class="chip"><input type="radio" name="epw" value="4+"><span>4+</span></label>
+      <label class="chip"><input type="radio" name="epw" value="4"><span>4</span></label>
+      <label class="chip"><input type="radio" name="epw" value="5"><span>5</span></label>
+      <label class="chip"><input type="radio" name="epw" value="6+"><span>6+</span></label>
     </div>
     <div class="err">Bitte auswählen.</div>
   </div>
@@ -405,8 +408,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     if (r && s && dateDiffDays(s, r) < 0) { rrBad = true; rrMsg = "Das Rückrundenspiel liegt vor dem Start."; }
     add("rr", rrBad, rrMsg);
     add("tage", checked("tag").length === 0);
-    var epwV = one("epw"), epwN = epwV === "4+" ? 4 : parseInt(epwV, 10);
-    add("epw", !epwV || (epwN > checked("tag").length), !epwV ? "Bitte auswählen." : "Du hast weniger Trainingstage gewählt als Einheiten pro Woche.");
+    add("epw", !one("epw"), "Bitte auswählen.");
     add("orte", checked("ort").length === 0);
     add("equip", checked("eq").length === 0);
     add("besch", !one("besch"));
