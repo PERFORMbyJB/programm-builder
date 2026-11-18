@@ -235,6 +235,16 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     </div>
     <div class="err">Bitte auswählen.</div>
   </div>
+  <div data-req="dauer">
+    <div class="lbl">Dauer pro Einheit <span class="hint">Minuten, was realistisch passt</span></div>
+    <div class="chips num c4" role="radiogroup" aria-label="Dauer pro Einheit in Minuten">
+      <label class="chip"><input type="radio" name="dauer" value="30"><span>30</span></label>
+      <label class="chip"><input type="radio" name="dauer" value="45"><span>45</span></label>
+      <label class="chip"><input type="radio" name="dauer" value="60"><span>60</span></label>
+      <label class="chip"><input type="radio" name="dauer" value="75+"><span>75+</span></label>
+    </div>
+    <div class="err">Bitte auswählen.</div>
+  </div>
   <label class="l" for="tkom">Kommentar zu Trainingstagen <span class="hint">wichtige Infos, optional</span></label>
   <textarea id="tkom" maxlength="400"></textarea>
 </section>
@@ -429,6 +439,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     add("rr", rrBad, rrMsg);
     add("tage", checked("tag").length === 0);
     add("epw", !one("epw"), "Bitte auswählen.");
+    add("dauer", !one("dauer"));
     add("orte", checked("ort").length === 0);
     add("equip", checked("eq").length === 0);
     add("besch", !one("besch"));
@@ -479,6 +490,7 @@ pre#msg{white-space:pre-wrap;word-break:break-word;margin:12px 0 0;padding:14px;
     L.push("Plandauer: 6 Wochen");
     L.push("Trainingstage im Plan: " + list(checked("tag")));
     L.push("Einheiten pro Woche im Plan: " + one("epw"));
+    L.push("Dauer pro Einheit: " + one("dauer") + " Min.");
     if (val("tkom")) L.push("Kommentar Plan-Trainingstage: " + val("tkom"));
     L.push("");
     L.push("Trainingsorte: " + list(checked("ort")));
