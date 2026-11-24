@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="theme-color" content="#1C1F26">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>PERFORM. Team-Check</title>
+<style>
+@font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
+:root{
+  color-scheme:dark;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
+  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#9BA8C0; --dim:#6C7890;
+  --red:#F87171; --amber:#F5B041; --green:#4ADE80;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",-apple-system,system-ui,sans-serif;font-size:14.5px;line-height:1.45}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{max-width:720px;margin:0 auto;padding:20px 16px 90px}
+.logo{font-size:15px;font-weight:700;letter-spacing:3px}
+.logo span{color:var(--acc)}
+.logo small{display:block;font-size:10.5px;letter-spacing:2px;color:var(--muted);font-weight:600;margin-top:1px}
+h1{font-size:24px;font-weight:700;margin:14px 0 2px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc);margin:24px 2px 10px}
+h3{font-size:15px;margin:0 0 6px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px}
+.card p{margin:0 0 8px}
+.card ol,.card ul{margin:0;padding-left:20px}
+.card li{margin:4px 0}
+.btn{min-height:44px;border-radius:12px;padding:0 16px;font-weight:700;font-size:14px;background:var(--card2);color:var(--text)}
+.btn.pri{background:var(--acc);color:#0f1218}
+.btn.ghost{background:none;color:var(--muted)}
+.btn.danger{color:var(--red)}
+.btn.sm{min-height:36px;font-size:12.5px;padding:0 10px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.banner{background:#22385c;color:#cfe0fb;border-radius:12px;padding:10px 14px;font-size:13px;margin:10px 0}
+.banner.red{background:#4a2227;color:#f4a3a3}
+.banner.ok{background:#1d3b2c;color:#a7f0c3}
+.tabs{display:flex;gap:6px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.tabs button{flex:1;min-height:42px;border-radius:12px;background:var(--card);color:var(--muted);font-weight:700;font-size:13px}
+.tabs button.on{background:var(--blue);color:var(--text)}
+label.f{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin:10px 0 4px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:0 12px;min-height:44px;font-size:15px;outline:none}
+textarea{padding:10px 12px;min-height:140px;font-size:12.5px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+input.bad{border-color:var(--red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.seg{display:flex;gap:6px}
+.seg button{flex:1;min-height:42px;border-radius:12px;background:var(--card2);color:var(--muted);font-weight:700;font-size:13px}
+.seg button.on{background:var(--acc);color:#0f1218}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin-top:10px;cursor:pointer}
+.chk input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--acc)}
+.pl{display:grid;grid-template-columns:24px 1fr 74px 74px 40px 32px;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.pl:last-child{border-bottom:0}
+.pl .nr{color:var(--dim);font-size:12px;text-align:right}
+.pl input{min-height:42px;padding:0 8px}
+.pl input.cm{text-align:center}
+.pl .best{font-weight:700;text-align:center;font-size:13px;color:var(--acc)}
+.pl.nt input.cm{opacity:.35}
+.pl .x{color:var(--dim);font-size:20px;min-height:42px;min-width:32px}
+.plh{display:grid;grid-template-columns:24px 1fr 74px 74px 40px 32px;gap:6px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);padding:0 0 4px}
+.plh span{text-align:center}
+.ntb{white-space:nowrap;font-size:10px;padding:0 2px!important;font-weight:700;color:var(--muted);background:var(--card2);border-radius:8px;min-height:30px;padding:0 6px;width:100%}
+.ntb.on{background:var(--amber);color:#1c1f26}
+.stat{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:8px}
+.stat b{color:var(--text)}
+.warn{color:var(--amber);font-size:12.5px;margin-top:6px}
+.foot{font-size:11.5px;color:var(--dim);text-align:center;margin-top:30px}
+.foot a{color:var(--muted)}
+.inv li{color:#f4c3c3}
+#bogen{display:none}
+@media (max-width:420px){
+  .pl,.plh{grid-template-columns:20px 1fr 62px 62px 34px 26px;gap:4px}
+}
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff;color:#1C1F26;font-size:11pt}
+  #app{display:none}
+  #bogen{display:block;font-family:"Montserrat",sans-serif}
+  #bogen .bh{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #1D4579;padding-bottom:6px;margin-bottom:8px}
+  #bogen .bl{font-weight:700;letter-spacing:3px;font-size:14pt;color:#1C1F26}
+  #bogen .bl span{color:#4B8EF0}
+  #bogen .bt{font-weight:700;font-size:12pt;color:#1D4579}
+  #bogen .meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px 14px;font-size:9pt;margin:6px 0 8px}
+  #bogen .meta div{border-bottom:1px solid #9BA8C0;padding:10px 0 2px;color:#555}
+  #bogen .rules{font-size:8.3pt;line-height:1.35;columns:2;column-gap:16px;margin-bottom:8px;color:#222}
+  #bogen .rules b{color:#1D4579}
+  #bogen .rules p{margin:0 0 4px;break-inside:avoid}
+  #bogen table{width:100%;border-collapse:collapse;font-size:9pt}
+  #bogen th{background:#1D4579;color:#fff;padding:4px;text-align:left;font-size:8pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #bogen td{border:1px solid #9BA8C0;height:7.6mm;padding:0 4px}
+  #bogen td.n{width:8mm;text-align:center;color:#888}
+  #bogen .bf{font-size:7.5pt;color:#666;margin-top:6px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="bogen"></div>
+<script>
+(function () {
+'use strict';
+
+var KEY = 'perform_teamcheck_v1';
+var WA = 'https://wa.me/491605951455';
+var MIN_CM = 80, MAX_CM = 380, MAX_PL = 40;
+var ZEITPUNKTE = ['Start Vorbereitung', 'Ende Vorbereitung', 'Zwischentest'];
+var UNTERGRUND = ['Kunstrasen', 'Naturrasen', 'Halle'];
+var SCHUHE = ['Fußballschuhe', 'Multinocken/Turf', 'Hallen-/Laufschuhe'];
+
+/* ───────── Helfer ───────── */
+function h(tag, props) {
+  var e = document.createElement(tag);
+  if (props) for (var k in props) {
+    var v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'value') e.value = v;
+    else if (k === 'checked') e.checked = !!v;
+    else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  (function add(list) {
+    for (var j = 0; j < list.length; j++) {
+      var c = list[j];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(c);
+      else e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+  })(Array.prototype.slice.call(arguments, 2));
+  return e;
+}
+function clean(v, max) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/[\u0000-\u001F\u007F‪-‮⁦-⁩|]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function pad(n) { return String(n).padStart(2, '0'); }
+function today() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function fmtD(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '.' + m[2] + '.' + m[1] : ''; }
+function f1(n) { return n == null ? '–' : n.toFixed(1).replace('.', ','); }
+
+/* ───────── Zustand ───────── */
+function blank() {
+  return { team: '', gruppe: 'Herren', zeitpunkt: ZEITPUNKTE[0], datum: today(), untergrund: UNTERGRUND[0], schuhe: SCHUHE[0], leiter: '', einw: false,
+    spieler: [newPl(), newPl(), newPl()] };
+}
+function newPl() { return { n: '', a: '', b: '', nt: false }; }
+function load() {
+  try {
+    var o = JSON.parse(lsGet(KEY));
+    if (!o || typeof o !== 'object' || !Array.isArray(o.spieler)) return blank();
+    var b = blank();
+    ['team', 'leiter', 'datum'].forEach(function (k) { if (typeof o[k] === 'string') b[k] = o[k].slice(0, 60); });
+    if (o.gruppe === 'Jugend' || o.gruppe === 'Herren' || o.gruppe === 'Damen') b.gruppe = o.gruppe;
+    if (ZEITPUNKTE.indexOf(o.zeitpunkt) >= 0) b.zeitpunkt = o.zeitpunkt;
+    if (UNTERGRUND.indexOf(o.untergrund) >= 0) b.untergrund = o.untergrund;
+    if (SCHUHE.indexOf(o.schuhe) >= 0) b.schuhe = o.schuhe;
+    b.einw = o.einw === true;
+    b.spieler = o.spieler.slice(0, MAX_PL).map(function (p) {
+      p = p || {};
+      return { n: typeof p.n === 'string' ? p.n.slice(0, 30) : '', a: typeof p.a === 'string' ? p.a.slice(0, 4) : '', b: typeof p.b === 'string' ? p.b.slice(0, 4) : '', nt: p.nt === true };
+    });
+    if (!b.spieler.length) b.spieler.push(newPl());
+    return b;
+  } catch (e) { return blank(); }
+}
+var S = load();
+var tab = lsGet(KEY + '_tab') || 'ablauf';
+function save() { lsSet(KEY, JSON.stringify(S)); }
+
+/* ───────── Werte ───────── */
+function cm(v) {
+  v = String(v || '').replace(',', '.').trim();
+  if (!v) return null;
+  if (!/^\d{2,3}(\.\d)?$/.test(v)) return NaN;
+  var n = Math.floor(parseFloat(v));
+  return n >= MIN_CM && n <= MAX_CM ? n : NaN;
+}
+function best(p) {
+  if (p.nt) return null;
+  var a = cm(p.a), b = cm(p.b);
+  var ok = [a, b].filter(function (x) { return typeof x === 'number' && !isNaN(x); });
+  return ok.length ? Math.max.apply(null, ok) : null;
+}
+function check() {
+  var probs = [], names = {}, tested = 0, sum = 0, listed = 0;
+  if (!clean(S.team, 60)) probs.push('Team/Mannschaft fehlt.');
+  if (!fmtD(S.datum)) probs.push('Datum fehlt.');
+  S.spieler.forEach(function (p, i) {
+    var n = clean(p.n, 30), hasVal = String(p.a).trim() || String(p.b).trim();
+    if (!n && !hasVal && !p.nt) return;
+    listed++;
+    if (!n) { probs.push('Zeile ' + (i + 1) + ': Vorname fehlt.'); return; }
+    var k = n.toLowerCase();
+    if (names[k]) probs.push('„' + n + '“ steht doppelt. Bitte Initial ergänzen (z. B. „Max M.“).');
+    names[k] = true;
+    if (p.nt) return;
+    if (isNaN(cm(p.a)) || isNaN(cm(p.b))) probs.push(n + ': Wert ungültig (ganze cm, ' + MIN_CM + '–' + MAX_CM + ').');
+    else if (best(p) == null) probs.push(n + ': kein Versuch eingetragen. Sonst „nicht getestet“ antippen.');
+    else { tested++; sum += best(p); }
+  });
+  if (!listed) probs.push('Noch keine Spieler eingetragen.');
+  if (!S.einw) probs.push('Bestätigung des Einverständnisses fehlt (oben anhaken).');
+  return { probs: probs, tested: tested, listed: listed, mean: tested ? sum / tested : null };
+}
+
+/* ───────── Nachricht ───────── */
+function message() {
+  var L = ['PERFORM. TEAM-CHECK v1',
+    'Team: ' + clean(S.team, 60),
+    'Gruppe: ' + S.gruppe,
+    'Zeitpunkt: ' + S.zeitpunkt,
+    'Datum: ' + fmtD(S.datum),
+    'Untergrund: ' + S.untergrund,
+    'Schuhe: ' + S.schuhe,
+    'Messleiter: ' + (clean(S.leiter, 40) || '–'),
+    'Einwilligung: bestätigt',
+    'Spieler (Name | V1 | V2):'];
+  var c = check();
+  S.spieler.forEach(function (p) {
+    var n = clean(p.n, 30);
+    if (!n) return;
+    if (p.nt) { L.push(n + ' | nicht getestet'); return; }
+    var a = cm(p.a), b = cm(p.b);
+    L.push(n + ' | ' + (a == null ? '–' : a) + ' | ' + (b == null ? '–' : b));
+  });
+  L.push('Getestet: ' + c.tested + ' von ' + c.listed + ' · Teamschnitt ' + f1(c.mean) + ' cm');
+  return L.join('\n');
+}
+
+/* ───────── Ansicht ───────── */
+var app = document.getElementById('app');
+function render() {
+  var y = window.scrollY;
+  app.textContent = '';
+  app.appendChild(h('div', { class: 'logo' }, 'PERFORM', h('span', null, '.'), h('small', null, 'PERFORMANCE THAT LASTS.')));
+  app.appendChild(h('h1', null, 'Team-Check: Broad Jump'));
+  app.appendChild(h('p', { class: 'sub' }, 'Ein Test, ein Ritual. Ihr messt, PERFORM. wertet aus.'));
+  app.appendChild(h('div', { class: 'tabs' },
+    [['ablauf', '1 · Ablauf'], ['eingabe', '2 · Eingabe'], ['senden', '3 · Senden']].map(function (t) {
+      return h('button', { class: tab === t[0] ? 'on' : '', onclick: function () { tab = t[0]; lsSet(KEY + '_tab', tab); render(); window.scrollTo(0, 0); } }, t[1]);
+    })));
+  if (tab === 'ablauf') ablauf();
+  else if (tab === 'eingabe') eingabe();
+  else senden();
+  app.appendChild(h('div', { class: 'foot' }, 'Fragen? WhatsApp an Justus: ', h('a', { href: WA, target: '_blank', rel: 'noopener' }, '0160 5951455'),
+    h('br'), 'Werte bleiben nur auf diesem Gerät, bis du sie sendest. Kein medizinischer Test.'));
+  if (y && tab === 'eingabe') window.scrollTo(0, y);
+}
+
+function ablauf() {
+  app.appendChild(h('div', { class: 'banner' }, 'Wichtig: Start- und Endmessung nur vergleichbar, wenn alles gleich bleibt: Warm-up, Untergrund, Schuhe, Tageszeit, am Anfang der Einheit.'));
+
+  app.appendChild(h('h2', null, 'Vorher'));
+  app.appendChild(h('div', { class: 'card' }, h('ul', null,
+    h('li', null, h('b', null, 'Material: '), '1–2 Maßbänder (mind. 4 m), Klebeband oder Hütchen für die Startlinie, dieses Handy. Ideal: 1 Helfer misst, 1 tippt ein.'),
+    h('li', null, h('b', null, 'Untergrund: '), 'eben und griffig. Bei Frost, Glätte oder stehender Nässe nicht testen, sondern verschieben.'),
+    h('li', null, h('b', null, 'Zeit: '), 'ca. 25 min für 20 Spieler mit 2 Maßbändern (inkl. Warm-up).'),
+    h('li', null, h('b', null, 'Wer nicht springt: '), 'Wer Schmerzen hat, verletzt ist oder gerade nicht voll trainiert, springt nicht. Egal ob abwesend, zu spät oder aus anderem Grund: in der Liste nur „nicht getestet“ antippen, ', h('b', null, 'keinen Grund eintragen'), '.'),
+    h('li', null, h('b', null, 'Jugend (unter 18): '), 'Einwilligung der Eltern vorab über den Verein. Bei der Jugend gibt es keine Rangliste, nur persönliche Bestleistungen.'))));
+
+  app.appendChild(h('h2', null, 'Aufbau'));
+  app.appendChild(h('div', { class: 'card' }, h('ol', null,
+    h('li', null, 'Startlinie auf ebenem Boden markieren (Klebeband oder Linie).'),
+    h('li', null, 'Maßband gerade nach vorn auslegen, ', h('b', null, '0 cm genau an der Kante, an der die Zehen stehen'), ' (bei breitem Klebeband: die vordere Kante, Zehen dürfen das Band berühren, aber nicht darüber). Beide Enden beschweren (Hütchen, Flasche).'),
+    h('li', null, 'Bei 2 Maßbändern: 2 Bahnen nebeneinander, mind. 2 m Abstand.'))));
+
+  app.appendChild(h('h2', null, 'Warm-up (10 min, jedes Mal gleich)'));
+  app.appendChild(h('div', { class: 'card' }, h('ol', null,
+    h('li', null, '3 min locker traben, Hopserlauf, Seitgalopp.'),
+    h('li', null, '10 Ausfallschritte, 10 Beinschwünge je Bein, 10 Kniebeugen.'),
+    h('li', null, '2 × 10 kleine Pogo-Hüpfer auf der Stelle.'),
+    h('li', null, '3 Probesprünge Weitsprung, steigernd: locker, mittel, fast voll.')),
+    h('p', { style: 'margin-top:8px;color:var(--muted);font-size:13px' }, 'Danach direkt testen (innerhalb von 5 min). Bei Kälte Jacken erst kurz vor dem Sprung aus.')));
+
+  app.appendChild(h('h2', null, 'Durchführung'));
+  app.appendChild(h('div', { class: 'card' }, h('ol', null,
+    h('li', null, 'Füße hüftbreit, Zehen an der 0-cm-Kante, nicht darüber. Ausholen mit den Armen erlaubt. ', h('b', null, 'Kein Anlauf, kein Vorhüpfen.')),
+    h('li', null, 'Beidbeinig abspringen, beidbeinig landen, ', h('b', null, 'Landung 2 Sekunden halten'), ' („stehen bleiben“).'),
+    h('li', null, 'Messen von der Linie bis zur ', h('b', null, 'Ferse, die näher an der Linie ist'), '. Gerade (im rechten Winkel zur Linie) messen, auch wenn jemand schräg landet. Auf ganze cm abrunden.'),
+    h('li', null, h('b', null, '2 gültige Versuche'), ' pro Spieler, dazwischen mind. 30 s Pause (Reihe einfach durchrotieren). Beide eintragen, der bessere zählt automatisch.'))));
+
+  app.appendChild(h('h2', null, 'Ungültig = wiederholen'));
+  app.appendChild(h('div', { class: 'card' }, h('ul', { class: 'inv' },
+    h('li', null, 'Hand am Boden oder nach hinten fallen'),
+    h('li', null, 'Schritt oder Nachhüpfen nach der Landung'),
+    h('li', null, 'Linie übertreten, Anlauf oder Vorhüpfen'),
+    h('li', null, 'Einbeinige Landung')),
+    h('p', { style: 'margin-top:8px;font-size:13px;color:var(--muted)' }, 'Höchstens 2 Wiederholungen pro Spieler. Wer danach nur einen gültigen Versuch hat, bekommt nur den eingetragen. Ohne gültigen Versuch: „nicht getestet“.'),
+    h('p', { style: 'margin:6px 0 0;font-weight:700;color:var(--red)' }, 'Schmerz = sofort Stopp. Nicht weiter testen.')));
+
+  app.appendChild(h('div', { class: 'row', style: 'margin-top:16px' },
+    h('button', { class: 'btn pri', onclick: function () { tab = 'eingabe'; lsSet(KEY + '_tab', tab); render(); window.scrollTo(0, 0); } }, 'Weiter zur Eingabe'),
+    h('button', { class: 'btn', onclick: printBogen }, 'Messbogen drucken (Papier-Backup)')));
+}
+
+function seg(opts, val, set) {
+  return h('div', { class: 'seg' }, opts.map(function (o) {
+    return h('button', { class: o === val ? 'on' : '', onclick: function () { set(o); save(); render(); } }, o);
+  }));
+}
+function sel(opts, val, set) {
+  return h('select', { onchange: function (e) { set(e.target.value); save(); } },
+    opts.map(function (o) { var op = h('option', { value: o }, o); if (o === val) op.selected = true; return op; }));
+}
+
+function eingabe() {
+  app.appendChild(h('h2', null, 'Messung'));
+  var c1 = h('div', { class: 'card' });
+  c1.appendChild(h('label', { class: 'f' }, 'Team / Mannschaft'));
+  c1.appendChild(h('input', { type: 'text', value: S.team, maxlength: 60, placeholder: 'z. B. SV Musterdorf U19', oninput: function (e) { S.team = e.target.value; save(); } }));
+  c1.appendChild(h('label', { class: 'f' }, 'Gruppe'));
+  c1.appendChild(seg(['Herren', 'Damen', 'Jugend'], S.gruppe, function (v) { S.gruppe = v; }));
+  c1.appendChild(h('label', { class: 'f' }, 'Zeitpunkt'));
+  c1.appendChild(sel(ZEITPUNKTE, S.zeitpunkt, function (v) { S.zeitpunkt = v; }));
+  c1.appendChild(h('div', { class: 'grid2' },
+    h('div', null, h('label', { class: 'f' }, 'Datum'), h('input', { type: 'date', value: S.datum, onchange: function (e) { S.datum = e.target.value; save(); } })),
+    h('div', null, h('label', { class: 'f' }, 'Messleiter'), h('input', { type: 'text', value: S.leiter, maxlength: 40, placeholder: 'Name', oninput: function (e) { S.leiter = e.target.value; save(); } }))));
+  c1.appendChild(h('div', { class: 'grid2' },
+    h('div', null, h('label', { class: 'f' }, 'Untergrund'), sel(UNTERGRUND, S.untergrund, function (v) { S.untergrund = v; })),
+    h('div', null, h('label', { class: 'f' }, 'Schuhe'), sel(SCHUHE, S.schuhe, function (v) { S.schuhe = v; }))));
+  app.appendChild(c1);
+
+  app.appendChild(h('h2', null, 'Spieler · Sprungweite in cm (V1/V2 = Versuch 1/2)'));
+  var c2 = h('div', { class: 'card' });
+  c2.appendChild(h('div', { class: 'plh' }, h('span'), h('span', { style: 'text-align:left' }, 'Vorname'), h('span', null, 'V1'), h('span', null, 'V2'), h('span', null, 'Best'), h('span')));
+  S.spieler.forEach(function (p, i) {
+    var bestEl = h('div', { class: 'best' }, best(p) == null ? '–' : String(best(p)));
+    function valInput(key, ph) {
+      var inp = h('input', { type: 'text', inputmode: 'numeric', class: 'cm' + (isNaN(cm(p[key])) ? ' bad' : ''), value: p[key], maxlength: 5, placeholder: ph, disabled: p.nt,
+        'aria-label': (p.n || 'Spieler ' + (i + 1)) + ' ' + ph,
+        oninput: function (e) { p[key] = e.target.value; e.target.classList.toggle('bad', isNaN(cm(p[key]))); var b = best(p); bestEl.textContent = b == null ? '–' : String(b); save(); updStat(); } });
+      return inp;
+    }
+    c2.appendChild(h('div', { class: 'pl' + (p.nt ? ' nt' : '') },
+      h('div', { class: 'nr' }, String(i + 1)),
+      h('input', { type: 'text', value: p.n, maxlength: 30, placeholder: 'Vorname', autocapitalize: 'words', autocomplete: 'off', oninput: function (e) { p.n = e.target.value; save(); } }),
+      valInput('a', 'V1'), valInput('b', 'V2'),
+      p.nt ? h('button', { class: 'ntb on', title: 'nicht getestet', onclick: function () { p.nt = false; save(); render(); } }, 'n. g.') : bestEl,
+      h('button', { class: 'x', title: 'Zeile entfernen', 'aria-label': 'Zeile entfernen', onclick: function () {
+        if ((p.n || p.a || p.b) && !confirm('Zeile „' + (p.n || (i + 1)) + '“ entfernen?')) return;
+        S.spieler.splice(i, 1); if (!S.spieler.length) S.spieler.push(newPl()); save(); render(); } }, '×')));
+    if (!p.nt) c2.lastChild.appendChild(h('div', { style: 'grid-column:2 / -1' },
+      h('button', { class: 'btn ghost sm', style: 'min-height:32px;padding:0 6px 0 0;font-size:11.5px', onclick: function () { p.nt = true; save(); render(); } }, 'nicht getestet')));
+  });
+  var stat = h('div', { class: 'stat' });
+  function updStat() {
+    var c = check();
+    stat.textContent = '';
+    stat.appendChild(h('span', null, 'Getestet: ', h('b', null, c.tested + ' / ' + c.listed)));
+    stat.appendChild(h('span', null, 'Teamschnitt: ', h('b', null, f1(c.mean) + ' cm')));
+  }
+  updStat();
+  c2.appendChild(h('div', { class: 'row', style: 'margin-top:10px' },
+    h('button', { class: 'btn sm', disabled: S.spieler.length >= MAX_PL, onclick: function () { S.spieler.push(newPl()); save(); render(); } }, '+ Spieler'),
+    h('button', { class: 'btn sm', disabled: S.spieler.length >= MAX_PL, onclick: function () { for (var k = 0; k < 5 && S.spieler.length < MAX_PL; k++) S.spieler.push(newPl()); save(); render(); } }, '+ 5 Zeilen')));
+  c2.appendChild(stat);
+  c2.appendChild(h('div', { class: 'warn' }, 'Ungültige Versuche nicht eintragen, sondern wiederholen. Doppelte Vornamen mit Initial: „Max M.“ und bei jeder Messung gleich schreiben.'));
+  app.appendChild(c2);
+
+  var imp = h('textarea', { placeholder: 'Alte Team-Check-Nachricht aus WhatsApp hier einfügen', style: 'min-height:90px' });
+  app.appendChild(h('details', { class: 'card', style: 'margin-top:10px' },
+    h('summary', { style: 'cursor:pointer;font-weight:700;font-size:13px' }, 'Kader aus alter Nachricht übernehmen'),
+    h('p', { style: 'font-size:12.5px;color:var(--muted);margin:8px 0 0' }, 'Für die Endmessung: Hat das Handy die Liste vergessen (z. B. iPhone nach längerer Pause), die damals gesendete Nachricht kopieren und hier einfügen. Übernommen werden nur die Namen.'),
+    imp,
+    h('button', { class: 'btn sm', style: 'margin-top:8px', onclick: function () {
+      var names = [];
+      imp.value.split(/\r?\n/).forEach(function (l) { var p = l.split('|'); if (p.length >= 2) { var n = clean(p[0].replace(/^\s*\[[^\]]*\][^:]*:\s*/, ''), 30); if (n && !/^Spieler/i.test(n)) names.push(n); } });
+      if (!names.length) { alert('Keine Spielerzeilen gefunden.'); return; }
+      if (!confirm(names.length + ' Namen übernehmen? Die aktuelle Liste wird ersetzt.')) return;
+      S.spieler = names.slice(0, MAX_PL).map(function (n) { return { n: n, a: '', b: '', nt: false }; });
+      save(); render(); } }, 'Namen übernehmen')));
+
+  app.appendChild(h('div', { class: 'row', style: 'margin-top:14px' },
+    h('button', { class: 'btn pri', onclick: function () { tab = 'senden'; lsSet(KEY + '_tab', tab); render(); window.scrollTo(0, 0); } }, 'Weiter zum Senden')));
+}
+
+function senden() {
+  var c = check();
+  app.appendChild(h('h2', null, 'Einverständnis'));
+  app.appendChild(h('div', { class: 'card' },
+    h('label', { class: 'chk' },
+      h('input', { type: 'checkbox', checked: S.einw, onchange: function (e) { S.einw = e.target.checked; save(); render(); } }),
+      h('span', null, 'Die Spieler sind einverstanden, dass ihre Vornamen und Sprungweiten zur Auswertung an PERFORM. (Justus Böhm) gehen. Bei Spielern unter 18 liegt das Einverständnis der Eltern vor (über den Verein).'))));
+
+  app.appendChild(h('h2', null, 'Prüfen'));
+  if (c.probs.length) app.appendChild(h('div', { class: 'banner red' }, h('b', null, 'Noch offen:'), h('ul', { style: 'margin:6px 0 0;padding-left:18px' }, c.probs.slice(0, 8).map(function (p) { return h('li', null, p); }))));
+  else app.appendChild(h('div', { class: 'banner ok' }, 'Alles vollständig: ' + c.tested + ' von ' + c.listed + ' Spielern getestet, Teamschnitt ' + f1(c.mean) + ' cm.'));
+
+  var ok = !c.probs.length;
+  var txt = ok ? message() : '';
+  var info = h('div');
+  app.appendChild(h('div', { class: 'row' },
+    h('button', { class: 'btn pri', disabled: !ok, onclick: function () { send(txt, info); } }, 'An Justus senden'),
+    h('button', { class: 'btn', disabled: !ok, onclick: function () { copy(txt, info); } }, 'Text kopieren')));
+  app.appendChild(info);
+  if (ok) app.appendChild(h('textarea', { readonly: true, 'aria-label': 'Nachricht', onfocus: function (e) { e.target.select(); } }, txt));
+
+  app.appendChild(h('h2', null, 'Nach dem Senden'));
+  app.appendChild(h('div', { class: 'card' },
+    h('p', { style: 'font-size:13px;color:var(--muted)' }, 'Für die nächste Messung den Kader behalten und nur die Werte leeren. Nach der letzten Messung alles löschen.'),
+    h('div', { class: 'row' },
+      h('button', { class: 'btn', onclick: function () {
+        if (!confirm('Werte leeren, Spielerliste behalten?')) return;
+        S.spieler.forEach(function (p) { p.a = ''; p.b = ''; p.nt = false; });
+        var i = ZEITPUNKTE.indexOf(S.zeitpunkt); S.zeitpunkt = ZEITPUNKTE[i === 0 ? 1 : i]; S.datum = today(); S.einw = false;
+        save(); tab = 'eingabe'; lsSet(KEY + '_tab', tab); render(); } }, 'Neue Messung, Kader behalten'),
+      h('button', { class: 'btn danger', onclick: function () {
+        if (!confirm('Alle Daten auf diesem Gerät löschen?')) return;
+        lsDel(KEY); S = blank(); save(); tab = 'ablauf'; lsSet(KEY + '_tab', tab); render(); } }, 'Alles löschen'))));
+}
+
+function copy(txt, info) {
+  function done(ok) {
+    info.textContent = '';
+    info.appendChild(h('div', { class: 'banner' + (ok ? ' ok' : '') }, ok ? 'Kopiert. Jetzt WhatsApp öffnen und einfügen: ' : 'Kopieren hat nicht geklappt. Text unten markieren und kopieren, dann: ',
+      h('a', { href: WA, target: '_blank', rel: 'noopener', style: 'color:inherit;font-weight:700' }, 'Chat mit Justus öffnen')));
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { done(true); }, function () { done(false); });
+  else done(false);
+}
+function send(txt, info) {
+  if (navigator.share) {
+    navigator.share({ text: txt }).then(function () {
+      info.textContent = '';
+      info.appendChild(h('div', { class: 'banner ok' }, 'Geteilt. Bitte in WhatsApp an Justus (0160 5951455) schicken, falls noch nicht geschehen.'));
+    }, function (e) { if (!e || e.name !== 'AbortError') copy(txt, info); });
+  } else copy(txt, info);
+}
+
+/* ───────── Messbogen (Druck) ───────── */
+function printBogen() {
+  var b = document.getElementById('bogen');
+  b.textContent = '';
+  b.appendChild(h('div', { class: 'bh' }, h('div', { class: 'bl' }, 'PERFORM', h('span', null, '.')), h('div', { class: 'bt' }, 'Team-Check · Broad Jump · Messbogen')));
+  b.appendChild(h('div', { class: 'meta' }, ['Team', 'Datum', 'Zeitpunkt (Start/Ende)', 'Untergrund', 'Schuhe', 'Messleiter'].map(function (t) { return h('div', null, t + ':'); })));
+  b.appendChild(h('div', { class: 'rules' },
+    h('p', null, h('b', null, 'Warm-up 10 min, immer gleich: '), '3 min traben/Hopserlauf/Seitgalopp · 10 Ausfallschritte, 10 Beinschwünge je Bein, 10 Kniebeugen · 2 × 10 Pogo-Hüpfer · 3 Probesprünge steigernd. Dann direkt testen.'),
+    h('p', null, h('b', null, 'Sprung: '), 'Zehen an der 0-cm-Kante, nicht darüber. Armschwung erlaubt, kein Anlauf/Vorhüpfen. Beidbeinig landen, 2 s halten. Bei Frost/Glätte/Nässe nicht testen.'),
+    h('p', null, h('b', null, 'Messen: '), 'Von der 0-cm-Kante gerade (rechter Winkel) bis zur Ferse, die näher an der Linie ist. Ganze cm abrunden. 2 gültige Versuche, 30 s Pause.'),
+    h('p', null, h('b', null, 'Ungültig = wiederholen (max. 2×): '), 'Hand am Boden/nach hinten fallen · Schritt oder Nachhüpfen · Übertreten · einbeinige Landung.'),
+    h('p', null, h('b', null, 'Nicht springen: '), 'bei Schmerzen, Verletzung oder wenn nicht voll im Training. Bei jedem Grund (auch abwesend) nur „n. g.“ ankreuzen, keinen Grund notieren. Schmerz = Stopp.')));
+  var tb = h('tbody');
+  for (var i = 1; i <= 24; i++) tb.appendChild(h('tr', null, h('td', { class: 'n' }, String(i)), h('td'), h('td'), h('td'), h('td', { style: 'width:12mm' })));
+  b.appendChild(h('table', null, h('thead', null, h('tr', null, h('th', null, 'Nr'), h('th', { style: 'width:45%' }, 'Vorname'), h('th', null, 'Versuch 1 (cm)'), h('th', null, 'Versuch 2 (cm)'), h('th', null, 'n. g.'))), tb));
+  b.appendChild(h('div', { class: 'bf' }, 'Werte danach unter performbyjb.github.io/programm-builder/teamcheck/ eintippen und an Justus senden (WhatsApp 0160 5951455). Kein medizinischer Test. Jugend: keine Ranglisten, Einwilligung der Eltern vorab.'));
+  window.print();
+}
+
+render();
+})();
+</script>
+</body>
+</html>

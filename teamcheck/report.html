@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="theme-color" content="#1C1F26">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<title>PERFORM. Team-Report</title>
+<style>
+@font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
+:root{
+  color-scheme:dark;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
+  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#9BA8C0; --dim:#6C7890;
+  --red:#F87171; --amber:#F5B041; --green:#4ADE80;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",-apple-system,system-ui,sans-serif;font-size:14.5px;line-height:1.4}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+.logo{font-size:15px;font-weight:700;letter-spacing:3px}
+.logo span{color:var(--acc)}
+.logo small{display:block;font-size:10.5px;letter-spacing:2px;color:var(--muted);font-weight:600;margin-top:1px}
+h1{font-size:24px;font-weight:700;margin:14px 0 2px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc);margin:24px 2px 10px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px}
+.btn{min-height:44px;border-radius:12px;padding:0 16px;font-weight:700;font-size:14px;background:var(--card2);color:var(--text)}
+.btn.pri{background:var(--acc);color:#0f1218}
+.btn.danger{color:var(--red)}
+.btn.sm{min-height:34px;font-size:12px;padding:0 10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px}
+.banner{background:#22385c;color:#cfe0fb;border-radius:12px;padding:10px 14px;font-size:13px;margin:10px 0}
+.banner.red{background:#4a2227;color:#f4a3a3}
+.banner.amber{background:#4a3a1c;color:#f8d79a}
+label.f{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin:10px 0 4px}
+textarea,input[type=text]{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:10px 12px;font-size:13px;outline:none}
+textarea{min-height:150px;resize:vertical}
+textarea.note{min-height:90px}
+textarea:focus,input:focus{border-color:var(--acc)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chips button{background:var(--card2);color:var(--muted);border-radius:20px;padding:6px 10px;font-size:11.5px;font-weight:600;text-align:left}
+.chips button:hover{color:var(--text)}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:10px;cursor:pointer}
+.chk input{width:18px;height:18px;accent-color:var(--acc)}
+.ok{color:var(--green)} .no{color:var(--red)}
+.pv{overflow-x:auto;padding:10px 0}
+
+/* ───────── Report-Seiten (A4) ───────── */
+.page{width:210mm;min-height:297mm;margin:0 auto 14px;background:#1C1F26;color:#F0F4FF;padding:14mm 14mm 12mm;position:relative;box-shadow:0 0 0 1px #34405A;display:flex;flex-direction:column}
+.page .ph{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1D4579;padding-bottom:5mm;margin-bottom:6mm}
+.page .pl{font-weight:700;letter-spacing:4px;font-size:15pt}
+.page .pl span{color:#4B8EF0}
+.page .pl small{display:block;font-size:6.5pt;letter-spacing:2.5px;color:#9BA8C0;margin-top:1mm}
+.page .pt{text-align:right}
+.page .pt .k{font-size:7pt;font-weight:700;letter-spacing:2px;color:#4B8EF0;text-transform:uppercase}
+.page .pt .t{font-size:17pt;font-weight:700;line-height:1.15;margin-top:1mm}
+.page .pt .m{font-size:8.5pt;color:#9BA8C0;margin-top:1mm}
+.page h3{font-size:7.5pt;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#4B8EF0;margin:6mm 0 2.5mm}
+.page .kp{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3mm}
+.page .kp div{background:#262B35;border-radius:3mm;padding:3.5mm 4mm}
+.page .kp b{display:block;font-size:17pt;line-height:1.1}
+.page .kp b small{font-size:8pt;color:#9BA8C0;margin-left:1mm}
+.page .kp span{display:block;font-size:6.5pt;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#9BA8C0;margin-top:1.5mm}
+.page .box{background:#262B35;border-radius:3mm;padding:4mm 5mm;font-size:9pt;line-height:1.5}
+.page .box p{margin:0;white-space:pre-wrap}
+.page .emp{counter-reset:e;margin:0;padding:0;list-style:none}
+.page .emp li{counter-increment:e;display:flex;gap:3mm;margin:0 0 2.5mm;font-size:9pt;line-height:1.45}
+.page .emp li:before{content:counter(e);flex:none;width:6mm;height:6mm;border-radius:50%;background:#1D4579;color:#fff;font-weight:700;font-size:8pt;display:flex;align-items:center;justify-content:center}
+.page svg{width:100%;height:auto;display:block}
+.page .cap{font-size:6.8pt;color:#6C7890;margin-top:1.5mm}
+.page .cond{font-size:7.5pt;color:#9BA8C0;line-height:1.5}
+.page .cond b{color:#F0F4FF;font-weight:600}
+.page .warn{color:#F5B041}
+.page table{width:100%;border-collapse:collapse;font-size:8.5pt}
+.page th{font-size:6.5pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#9BA8C0;text-align:left;padding:2mm 2mm;border-bottom:1px solid #34405A}
+.page td{padding:1.4mm 2mm;border-bottom:1px solid #2D333E}
+.page td.n,.page th.n{text-align:right;white-space:nowrap}
+.page td.up{color:#4B8EF0;font-weight:700}
+.page td.dim{color:#6C7890}
+.page .pf{margin-top:auto;padding-top:5mm;display:flex;justify-content:space-between;font-size:6.8pt;color:#6C7890;border-top:1px solid #262B35}
+.page .pf b{color:#9BA8C0}
+
+@media print{
+  @page{size:A4;margin:0}
+  html,body{background:#1C1F26}
+  .np{display:none!important}
+  #app{padding:0;max-width:none}
+  .pv{padding:0;overflow:visible}
+  .page{margin:0;box-shadow:none;height:297mm;min-height:0;overflow:hidden;page-break-after:always;break-after:page;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page:last-child{page-break-after:auto;break-after:auto}
+  .page *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+'use strict';
+
+var KEY = 'perform_teamcheck_report_v1';
+var MIN_CM = 80, MAX_CM = 380;
+var EMP_VORSCHLAG = [
+  '2× pro Woche 10 min Sprung- und Landetraining vor dem Training (Di + Fr): wenig Wiederholungen, volle Qualität.',
+  'Landequalität vor Sprungweite: weich und stabil landen, Landung 2 Sekunden halten.',
+  '1× pro Woche Kraft Beine früh in der Woche. Je näher das Spiel, desto weniger Volumen, die Intensität darf bleiben.',
+  'Re-Test am Ende der Vorbereitung unter gleichen Bedingungen (Warm-up, Untergrund, Schuhe, Tageszeit).',
+  'Wer nicht getestet wurde, wird beim nächsten Termin unter gleichen Bedingungen nachgemessen.'
+];
+
+/* ───────── Helfer ───────── */
+function h(tag, props) {
+  var e = document.createElement(tag);
+  if (props) for (var k in props) {
+    var v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'value') e.value = v;
+    else if (k === 'checked') e.checked = !!v;
+    else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  (function add(list) {
+    for (var j = 0; j < list.length; j++) {
+      var c = list[j];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(c);
+      else e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+  })(Array.prototype.slice.call(arguments, 2));
+  return e;
+}
+function s(tag, attrs, text) {
+  var e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (text != null) e.textContent = text;
+  return e;
+}
+function clean(v, max) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/[\u0000-\u001F\u007F‪-‮⁦-⁩]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function f1(n) { return n == null ? '–' : n.toFixed(1).replace('.', ','); }
+function sgn(n, d) { if (n == null) return '–'; var t = d ? f1(Math.abs(n)) : String(Math.abs(Math.round(n))); return (n > 0 ? '+' : n < 0 ? '−' : '±') + t; }
+function mean(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+function median(a) { if (!a.length) return null; var b = a.slice().sort(function (x, y) { return x - y; }), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; }
+function collator(a, b) { return a.n.localeCompare(b.n, 'de', { sensitivity: 'base' }); }
+
+/* ───────── Parser für die Trainer-Nachricht ───────── */
+function parse(raw) {
+  var res = { ok: false, err: '', meta: {}, pl: [] };
+  if (!raw || !raw.trim()) return res;
+  var i0 = raw.indexOf('PERFORM. TEAM-CHECK');
+  if (i0 < 0) { res.err = 'Kennung „PERFORM. TEAM-CHECK“ nicht gefunden. Bitte die ganze Nachricht einfügen.'; return res; }
+  var lines = raw.slice(i0).split(/\r?\n/), inList = false, seen = {};
+  for (var i = 1; i < lines.length; i++) {
+    var L = lines[i].replace(/^\s*\[[^\]]*\]\s*[^:]{0,40}:\s*/, '').trim();
+    if (!L) continue;
+    if (!inList && /^Spieler\s*\(/i.test(L)) { inList = true; continue; }
+    if (/^Getestet: \d+ von \d+/.test(L)) break;
+    if (!inList) {
+      var m = /^([A-Za-zÄÖÜäöü]+):\s*(.*)$/.exec(L);
+      if (m) res.meta[m[1].toLowerCase()] = clean(m[2], 60);
+      continue;
+    }
+    var parts = L.split('|').map(function (x) { return x.trim(); });
+    var n = clean(parts[0], 30);
+    if (!n || parts.length < 2) continue;
+    var k = n.toLowerCase();
+    if (seen[k]) { res.err = '„' + n + '“ kommt doppelt vor.'; return res; }
+    seen[k] = true;
+    if (/nicht getestet/i.test(parts[1])) { res.pl.push({ n: n, a: null, b: null, best: null }); continue; }
+    var v = [parts[1], parts[2]].map(function (x) {
+      if (!x || x === '–' || x === '-') return null;
+      var c = parseInt(x, 10);
+      return /^\d{2,3}$/.test(x) && c >= MIN_CM && c <= MAX_CM ? c : NaN;
+    });
+    if (isNaN(v[0]) || isNaN(v[1])) { res.err = 'Ungültiger Wert bei „' + n + '“.'; return res; }
+    var ok = v.filter(function (x) { return x != null; });
+    res.pl.push({ n: n, a: v[0], b: v[1], best: ok.length ? Math.max.apply(null, ok) : null });
+  }
+  if (!res.pl.length) { res.err = 'Keine Spielerzeilen gefunden.'; return res; }
+  var bests = res.pl.map(function (p) { return p.best; }).filter(function (x) { return x != null; });
+  res.n = bests.length; res.mean = mean(bests); res.median = median(bests);
+  res.min = bests.length ? Math.min.apply(null, bests) : null; res.max = bests.length ? Math.max.apply(null, bests) : null;
+  res.bests = bests;
+  if (!bests.length) { res.err = 'Niemand mit gültigem Wert, nichts auszuwerten.'; return res; }
+  res.ok = true;
+  return res;
+}
+function dnum(s) { var m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(s || ''); return m ? +(m[3] + m[2] + m[1]) : null; }
+function compare(A, B) {
+  var map = {}, pairs = [], onlyA = [], onlyB = [], inB = {};
+  A.pl.forEach(function (p) { map[p.n.toLowerCase()] = p; });
+  B.pl.forEach(function (p) { inB[p.n.toLowerCase()] = true; var q = map[p.n.toLowerCase()]; if (!q) onlyB.push(p.n); else if (q.best != null && p.best != null) pairs.push(p.best - q.best); });
+  A.pl.forEach(function (p) { if (!inB[p.n.toLowerCase()]) onlyA.push(p.n); });
+  var diffs = [];
+  ['untergrund', 'schuhe'].forEach(function (k) { if ((A.meta[k] || '') !== (B.meta[k] || '')) diffs.push(k === 'untergrund' ? 'Untergrund' : 'Schuhe'); });
+  if ((A.meta.team || '').toLowerCase() !== (B.meta.team || '').toLowerCase()) diffs.push('Teamname');
+  var da = dnum(A.meta.datum), db = dnum(B.meta.datum);
+  return { n: pairs.length, mean: mean(pairs), diffs: diffs, onlyA: onlyA, onlyB: onlyB, reversed: da != null && db != null && da > db, same: da != null && da === db };
+}
+
+/* ───────── Zustand ───────── */
+var S = (function () {
+  var d = { a: '', b: '', note: '', emp: ['', '', ''], einzel: true };
+  try {
+    var o = JSON.parse(lsGet(KEY));
+    if (o && typeof o === 'object') {
+      ['a', 'b', 'note'].forEach(function (k) { if (typeof o[k] === 'string') d[k] = o[k].slice(0, 8000); });
+      if (Array.isArray(o.emp)) d.emp = [0, 1, 2].map(function (i) { return typeof o.emp[i] === 'string' ? o.emp[i].slice(0, 300) : ''; });
+      d.einzel = o.einzel !== false;
+    }
+  } catch (e) {}
+  return d;
+})();
+function save() { lsSet(KEY, JSON.stringify(S)); }
+
+/* ───────── Steuerung ───────── */
+var app = document.getElementById('app');
+var pvBox, warnBox, printBtn;
+function updWarn() {
+  if (!warnBox) return;
+  warnBox.textContent = '';
+  var A = parse(S.a), B = parse(S.b), C = A.ok && B.ok ? compare(A, B) : null;
+  if (printBtn) printBtn.disabled = !A.ok;
+  if (!C) return;
+  function w(t, red) { warnBox.appendChild(h('div', { class: 'banner ' + (red ? 'red' : 'amber') }, t)); }
+  if (C.reversed) warnBox.appendChild(h('div', { class: 'banner red' }, 'Messung 1 ist jünger als Messung 2, die Veränderung wäre umgedreht. ',
+    h('button', { class: 'btn sm', onclick: function () { var x = S.a; S.a = S.b; S.b = x; save(); render(); } }, 'Tauschen')));
+  if (C.same) w('Beide Messungen haben dasselbe Datum. Zweimal dieselbe Nachricht eingefügt?', true);
+  if (C.diffs.length) w('Unterschiedlich zwischen den Messungen: ' + C.diffs.join(', ') + '. Wird im Report als eingeschränkte Vergleichbarkeit vermerkt.');
+  if (C.n < 5) w('Nur ' + C.n + ' Spieler mit beiden Messungen. Veränderung je Spieler ist kaum aussagekräftig (steht auch im Report).');
+  if (C.onlyA.length || C.onlyB.length) w('Nicht zugeordnet (Schreibweise prüfen, z. B. „Max“ vs. „Max M.“): nur Messung 1: ' + (C.onlyA.join(', ') || '–') + ' · nur Messung 2: ' + (C.onlyB.join(', ') || '–'));
+}
+function render() {
+  app.textContent = '';
+  var ctl = h('div', { class: 'np' });
+  app.appendChild(ctl);
+  ctl.appendChild(h('div', { class: 'logo' }, 'PERFORM', h('span', null, '.'), h('small', null, 'PERFORMANCE THAT LASTS.')));
+  ctl.appendChild(h('h1', null, 'Team-Report'));
+  ctl.appendChild(h('p', { class: 'sub' }, 'WhatsApp-Nachricht vom Trainer einfügen, einordnen, als PDF speichern. Daten bleiben nur in diesem Browser.'));
+
+  var A = parse(S.a), B = parse(S.b);
+  function input(key, title, hint, res) {
+    var log = h('div', { style: 'font-size:12.5px;margin-top:6px;min-height:18px' });
+    function upd(r) {
+      log.textContent = '';
+      if (r.ok) log.appendChild(h('span', { class: 'ok' }, '✓ ' + (r.meta.team || 'Team') + ' · ' + (r.meta.zeitpunkt || '') + ' · ' + (r.meta.datum || '') + ' · ' + r.n + ' von ' + r.pl.length + ' getestet · Ø ' + f1(r.mean) + ' cm'));
+      else if (r.err) log.appendChild(h('span', { class: 'no' }, r.err));
+    }
+    upd(res);
+    return h('div', { class: 'card' },
+      h('label', { class: 'f', style: 'margin-top:0' }, title),
+      h('textarea', { value: S[key], placeholder: hint, oninput: function (e) { S[key] = e.target.value; save(); upd(parse(S[key])); updWarn(); drawPreview(); } }),
+      log);
+  }
+  ctl.appendChild(h('h2', null, '1 · Messungen'));
+  ctl.appendChild(h('div', { class: 'cols' },
+    input('a', 'Messung 1 (z. B. Start Vorbereitung)', 'Nachricht „PERFORM. TEAM-CHECK v1 …“ hier einfügen', A),
+    input('b', 'Messung 2 (optional, z. B. Ende Vorbereitung)', 'Leer lassen für einen Einzel-Report', B)));
+
+  warnBox = h('div');
+  ctl.appendChild(warnBox);
+
+  ctl.appendChild(h('h2', null, '2 · Einordnung (Coach-Notiz)'));
+  ctl.appendChild(h('div', { class: 'card' },
+    h('textarea', { class: 'note', value: S.note, maxlength: 900, placeholder: 'Deine Einordnung in 3–5 Sätzen: Was sehe ich, was bedeutet es fürs Training? Keine Versprechen, keine Normwerte.', oninput: function (e) { S.note = e.target.value; save(); drawPreview(); } })));
+
+  ctl.appendChild(h('h2', null, '3 · Empfehlungen (max. 3)'));
+  var ec = h('div', { class: 'card' });
+  S.emp.forEach(function (v, i) {
+    ec.appendChild(h('input', { type: 'text', value: v, maxlength: 300, placeholder: 'Empfehlung ' + (i + 1), style: 'margin-top:' + (i ? 6 : 0) + 'px', id: 'emp' + i, oninput: function (e) { S.emp[i] = e.target.value; save(); drawPreview(); } }));
+  });
+  ec.appendChild(h('div', { style: 'font-size:11px;color:var(--muted);margin-top:10px' }, 'Vorschläge (füllt das erste freie Feld):'));
+  ec.appendChild(h('div', { class: 'chips' }, EMP_VORSCHLAG.map(function (t) {
+    return h('button', { onclick: function () {
+      var i = S.emp.indexOf(''); if (i < 0) return;
+      S.emp[i] = t; document.getElementById('emp' + i).value = t; save(); drawPreview(); } }, t.length > 60 ? t.slice(0, 58) + '…' : t);
+  })));
+  ec.appendChild(h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: S.einzel, onchange: function (e) { S.einzel = e.target.checked; save(); drawPreview(); } }), 'Seite 2 mit Einzelwerten (nur für den Trainer, alphabetisch, ohne Rangliste)'));
+  ctl.appendChild(ec);
+
+  ctl.appendChild(h('div', { class: 'row', style: 'margin:16px 0 6px' },
+    printBtn = h('button', { class: 'btn pri', disabled: !A.ok, onclick: function () { if (parse(S.a).ok) window.print(); } }, 'PDF speichern / drucken'),
+    h('button', { class: 'btn danger', onclick: function () {
+      if (!confirm('Alle Eingaben dieses Reports löschen (inkl. Spielernamen)?')) return;
+      lsDel(KEY); S.a = S.b = S.note = ''; S.emp = ['', '', '']; S.einzel = true; render(); } }, 'Report löschen')));
+  ctl.appendChild(h('div', { style: 'font-size:11.5px;color:var(--dim)' }, 'Im Druckdialog „Als PDF speichern“, Ränder „Keine“, Hintergrundgrafiken an.'));
+  ctl.appendChild(h('h2', null, 'Vorschau'));
+  ctl.appendChild(h('div', { class: 'banner red', id: 'overflow', style: 'display:none' }, 'Seite 1 ist zu voll und würde im PDF abgeschnitten. Einordnung oder Empfehlungen kürzen.'));
+
+  pvBox = h('div', { class: 'pv' });
+  app.appendChild(pvBox);
+  updWarn();
+  drawPreview();
+}
+
+/* ───────── Report ───────── */
+function drawPreview() {
+  if (!pvBox) return;
+  pvBox.textContent = '';
+  var A = parse(S.a), B = parse(S.b);
+  if (!A.ok) { pvBox.appendChild(h('div', { class: 'card np', style: 'color:var(--muted)' }, 'Noch keine gültige Messung 1.')); return; }
+  var two = B.ok, C = two ? compare(A, B) : null, last = two ? B : A;
+  var jugend = /jugend/i.test(last.meta.gruppe || '');
+  var team = last.meta.team || A.meta.team || 'Team';
+
+  function pageHead(sub) {
+    return h('div', { class: 'ph' },
+      h('div', { class: 'pl' }, 'PERFORM', h('span', null, '.'), h('small', null, 'PERFORMANCE THAT LASTS.')),
+      h('div', { class: 'pt' },
+        h('div', { class: 'k' }, 'Team-Check · Broad Jump' + (sub ? ' · ' + sub : '')),
+        h('div', { class: 't' }, team),
+        h('div', { class: 'm' }, (last.meta.gruppe || '') + ' · ' + (two ? (A.meta.datum || '') + ' bis ' + (B.meta.datum || '') : (A.meta.zeitpunkt || '') + ', ' + (A.meta.datum || '')))));
+  }
+  function pageFoot(nr) {
+    return h('div', { class: 'pf' },
+      h('div', null, h('b', null, 'PERFORM. · Justus Böhm'), ' · perform.by.jb@gmail.com · WhatsApp 0160 5951455 · @perform.jb'),
+      h('div', null, 'Seite ' + nr));
+  }
+
+  /* Seite 1 */
+  var p1 = h('div', { class: 'page' });
+  p1.appendChild(pageHead(''));
+  var kp = h('div', { class: 'kp' });
+  function tile(v, unit, l) { kp.appendChild(h('div', null, h('b', null, v, unit ? h('small', null, unit) : null), h('span', null, l))); }
+  if (two) {
+    tile(f1(B.mean), 'cm', 'Teamschnitt ' + (B.meta.zeitpunkt || 'Messung 2'));
+    tile(f1(A.mean), 'cm', 'Teamschnitt ' + (A.meta.zeitpunkt || 'Messung 1'));
+    tile(sgn(C.mean, true), 'cm', 'Ø Veränderung je Spieler (n = ' + C.n + ')');
+    tile(String(B.n), 'von ' + B.pl.length, 'Getestet');
+  } else {
+    tile(f1(A.mean), 'cm', 'Teamschnitt');
+    tile(f1(A.median), 'cm', 'Median');
+    if (!jugend) tile(A.min + '–' + A.max, 'cm', 'Spannweite');
+    tile(String(A.n), 'von ' + A.pl.length, 'Getestet');
+  }
+  p1.appendChild(kp);
+  if (two) p1.appendChild(h('div', { class: 'cap' }, 'Teamschnitt = alle jeweils Getesteten. Ø Veränderung = nur Spieler mit beiden Messungen.'));
+
+  p1.appendChild(h('h3', null, 'Verteilung im Team'));
+  p1.appendChild(strip(two ? [A, B] : [A]));
+  p1.appendChild(h('div', { class: 'cap' }, 'Messwerte: jeder Punkt = bester gültiger Versuch eines Spielers, Linie = Teamschnitt. Keine Normwerte.'));
+
+  if (clean(S.note, 900)) {
+    p1.appendChild(h('h3', null, 'Einordnung'));
+    p1.appendChild(h('div', { class: 'box' }, h('p', null, S.note.trim())));
+  }
+  var emp = S.emp.map(function (t) { return clean(t, 300); }).filter(Boolean);
+  if (emp.length) {
+    p1.appendChild(h('h3', null, 'Empfehlungen für die nächsten Wochen'));
+    p1.appendChild(h('div', { class: 'box' }, h('ol', { class: 'emp' }, emp.map(function (t) { return h('li', null, h('span', null, t)); }))));
+  }
+
+  p1.appendChild(h('h3', null, 'Messbedingungen'));
+  var cond = h('div', { class: 'cond' });
+  (two ? [A, B] : [A]).forEach(function (r) {
+    cond.appendChild(h('div', null, h('b', null, (r.meta.zeitpunkt || 'Messung') + ' (' + (r.meta.datum || '') + '): '),
+      (r.meta.untergrund || '–') + ', ' + (r.meta.schuhe || '–') + ', Messleitung ' + (r.meta.messleiter || '–')));
+  });
+  if (C && C.n < 5) cond.appendChild(h('div', { class: 'warn' }, 'Nur ' + C.n + ' Spieler mit beiden Messungen: Veränderung je Spieler kaum aussagekräftig.'));
+  if (C && C.diffs.length) cond.appendChild(h('div', { class: 'warn' }, 'Unterschiedliche Bedingungen (' + C.diffs.join(', ') + '): Vergleich nur eingeschränkt aussagekräftig.'));
+  cond.appendChild(h('div', { style: 'margin-top:1.5mm' }, 'Durchgeführt vom Trainerteam nach PERFORM.-Protokoll (Standard-Warm-up, 2 gültige Versuche, Messung bis zur hinteren Ferse). Veränderungen von wenigen Zentimetern können Tagesform oder Messschwankung sein. Kein medizinischer Test.'));
+  p1.appendChild(cond);
+  p1.appendChild(pageFoot(1));
+  pvBox.appendChild(p1);
+  var ow = document.getElementById('overflow');
+  if (ow) ow.style.display = p1.offsetHeight > 1126 ? '' : 'none';
+
+  /* Seite 2: Einzelwerte */
+  if (S.einzel) {
+    var p2 = h('div', { class: 'page' });
+    p2.appendChild(pageHead('Einzelwerte'));
+    var map = {};
+    if (two) A.pl.forEach(function (p) { map[p.n.toLowerCase()] = p; });
+    var rows = (two ? mergeNames(A, B) : A.pl.slice()).sort(collator);
+    var bestLbl = jugend ? 'Persönliche Bestleistung' : 'Bester Versuch';
+    var head = two
+      ? h('tr', null, h('th', null, 'Spieler'), h('th', { class: 'n' }, (A.meta.zeitpunkt || 'Messung 1') + ' (cm)'), h('th', { class: 'n' }, (B.meta.zeitpunkt || 'Messung 2') + ' (cm)'), h('th', { class: 'n' }, 'Veränderung'))
+      : h('tr', null, h('th', null, 'Spieler'), h('th', { class: 'n' }, 'Versuch 1'), h('th', { class: 'n' }, 'Versuch 2'), h('th', { class: 'n' }, bestLbl + ' (cm)'));
+    var PER = 28, chunks = [];
+    for (var ci = 0; ci < rows.length; ci += PER) chunks.push(rows.slice(ci, ci + PER));
+    chunks.forEach(function (chunk, pi) {
+    if (pi) { p2 = h('div', { class: 'page' }); p2.appendChild(pageHead('Einzelwerte (Forts.)')); }
+    var tb = h('tbody');
+    chunk.forEach(function (r) {
+      if (two) {
+        var d = r.a != null && r.b != null ? r.b - r.a : null;
+        tb.appendChild(h('tr', null, h('td', null, r.n),
+          h('td', { class: 'n' + (r.a == null ? ' dim' : '') }, r.a == null ? (r.inA ? 'n. g.' : 'nicht dabei') : String(r.a)),
+          h('td', { class: 'n' + (r.b == null ? ' dim' : '') }, r.b == null ? (r.inB ? 'n. g.' : 'nicht dabei') : String(r.b)),
+          h('td', { class: 'n' + (d == null ? ' dim' : '') }, d == null ? '–' : sgn(d) + ' cm')));
+      } else {
+        tb.appendChild(h('tr', null, h('td', null, r.n),
+          h('td', { class: 'n dim' }, r.best == null ? '' : r.a == null ? '–' : String(r.a)),
+          h('td', { class: 'n dim' }, r.best == null ? '' : r.b == null ? '–' : String(r.b)),
+          h('td', { class: 'n' + (r.best == null ? ' dim' : '') }, r.best == null ? 'nicht getestet' : String(r.best))));
+      }
+    });
+    p2.appendChild(h('table', null, h('thead', null, head.cloneNode(true)), tb));
+    if (pi < chunks.length - 1) { p2.appendChild(pageFoot(2 + pi)); pvBox.appendChild(p2); }
+    });
+    p2.appendChild(h('div', { class: 'cond', style: 'margin-top:4mm' },
+      'Alphabetisch, bewusst ohne Rangliste. ' + (jugend ? 'Jugend: Jeder vergleicht sich nur mit sich selbst (persönliche Bestleistung). ' : '') +
+      (two ? 'Veränderung = bester Versuch Messung 2 minus bester Versuch Messung 1. ' : '') +
+      'n. g. = nicht getestet, egal aus welchem Grund (z. B. abwesend); der Grund wird nicht erfasst. Nur für das Trainerteam, nicht aushängen.'));
+    p2.appendChild(pageFoot(1 + chunks.length));
+    pvBox.appendChild(p2);
+  }
+}
+function mergeNames(A, B) {
+  var m = {}, out = [];
+  A.pl.forEach(function (p) { var k = p.n.toLowerCase(); m[k] = { n: p.n, a: p.best, b: null, inA: true, inB: false }; out.push(m[k]); });
+  B.pl.forEach(function (p) { var k = p.n.toLowerCase(); if (m[k]) { m[k].b = p.best; m[k].inB = true; } else { m[k] = { n: p.n, a: null, b: p.best, inA: false, inB: true }; out.push(m[k]); } });
+  return out;
+}
+
+/* Punktstreifen: ein Streifen je Messung */
+function strip(list) {
+  var W = 680, rowH = 62, top = 10, padL = 118, padR = 16, H = top + list.length * rowH + 26;
+  var all = [];
+  list.forEach(function (r) { all = all.concat(r.bests); });
+  var lo = Math.floor((Math.min.apply(null, all) - 5) / 10) * 10, hi = Math.ceil((Math.max.apply(null, all) + 5) / 10) * 10;
+  if (hi - lo < 40) { var mid = (hi + lo) / 2; lo = Math.floor((mid - 20) / 10) * 10; hi = lo + 40; }
+  function x(v) { return padL + (v - lo) / (hi - lo) * (W - padL - padR); }
+  var svg = s('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Verteilung der Sprungweiten' });
+  var step = hi - lo > 120 ? 20 : 10;
+  for (var t = lo; t <= hi; t += step) {
+    svg.appendChild(s('line', { x1: x(t), x2: x(t), y1: top, y2: top + list.length * rowH, stroke: '#2D333E', 'stroke-width': 1 }));
+    svg.appendChild(s('text', { x: x(t), y: H - 8, 'text-anchor': 'middle', fill: '#6C7890', 'font-size': 11, 'font-family': 'Montserrat, sans-serif' }, String(t)));
+  }
+  svg.appendChild(s('text', { x: W - padR, y: H - 8, 'text-anchor': 'end', fill: '#6C7890', 'font-size': 11, 'font-family': 'Montserrat, sans-serif' }, 'cm'));
+  list.forEach(function (r, i) {
+    var cy = top + i * rowH + rowH / 2, col = i === list.length - 1 ? '#4B8EF0' : '#9BA8C0';
+    svg.appendChild(s('text', { x: 0, y: cy - 3, fill: '#F0F4FF', 'font-size': 12, 'font-weight': 700, 'font-family': 'Montserrat, sans-serif' }, (r.meta.zeitpunkt || 'Messung').replace(' Vorbereitung', '')));
+    svg.appendChild(s('text', { x: 0, y: cy + 13, fill: '#9BA8C0', 'font-size': 11, 'font-family': 'Montserrat, sans-serif' }, 'Ø ' + f1(r.mean) + ' cm'));
+    var sorted = r.bests.slice().sort(function (a, b) { return a - b; }), cnt = {};
+    sorted.forEach(function (v) {
+      var k = Math.round(x(v) / 9); cnt[k] = (cnt[k] || 0) + 1;
+      var n = cnt[k] - 1, off = n === 0 ? 0 : (n % 2 ? -1 : 1) * Math.ceil(n / 2) * 9;
+      svg.appendChild(s('circle', { cx: x(v), cy: cy + off, r: 5, fill: col, 'fill-opacity': 0.85, stroke: '#1C1F26', 'stroke-width': 1 }));
+    });
+    svg.appendChild(s('line', { x1: x(r.mean), x2: x(r.mean), y1: cy - 24, y2: cy + 24, stroke: '#F0F4FF', 'stroke-width': 2 }));
+  });
+  return svg;
+}
+
+render();
+})();
+</script>
+</body>
+</html>
