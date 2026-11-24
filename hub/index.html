@@ -192,7 +192,7 @@ function svg(inner, cls) { var s = document.createElementNS('http://www.w3.org/2
 var IC = {
   today: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/>',
   pipe: '<path d="M4 6h16M7 12h10M10 18h4"/>',
-  winter: '<path d="M12 3v18M4.2 7.5l15.6 9M19.8 7.5l-15.6 9"/>',
+  winter: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6"/>',
   tpl: '<path d="M5 4h14v12H9l-4 4z"/><path d="M9 9h6M9 12h4"/>',
   note: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
   cal: '<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',
@@ -205,11 +205,30 @@ var IC = {
 var storageOK = true;
 var PALETTE = ['#4B8EF0', '#2DD4BF', '#4ADE80', '#FACC15', '#FB923C', '#F87171', '#F472B6', '#A78BFA'];
 var DEFAULT_TPL = [{"id": "vl-1", "title": "Erstantwort Spieler", "text": "Hey [Name], danke für deine Nachricht! 💪\n\nKurz zu mir: Ich bin Justus, Sportwissenschaftler und Athletiktrainer für Fußballer. Bei PERFORM. geht es darum, schneller zu werden und länger auf dem Platz zu bleiben, mit einem Plan, der zu deiner Woche passt.\n\nDamit ich dir etwas Sinnvolles sagen kann: Auf welchem Niveau spielst du, und was willst du verbessern?"}, {"id": "vl-2", "title": "Winter-Coaching erklären", "text": "Das Winter-Coaching läuft über die Winterpause bis zum Start der Saisonvorbereitung. Du bekommst einen individuellen Trainingsplan, den ich anhand deiner Rückmeldungen anpasse, und bist mit Rückfragen direkt bei mir.\n\nIch nehme nur 5 Spieler an, damit ich mich um jeden wirklich kümmern kann. Anmeldeschluss ist der 10.11.\n\nWenn das für dich passt, machen wir ein kurzes Kennenlerngespräch. Preis: [Preis]."}, {"id": "vl-3", "title": "Erstgespräch vorschlagen", "text": "Dann lass uns kurz telefonieren oder per Video sprechen, ca. 20 Minuten. Da klären wir, wo du stehst, wie dein Training gerade aussieht und ob das Coaching zu dir passt.\n\nIch hätte [Tag] um [Uhrzeit] oder [Tag] um [Uhrzeit] Zeit. Passt eins davon? Sonst nenn mir gern einen Termin."}, {"id": "vl-4", "title": "Nachfassen Spieler (nach ca. 3 Tagen)", "text": "Hey [Name], ich wollte kurz nachhaken, ob meine Nachricht bei dir angekommen ist. Wenn du noch Fragen hast, schreib mir einfach. Und wenn es gerade nicht passt, ist das auch völlig in Ordnung."}, {"id": "vl-5", "title": "Letzte Erinnerung vor Anmeldeschluss", "text": "Hey [Name], kurze Info: Der Anmeldeschluss fürs Winter-Coaching ist am 10.11., aktuell sind noch [Anzahl] Plätze frei. Wenn du dabei sein willst, gib mir bis dahin Bescheid. Wenn nicht, sag es mir gern kurz, dann plane ich anders."}, {"id": "vl-6", "title": "Platz bestätigen", "text": "Super, [Name], du bist dabei! 🎉\n\nSo geht es weiter:\n1. Ich schicke dir die Betreuungsvereinbarung und den Anamnesebogen zum Ausfüllen.\n2. Danach machen wir einen kurzen Termin zum Durchsprechen.\n3. Dann bekommst du deinen Plan, Start ist am [Datum].\n\nBei Fragen melde dich jederzeit."}, {"id": "vl-7", "title": "Warteliste", "text": "Aktuell sind alle Plätze im Winter-Coaching vergeben. Ich setze dich gern auf die Warteliste. Sobald ein Platz frei wird, melde ich mich direkt bei dir. Soll ich dich eintragen?"}, {"id": "vl-8", "title": "Absage, wenn voll", "text": "Danke für dein Interesse, [Name]. Das Winter-Coaching ist leider voll. Wenn du magst, melde ich mich, sobald ich die nächste Runde plane. Ein paar Grundlagen findest du bis dahin regelmäßig auf @perform.jb."}, {"id": "vl-9", "title": "Verein: Erstansprache", "text": "Hallo [Name],\n\nich bin Justus Böhm, Sportwissenschaftler und Athletiktrainer für Fußball (PERFORM.). Ich biete Vereinen im Raum Franken praxisnahe Athletik-Einheiten für die ganze Mannschaft an, mit Schwerpunkt Sprint, Sprünge und Prävention.\n\n[Konkreter Anlass / Bezug zum Verein]\n\nHätten Sie Interesse an einer Einheit in der Vorbereitung? Gern erkläre ich in einem kurzen Gespräch, wie so eine Einheit abläuft."}, {"id": "vl-10", "title": "Verein: Nachfassen", "text": "Hallo [Name], ich wollte kurz nachfragen, ob Sie meine Nachricht zur Athletik-Einheit für Ihre Mannschaft erhalten haben. Ich plane gerade die Termine für die Vorbereitung und würde mich über eine kurze Rückmeldung freuen, auch wenn es eine Absage ist."}];
-function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], cats: [], notes: [], planKunden: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
-function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400), doneAt: isoOk(t.doneAt) ? t.doneAt : '', plan: str(t.plan, 40), ck: (t.ck === 3 || t.ck === 6) ? t.ck : 0 }; }
+function defaults() { return { v: 1, tasks: [], pipeline: [], posts: [], cats: [], notes: [], planKunden: [], seeded: [], templates: DEFAULT_TPL.map(function (x) { return Object.assign({}, x); }), winter: { total: 5, taken: 1, deadline: '2026-11-10', rule: '', waitlist: [] } }; }
+function normTask(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 200), due: isoOk(t.due) ? t.due : '', done: !!t.done, group: str(t.group, 40), note: str(t.note, 400), doneAt: isoOk(t.doneAt) ? t.doneAt : '', plan: str(t.plan, 40), ck: (t.ck === 3 || t.ck === 6) ? t.ck : 0, fk: str(t.fk, 8) || ((t.ck === 3 || t.ck === 6) && t.plan ? 'ck' + t.ck : ''), prev: str(t.prev, 40), cal: t.cal === true }; }
 function normContact(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 80), type: c.type === 'verein' ? 'verein' : 'spieler', status: STATUSES.indexOf(c.status) >= 0 ? c.status : 'offen', msgDate: isoOk(c.msgDate) ? c.msgDate : '', reason: str(c.reason, 400), source: str(c.source, 120), followDate: isoOk(c.followDate) ? c.followDate : '' }; }
 function normPost(p) { return { id: str(p.id, 40) || uid(), date: isoOk(p.date) ? p.date : today(), format: FORMATS.indexOf(p.format) >= 0 ? p.format : 'Reel', title: str(p.title, 300), source: str(p.source, 120), done: !!p.done }; }
-function normPlan(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 80), date: isoOk(c.date) ? c.date : today(), source: str(c.source, 120), status: PLAN_STATUS.indexOf(c.status) >= 0 ? c.status : 'aktiv' }; }
+function objArr(a) { return (Array.isArray(a) ? a : []).filter(function (x) { return x && typeof x === 'object'; }); }
+// Eintrag eines Ablaufs (Weg A = Plan, B = 1:1). Plan-Kunden aus der Version vor den Abläufen werden übernommen: aktiv → A5 (Datum = bisheriges Kaufdatum), sonst A8.
+function normPlan(c) {
+  var weg = c.weg === 'B' ? 'B' : 'A', step = parseInt(c.step, 10), dates = {}, d0 = c.dates && typeof c.dates === 'object' ? c.dates : {};
+  Object.keys(d0).forEach(function (k) { if (/^[AB][1-8]$/.test(k) && isoOk(d0[k])) dates[k] = d0[k]; });
+  var end = ['abgeschlossen', 'coaching'].indexOf(c.end) >= 0 ? c.end : '';
+  if (!(step >= 1 && step <= 8)) {
+    weg = 'A'; dates.A5 = dates.A5 || (isoOk(c.date) ? c.date : today());
+    if (c.status === 'abgeschlossen') { step = 8; end = 'abgeschlossen'; } else if (c.status === 'Coaching-Interesse') { step = 8; end = 'coaching'; } else step = 5;
+  }
+  var dk = c.docs && typeof c.docs === 'object' ? c.docs : {};
+  var e = { id: str(c.id, 40) || uid(), name: str(c.name, 80), weg: weg, step: step, dates: dates, source: str(c.source, 120), klaer: c.klaer === true, u18: c.u18 === true,
+    docs: { fb: dk.fb === true, an: dk.an === true, bv: dk.bv === true, el: dk.el === true },
+    inv: objArr(c.inv).slice(-60).map(function (x) { return { nr: str(x.nr, 40), date: isoOk(x.date) ? x.date : '', paid: isoOk(x.paid) ? x.paid : '' }; }).filter(function (x) { return x.nr || x.date || x.paid; }),
+    hist: objArr(c.hist).slice(-20).map(function (x) { return { d: isoOk(x.d) ? x.d : '', t: str(x.t, 160) }; }).filter(function (x) { return x.t; }),
+    end: end, date: '', status: '' };
+  e.date = dates.A5 || dates.A1 || dates.B1 || (isoOk(c.date) ? c.date : today());
+  e.status = step < 8 ? 'aktiv' : end === 'coaching' ? 'Coaching-Interesse' : 'abgeschlossen';
+  return e;
+}
 function normCat(c) { return { id: str(c.id, 40) || uid(), name: str(c.name, 40), color: PALETTE.indexOf(c.color) >= 0 ? c.color : PALETTE[0] }; }
 function nextColor(cats) { var used = {}; cats.forEach(function (c) { used[c.color] = (used[c.color] || 0) + 1; }); var best = PALETTE[0], n = 1e9; PALETTE.forEach(function (col) { if ((used[col] || 0) < n) { n = used[col] || 0; best = col; } }); return best; }
 function ensureCats(st) {
@@ -221,7 +240,7 @@ function catColor(name) { for (var i = 0; i < state.cats.length; i++) if (state.
 function parseTags(v) { var a = Array.isArray(v) ? v : String(v || '').split(/[,;]/), seen = {}, out = []; a.forEach(function (x) { x = str(String(x).replace(/^#+/, ''), 24); if (x && !seen[x.toLowerCase()] && out.length < 6) { seen[x.toLowerCase()] = 1; out.push(x); } }); return out; }
 function normNote(n) { var text = str(n.text, 2000), title = str(n.title, 80) || str(text.split('\n')[0], 80); return { id: str(n.id, 40) || uid(), title: title, text: text, src: str(n.src, 300), tags: parseTags(n.tags), pin: n.pin === true || n.pin === '1', ts: isoOk(n.ts) ? n.ts : today(), upd: isoOk(n.upd) ? n.upd : (isoOk(n.ts) ? n.ts : today()) }; }
 function allTags() { var c = {}; state.notes.forEach(function (n) { n.tags.forEach(function (t) { var k = t.toLowerCase(); c[k] = c[k] || { t: t, n: 0 }; c[k].n++; }); }); return Object.keys(c).map(function (k) { return c[k]; }).sort(function (a, b) { return b.n - a.n || (a.t.toLowerCase() < b.t.toLowerCase() ? -1 : 1); }).map(function (x) { return x.t; }); }
-function normTpl(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 80), text: str(t.text, 1500) }; }
+function normTpl(t) { return { id: str(t.id, 40) || uid(), title: str(t.title, 80), text: str(t.text, 2500) }; }
 function normWinter(w, base) {
   w = w && typeof w === 'object' ? w : {};
   var total = parseInt(w.total, 10); if (!(total >= 0 && total <= 99)) total = base.total;
@@ -233,7 +252,7 @@ function sanitize(d) {
   var base = defaults();
   d = d && typeof d === 'object' ? d : {};
   function arr(a, f, key) { return (Array.isArray(a) ? a : []).filter(function (x) { return x && typeof x === 'object'; }).map(f).filter(function (x) { return x[key]; }); }
-  return ensureCats({ v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), notes: arr(d.notes, normNote, 'title'), winter: normWinter(d.winter, base.winter), cats: arr(d.cats, normCat, 'name'), planKunden: (function () { var seen = {}; return arr(d.planKunden, normPlan, 'name').filter(function (x) { if (seen[x.id]) return false; seen[x.id] = 1; return true; }); })() });
+  return ensureCats({ v: 1, tasks: arr(d.tasks, normTask, 'title'), pipeline: arr(d.pipeline, normContact, 'name'), posts: arr(d.posts, normPost, 'title'), templates: arr(d.templates, normTpl, 'title'), notes: arr(d.notes, normNote, 'title'), winter: normWinter(d.winter, base.winter), cats: arr(d.cats, normCat, 'name'), planKunden: (function () { var seen = {}; return arr(d.planKunden, normPlan, 'name').filter(function (x) { if (seen[x.id]) return false; seen[x.id] = 1; return true; }); })(), seeded: (Array.isArray(d.seeded) ? d.seeded : []).filter(function (x) { return typeof x === 'string' && x.length <= 40; }) });
 }
 function load() {
   try { var r = localStorage.getItem(KEY); if (r) { var o = JSON.parse(r), st = sanitize(o); if (!o || !Array.isArray(o.templates)) st.templates = defaults().templates; return st; } } catch (e) { storageOK = false; }
@@ -245,7 +264,7 @@ function save() {
   try { ok = lsSet(KEY, JSON.stringify(state)); } catch (e) { ok = false; }
   if (!ok) { storageOK = false; }
 }
-function counts() { return state.tasks.length + ' Aufgaben · ' + state.pipeline.length + ' Kontakte · ' + state.posts.length + ' Posts · ' + state.templates.length + ' Vorlagen · ' + state.notes.length + ' Notizen · ' + state.planKunden.length + ' Plan-Kunden'; }
+function counts() { return state.tasks.length + ' Aufgaben · ' + state.pipeline.length + ' Kontakte · ' + state.posts.length + ' Posts · ' + state.templates.length + ' Vorlagen · ' + state.notes.length + ' Notizen · ' + state.planKunden.length + ' Kunden (Plan/1:1)'; }
 
 /* ───────── UI-Zustand ───────── */
 var tab = lsGet(TAB_KEY, 'today');
@@ -364,7 +383,7 @@ function editTask(t) {
       var g = v.group && typeof v.group === 'object' ? v.group : { name: '' }, nm = str(g.name, 40);
       if (nm && !state.cats.some(function (c) { return c.name === nm; })) state.cats.push({ id: uid(), name: nm, color: PALETTE.indexOf(g.color) >= 0 ? g.color : nextColor(state.cats) });
       t.group = nm;
-      t.title = str(v.title, 200); t.note = str(v.note, 400); t.due = isoOk(v.due) ? v.due : '';
+      t.title = str(v.title, 200); t.note = str(v.note, 400); var nd = isoOk(v.due) ? v.due : ''; if (nd !== t.due) t.cal = false; t.due = nd;
       if (isNew) state.tasks.push(normTask(t)); else Object.assign(t, normTask(t));
       changed();
     } });
@@ -415,7 +434,7 @@ function editTpl(t) {
   var isNew = !t; t = t || { id: uid(), title: '', text: '' };
   openSheet({ title: isNew ? 'Neue Vorlage' : 'Vorlage', values: t, fields: [
     { key: 'title', label: 'Titel', type: 'text', req: true, ph: 'Wofür ist der Text?' },
-    { key: 'text', label: 'Text', type: 'area', req: true, max: 1500, ph: 'Nachricht. Platzhalter in [eckigen Klammern].', hint: 'Keine Gesundheits- oder Vertragsdaten.' }
+    { key: 'text', label: 'Text', type: 'area', req: true, max: 2500, ph: 'Nachricht. Platzhalter in [eckigen Klammern].', hint: 'Keine Gesundheits- oder Vertragsdaten.' }
   ], actions: isNew ? [] : [{ label: 'Löschen', danger: true, run: function () { state.templates = state.templates.filter(function (x) { return x.id !== t.id; }); changed(); } }],
     onSave: function (v) {
       var n = normTpl({ id: t.id, title: v.title, text: v.text });
@@ -467,91 +486,390 @@ function openCats() {
   var ov = h('div', { class: 'ov', onclick: function (e) { if (e.target === ov) closeSheet(); } }, sheet);
   document.getElementById('layer').appendChild(ov);
 }
-function editWinter() {
-  var w = state.winter;
-  openSheet({ title: 'Winter-Coaching', values: { total: w.total, deadline: w.deadline }, fields: [
-    { key: 'total', label: 'Plätze insgesamt', type: 'num', req: true },
-    { key: 'deadline', label: 'Anmeldeschluss', type: 'date', req: true }
-  ], onSave: function (v) {
-    var n = normWinter({ total: v.total, taken: w.taken, deadline: v.deadline, rule: w.rule, waitlist: w.waitlist }, w);
-    state.winter = n; changed();
+
+/* ───────── Abläufe: A = Plan 59 €, B = 1:1-Coaching 150 € (verbindlich: ABLAEUFE.md) ───────── */
+var cMode = 'plan';
+var STEPS = {
+  A: ['Anfrage', 'Fragebogen zurück', 'Rechnung verschickt', 'Bezahlt', 'Plan geliefert', 'Check-in Woche 3', 'Abschluss Woche 6', 'Ende'],
+  B: ['Anfrage', 'Telefonat', 'Zusage', 'Unterlagen zurück', 'Rechnung Monat 1', 'Eingangstest', 'Aktiv', 'Beendet']
+};
+var WEG = { A: 'Plan 59 €', B: '1:1-Coaching' }, WEG_CAT = { A: PLAN_CAT, B: '1:1-Coaching' };
+// Automatische To-dos beim Erreichen eines Schritts. done = Schritt, ab dem das To-do als erledigt gilt.
+var AUTO = {
+  A1: [{ fk: 'A1n', t: 'Fragebogen nachfassen', d: 3, done: 2 }],
+  A3: [{ fk: 'A3z', t: 'Zahlung prüfen', d: 7, done: 4 }],
+  A4: [{ fk: 'A4p', t: 'Plan liefern', wd: 2, done: 5 }],
+  A5: [{ fk: 'ck3', ck: 3, t: 'Check-in Woche 3', d: 21, done: 6 }, { fk: 'ck6', ck: 6, t: 'Abschluss Woche 6', d: 42, done: 7 }],
+  B1: [{ fk: 'B1n', t: 'Nachfassen', d: 3, done: 2 }],
+  B3: [{ fk: 'B3u', t: 'Unterlagen prüfen', d: 5, done: 4 }],
+  B5: [{ fk: 'B5z', t: 'Zahlung prüfen', d: 7, done: 6 }]
+};
+var DONE_AT = {};
+Object.keys(AUTO).forEach(function (k) { AUTO[k].forEach(function (s) { DONE_AT[s.fk] = s.done; }); });
+var REC = { Bw: 'Montags-Rückmeldung da? → Plan anpassen', Bm: 'Rechnung', Br: 'Re-Test' };
+var TASK_TPL = { Bw: 'ab-bw', A1n: 'ab-a1n', A3z: 'ab-zr', ck3: 'ab-a6', ck6: 'ab-a7', B1n: 'ab-b1n', B3u: 'ab-b3n', B5z: 'ab-zr', Bm: 'ab-b5', Br: 'ab-b6' };
+var STEP_TPL = { A1: ['ab-a1', 'ab-a1n'], A2: ['ab-a2k'], A3: ['ab-a3', 'ab-zr'], A5: ['ab-a5'], A6: ['ab-a6'], A7: ['ab-a7'],
+  B1: ['ab-b1', 'ab-b1n'], B2: ['ab-b2'], B3: ['ab-b3', 'ab-b3n'], B5: ['ab-b5', 'ab-zr'], B6: ['ab-b6'], B7: ['ab-b7', 'ab-bw'], B8: ['ab-b8'] };
+// #n = eigene WhatsApp-Nummer, damit „In WhatsApp senden“ direkt an Justus geht (Kundendaten stehen nie im Link)
+var PB = 'https://performbyjb.github.io/programm-builder/', WAN = '#n=491605951455';
+var FQ = PB + 'fragebogen/' + WAN, FQC = PB + 'fragebogen-coaching/' + WAN, WRM = PB + 'wochenrueckmeldung/' + WAN;
+var BJ = [
+  'Broad Jump (Standweitsprung), so misst du:',
+  '• ebener, griffiger Boden, Startlinie markieren, Maßband ab der Linie gerade nach vorn',
+  '• 10 min aufwärmen, dann 3 Probesprünge: locker, mittel, fast voll',
+  '• Zehen an die Linie, Arme dürfen mitschwingen, kein Anlauf, kein Vorhüpfen',
+  '• beidbeinig abspringen, beidbeinig landen, 2 Sekunden stehen bleiben',
+  '• messen von der Linie bis zur Ferse, die näher an der Linie ist',
+  '• 2 gültige Versuche, 30 s Pause, der bessere zählt',
+  'Nur springen, wenn du beschwerdefrei bist. Schmerz = sofort Stopp.'
+].join('\n');
+// Vorlagen der Abläufe. Werden einmalig ergänzt (state.seeded), eigene Änderungen und Löschungen bleiben.
+var FLOW_TPL = [
+  { id: 'ab-a1', title: 'Plan A1 · Antwort PLAN', text: [
+    'Hey [Name], danke für deine Nachricht! 💪', '',
+    'Kurz zum 6-Wochen-Plan:',
+    '• individuell für dich erstellt, als PDF',
+    '• 59 € einmalig, ohne laufende Betreuung',
+    '• Verständnisfragen per Nachricht, Antwort innerhalb von 2 Werktagen',
+    '• Check-in in Woche 3 und 6', '',
+    'So geht\'s:',
+    '1. Kurzen Fragebogen ausfüllen (ca. 3 Min.): ' + FQ,
+    '2. Ich schicke dir die Rechnung (Überweisung, Vorkasse).',
+    '3. Nach Zahlungseingang bekommst du deinen Plan innerhalb von 2 Werktagen.', '',
+    'Den Flyer mit allen Infos schicke ich dir mit. Kurze Frage noch: Woher kennst du mich?'].join('\n') },
+  { id: 'ab-a1n', title: 'Plan A1 · Fragebogen nachfassen', text: [
+    'Hey [Name], kurze Erinnerung an den Fragebogen für deinen 6-Wochen-Plan:', FQ, '',
+    'Dauert ca. 3 Minuten. Wenn es gerade nicht passt, ist das völlig okay, sag einfach kurz Bescheid.'].join('\n') },
+  { id: 'ab-a2k', title: 'Plan A2 · Beschwerden angegeben (Klärung)', text: [
+    'Hey [Name], danke für den Fragebogen!', '',
+    'Du hast angegeben, dass du gerade Beschwerden hast. Bevor ich deinen Plan erstelle, brauche ich deshalb eine kurze Freigabe von deinem Arzt oder Physio, dass du normal trainieren darfst. Das ist zu deiner Sicherheit, der Plan ersetzt keine Behandlung.', '',
+    'Sobald du die Freigabe hast, schreib mir, dann geht es weiter. Alternativ passt das 1:1-Coaching besser, weil ich dort laufend anpassen kann. Sag mir gern, was dir lieber ist.'].join('\n') },
+  { id: 'ab-a3', title: 'Plan A3 · Rechnung verschickt', text: [
+    'Hey [Name], danke, passt alles! 💪', '',
+    'Die Rechnung über 59 € schicke ich dir als PDF (Kleinunternehmer, keine MwSt.). Bitte per Überweisung zahlen, die Daten stehen auf der Rechnung.', '',
+    'Sobald das Geld da ist, erstelle ich deinen Plan und du bekommst ihn innerhalb von 2 Werktagen.'].join('\n') },
+  { id: 'ab-zr', title: 'Zahlung · freundliche Erinnerung', text: [
+    'Hey [Name], kurze Frage: Ist die Überweisung für [den Plan / den Monat] schon raus? Bei mir ist noch nichts angekommen.', '',
+    'Manchmal dauert es ein, zwei Tage, dann ignorier die Nachricht einfach. 🙂'].join('\n') },
+  { id: 'ab-a5', title: 'Plan A5 · So startest du + Broad Jump', text: [
+    'Hey [Name], hier ist dein 6-Wochen-Plan! 💪', '',
+    'So startest du:',
+    '1. Lies die Hinweise am Anfang des Plans einmal durch.',
+    '2. Mach vor Woche 1 den Start-Test (kostenlos dabei) und schick mir deinen Wert.',
+    '3. Dann geht es mit Woche 1 los.', '',
+    BJ, '',
+    'Nach 6 Wochen machen wir den Test noch mal, mit gleichem Aufwärmen, gleichem Boden und gleichen Schuhen.', '',
+    'Fragen zum Plan? Schreib mir, ich antworte innerhalb von 2 Werktagen.'].join('\n') },
+  { id: 'ab-a6', title: 'Plan A6 · Check-in Woche 3', text: 'Hey [Name], Halbzeit! Wie läuft\'s, passt der Umfang? Eine kurze Antwort reicht.' },
+  { id: 'ab-a7', title: 'Plan A7 · Abschluss Woche 6', text: [
+    'Hey [Name], Woche 6 geschafft? 💪 Was hat sich für dich verändert?', '',
+    'Zum Abschluss: Mach den Broad Jump noch mal, genau wie beim Start (gleiches Aufwärmen, gleicher Boden, gleiche Schuhe), und schick mir deinen Wert.', '',
+    'Wie es danach weitergehen kann:',
+    '• neuer 6-Wochen-Plan, aufbauend auf diesem',
+    '• 1:1-Coaching mit wöchentlichem Feedback und laufender Anpassung',
+    'Sag mir einfach, was dich interessiert.', '',
+    'Und eine Bitte: Wenn du zufrieden warst, schreib mir 2–3 Sätze, wie du den Plan fandest. Bevor ich etwas davon zeige, frage ich dich.'].join('\n') },
+  { id: 'ab-b1', title: '1:1 B1 · Antwort COACHING', text: [
+    'Hey [Name], danke dir für dein Interesse!', '',
+    'Das 1:1-Coaching kostet 150 € pro Monat (Kleinunternehmer, keine MwSt.) und ist monatlich kündbar. Du bekommst einen individuellen Trainingsplan nach deiner Ausgangslage, wöchentliches Feedback und laufende Anpassung.', '',
+    'Damit ich einschätzen kann, ob es zu dir passt: Wo spielst du, wie viel trainierst du aktuell (inkl. Verein) und was willst du erreichen, z. B. schneller werden oder verletzungsfrei bleiben?', '',
+    'Wenn du magst, telefonieren wir kurz 10–15 Minuten. Und noch eine Frage: Woher kennst du mich?', '',
+    'Viele Grüße, Justus'].join('\n') },
+  { id: 'ab-b1n', title: '1:1 B1 · Nachfassen', text: 'Hey [Name], ich hänge meine Nachricht von neulich kurz noch mal hinten dran. Kein Stress, ich wollte nur sichergehen, dass sie nicht untergegangen ist. Wenn es gerade nicht passt, ist das völlig okay, sag einfach kurz Bescheid.' },
+  { id: 'ab-b2', title: '1:1 B2 · Preiseinwand → Plan', text: 'Danke für deine Ehrlichkeit! Liegt es eher am Preis oder daran, dass du dir noch nicht sicher bist, ob es dir etwas bringt? Für einen Einstieg gibt es auch einen 6-Wochen-Plan für 59 € einmalig, ohne laufende Betreuung. Sag mir kurz, was dir wichtiger ist, dann sage ich dir, was zu dir passt.' },
+  { id: 'ab-b3', title: '1:1 B3 · Zusage: Willkommen und nächste Schritte (Mail)', text: [
+    'Betreff: PERFORM. 1:1-Coaching – deine nächsten Schritte', '',
+    'Hey [Name],', '',
+    'schön, dass du dabei bist! So geht es weiter:',
+    '1. Start-Fragebogen ausfüllen (ca. 5 Min.): ' + FQC,
+    '2. Anamnesebogen ausfüllen (im Anhang).',
+    '3. Betreuungsvereinbarung lesen, unterschreiben und zurückschicken (im Anhang). Wenn du unter 18 bist, unterschreibt zusätzlich ein Elternteil.', '',
+    'Bitte schick mir alles innerhalb von 5 Tagen zurück. Danach bekommst du die erste Rechnung (zahlbar zu Beginn des Coachings). Sobald alles da ist, machen wir den Eingangstest und du bekommst deinen Plan für Woche 1.', '',
+    'Falls du gerade Beschwerden hast, klären wir vorher, ob eine Freigabe von Arzt oder Physio nötig ist. Das Coaching ersetzt keine medizinische Behandlung.', '',
+    'Bei Fragen melde dich jederzeit.', '',
+    'Viele Grüße', 'Justus', 'PERFORM. · perform.by.jb@gmail.com · WhatsApp 0160 5951455'].join('\n') },
+  { id: 'ab-b3n', title: '1:1 B3 · Unterlagen erinnern', text: 'Hey [Name], kurze Erinnerung: Mir fehlen noch [Fragebogen / Anamnese / Vereinbarung]. Sobald alles da ist, können wir starten. Brauchst du Hilfe beim Ausfüllen?' },
+  { id: 'ab-b5', title: '1:1 B5 · Rechnung Monat', text: [
+    'Hey [Name], anbei die Rechnung für deinen nächsten Coaching-Monat ([Datum] bis [Datum]) über 150 € als PDF (Kleinunternehmer, keine MwSt.).', '',
+    'Zahlbar zu Beginn des Coaching-Monats per Überweisung, die Daten stehen auf der Rechnung. Danke dir!'].join('\n') },
+  { id: 'ab-b6', title: '1:1 B6 · Eingangstest / Re-Test per Fernmessung', text: [
+    'Hey [Name], bevor es weitergeht, machen wir den Test. Du brauchst ein Maßband und die App My Jump.', '',
+    BJ, '',
+    'Sprunghöhe (CMJ) mit My Jump: Hände an der Hüfte, kurz ausholen, so hoch wie möglich springen. 3 Versuche nach der Anleitung in der App, 30 s Pause.', '',
+    'Schick mir beide Werte. Beim nächsten Test bitte gleiche Bedingungen: gleiches Aufwärmen, gleicher Boden, gleiche Schuhe.'].join('\n') },
+  { id: 'ab-b7', title: '1:1 B7 · Willkommen + Plan Woche 1', text: [
+    'Hey [Name], es geht los! 💪 Hier ist dein Plan für Woche 1.', '',
+    'So läuft es ab jetzt:',
+    '• Jeden Montag schickst du mir deine Wochenrückmeldung (ca. 2 Minuten): ' + WRM,
+    '• Danach passe ich deinen Plan für die nächste Woche an.',
+    '• Fragen zwischendurch einfach per Nachricht.',
+    '• Schmerz = Stopp. Sag mir Bescheid, dann klären wir, wie es weitergeht.', '',
+    'Kündigen kannst du monatlich, spätestens 7 Tage vor Ende deines Coaching-Monats.', '',
+    'Ich freu mich auf die Zusammenarbeit!'].join('\n') },
+  { id: 'ab-bw', title: '1:1 B7 · Erinnerung Wochenrückmeldung', text: 'Hey [Name], kurze Erinnerung an deine Wochenrückmeldung, dauert ca. 2 Minuten: ' + WRM + '\nDanach passe ich deinen Plan für die Woche an.' },
+  { id: 'ab-b8', title: '1:1 B8 · Abschluss', text: [
+    'Hey [Name], danke dir für die gemeinsame Zeit! Lass uns kurz zum Abschluss sprechen: Was hat sich verändert, was nimmst du mit?', '',
+    'Wenn du alleine weitermachen willst, erstelle ich dir gern einen 6-Wochen-Plan als Anschluss (59 €, ohne laufende Betreuung).', '',
+    'Und eine Bitte: Schreib mir 2–3 Sätze, wie du das Coaching fandest. Bevor ich etwas davon zeige, frage ich dich.'].join('\n') }
+];
+
+function fkWeg(fk) { return fk.charAt(0) === 'B' ? 'B' : 'A'; }
+function stepName(weg, s) { return weg + s + ' · ' + STEPS[weg][s - 1]; }
+function firstName(n) { return String(n || '').trim().split(/\s+/)[0] || ''; }
+function fillTpl(text, e) { return e ? text.replace(/\[Name\]/g, firstName(e.name)) : text; }
+function entryById(id) { return state.planKunden.filter(function (x) { return x.id === id; })[0]; }
+function tplById(id) { return state.templates.filter(function (x) { return x.id === id; })[0]; }
+function wkShift(s) { var w = parse(s).getDay(); return w === 6 ? addDays(s, 2) : w === 0 ? addDays(s, 1) : s; } // nie am Spielwochenende
+function addWD(s, n) { var d = s; while (n > 0) { d = addDays(d, 1); var w = parse(d).getDay(); if (w !== 0 && w !== 6) n--; } return d; }
+function snapshot() { return JSON.stringify({ tasks: state.tasks, planKunden: state.planKunden }); }
+function restore(s) { var o = JSON.parse(s); state.tasks = o.tasks.map(normTask); state.planKunden = o.planKunden.map(normPlan); ensureCats(state); changed(); }
+function docsOk(e) { return e.docs.fb && e.docs.an && e.docs.bv && (!e.u18 || e.docs.el); }
+function lastInv(e) { return e.inv[e.inv.length - 1]; }
+function paidOk(e) { var i = lastInv(e); return !!(i && i.paid); }
+function syncLegacy(e) { e.date = e.dates.A5 || e.dates.A1 || e.dates.B1 || e.date; e.status = e.step < 8 ? 'aktiv' : e.end === 'coaching' ? 'Coaching-Interesse' : 'abgeschlossen'; }
+
+function mkTask(e, spec, due, prev) {
+  var t = normTask({ id: uid(), title: spec.t + ' · ' + e.name, due: due, done: false, group: WEG_CAT[e.weg], note: '', plan: e.id, fk: spec.fk, ck: spec.ck || 0, prev: prev || '' });
+  state.tasks.push(t); return t;
+}
+function settleTasks(e) {
+  state.tasks.forEach(function (t) {
+    if (t.plan !== e.id || t.done || !DONE_AT[t.fk] || fkWeg(t.fk) !== e.weg) return;
+    if (e.step >= DONE_AT[t.fk]) { t.done = true; t.doneAt = today(); }
+  });
+}
+function dropOpen(e) { state.tasks = state.tasks.filter(function (t) { return !(t.plan === e.id && !t.done); }); }
+function createAuto(e, base) {
+  (AUTO[e.weg + e.step] || []).forEach(function (s) {
+    if (state.tasks.some(function (t) { return t.plan === e.id && t.fk === s.fk && !t.done; })) return;
+    mkTask(e, s, s.wd ? addWD(base, s.wd) : wkShift(addDays(base, s.d)));
+  });
+}
+// 1:1 aktiv: immer genau ein offenes To-do je Rhythmus (wöchentlich Rückmeldung, monatlich Rechnung am 1., alle 6 Wochen Re-Test)
+function ensureRec(e, prevId) {
+  if (e.weg !== 'B' || e.step !== 7 || e.klaer) return;
+  var start = e.dates.B7 || today();
+  ['Bw', 'Bm', 'Br'].forEach(function (k) {
+    var mine = state.tasks.filter(function (t) { return t.plan === e.id && t.fk === k; });
+    if (mine.some(function (t) { return !t.done; })) return;
+    var last = mine.map(function (t) { return t.due; }).filter(Boolean).sort().pop() || '', due, title = REC[k];
+    if (k === 'Bm') { var b = parse(last || start), day = parse(start).getDate(), y = b.getFullYear(), m = b.getMonth() + 1; due = iso(new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()))); title += ' Coaching-Monat ' + (mine.length + 2); }
+    else if (k === 'Bw') { due = addDays(last || start, last ? 1 : 5); while (parse(due).getDay() !== 2) due = addDays(due, 1); while (due < today()) due = addDays(due, 7); }
+    else { due = addDays(last || start, 42); while (due < today()) due = addDays(due, 7); due = wkShift(due); }
+    mkTask(e, { fk: k, t: title }, due, prevId);
+  });
+}
+function goStep(e, step, date) {
+  e.step = step; e.dates[e.weg + step] = date;
+  settleTasks(e);
+  if (step === 8) dropOpen(e); else createAuto(e, date);
+  ensureRec(e); syncLegacy(e); ensureCats(state);
+}
+function switchWeg(e, weg, date) {
+  e.hist.push({ d: date, t: (e.weg === weg ? 'Neuer Durchlauf ' + WEG[weg] : 'Wechsel ' + WEG[e.weg] + ' → ' + WEG[weg]) + ' (vorher ' + stepName(e.weg, e.step) + ')' });
+  if (e.hist.length > 20) e.hist = e.hist.slice(-20);
+  dropOpen(e);
+  Object.keys(e.dates).forEach(function (k) { if (k.charAt(0) === weg) delete e.dates[k]; });
+  e.weg = weg; e.klaer = false; e.end = '';
+  if (weg === 'B') e.docs = { fb: false, an: false, bv: false, el: false };
+  goStep(e, 1, date);
+}
+function renameTasks(e, old) {
+  if (old === e.name) return;
+  state.tasks.forEach(function (t) { var suf = ' · ' + old; if (t.plan === e.id && t.title.slice(-suf.length) === suf) t.title = t.title.slice(0, -suf.length) + ' · ' + e.name; });
+}
+function blockReason(e) {
+  if (e.step >= 8) return 'Ablauf ist beendet.';
+  if (e.klaer) return 'Klärung offen: erst weiter, wenn die Freigabe da ist.';
+  if (e.weg === 'B' && e.step === 3 && !docsOk(e)) return 'Erst alle Unterlagen abhaken.';
+  if (e.weg === 'B' && e.step === 5 && !paidOk(e)) return 'Erst den Zahlungseingang erfassen.';
+  return '';
+}
+function advanceSheet(e) {
+  var why = blockReason(e); if (why) { toast(why); return; }
+  var to = e.step + 1, k = e.weg + to;
+  var fields = [{ key: 'date', label: k === 'A4' ? 'Zahlungseingang am' : k === 'B7' ? 'Startdatum' : 'Datum', type: 'date', req: true, chips: [{ l: 'Heute', n: 0 }, { l: 'Gestern', n: -1 }] }];
+  if (k === 'A2' || k === 'B4') fields.push({ key: 'klaer', label: 'Beschwerden angegeben?', type: 'choice', cols: 1, options: [{ v: '0', l: 'Nein, weiter' }, { v: '1', l: 'Ja → Klärung offen (Ablauf stoppt)' }], hint: 'Nur das Flag. Keine Details im Hub.' });
+  if (k === 'A3' || k === 'B5') fields.push({ key: 'nr', label: 'Rechnungsnummer (aus Finom)', type: 'text', cap: 'none', hint: 'Rechnung in Finom erstellen. Hier nur Nummer und Datum.' });
+  if (k === 'A8') fields.push({ key: 'end', label: 'Wie geht es weiter?', type: 'choice', cols: 1, options: [{ v: 'abgeschlossen', l: 'Abgeschlossen' }, { v: 'coaching', l: 'Coaching-Interesse → 1:1 (B1)' }, { v: 'neu', l: 'Neuer Plan → A1' }] });
+  openSheet({ title: e.name + ': ' + stepName(e.weg, to), values: { date: today(), klaer: '0', end: 'abgeschlossen', nr: '' }, saveLabel: 'Weiter', fields: fields, onSave: function (v) {
+    var snap = snapshot(), d = isoOk(v.date) ? v.date : today();
+    if (k === 'A3' || k === 'B5') e.inv.push({ nr: str(v.nr, 40), date: d, paid: '' });
+    if (k === 'A4') { var i = lastInv(e); if (i && !i.paid) i.paid = d; else e.inv.push({ nr: '', date: '', paid: d }); }
+    if (k === 'A2' || k === 'B4') e.klaer = v.klaer === '1';
+    goStep(e, to, d);
+    if (k === 'A8') { if (v.end === 'coaching') switchWeg(e, 'B', d); else if (v.end === 'neu') switchWeg(e, 'A', d); else e.end = 'abgeschlossen'; }
+    if (k === 'B8') e.end = 'abgeschlossen';
+    syncLegacy(e); changed();
+    toast(e.name + ': ' + stepName(e.weg, e.step) + (e.klaer ? ' · Klärung offen' : ''), function () { restore(snap); });
   } });
 }
-function addWait() {
-  openSheet({ title: 'Auf die Warteliste', values: { date: today() }, fields: [
-    { key: 'name', label: 'Name', type: 'text', req: true, cap: 'words' },
-    { key: 'date', label: 'Angefragt am', type: 'date' }
-  ], onSave: function (v) { state.winter.waitlist.push({ id: uid(), name: str(v.name, 80), date: isoOk(v.date) ? v.date : '' }); changed(); } });
+function markPaid(e) {
+  var snap = snapshot(), i = lastInv(e); if (!i) { i = { nr: '', date: '', paid: '' }; e.inv.push(i); }
+  i.paid = today();
+  state.tasks.forEach(function (t) { if (t.plan === e.id && !t.done && (t.fk === 'B5z' || t.fk === 'A3z')) { t.done = true; t.doneAt = today(); } });
+  changed(); toast('Zahlung erfasst', function () { restore(snap); });
 }
+function setKlaer(e, on) { var snap = snapshot(); e.klaer = on; ensureRec(e); changed(); toast(on ? 'Klärung offen: Ablauf gestoppt' : 'Freigabe da: Ablauf läuft weiter', function () { restore(snap); }); }
+// nach dem Ersetzen der To-dos durch ein älteres Backup: fehlende Ablauf-To-dos des aktuellen Durchlaufs neu anlegen
+function repairAuto(e) {
+  if (e.klaer || e.step >= 8) return;
+  var has = function (fk) { return state.tasks.some(function (t) { return t.plan === e.id && t.fk === fk; }); };
+  if (e.weg === 'A' && (e.step === 5 || e.step === 6) && e.dates.A5) AUTO.A5.forEach(function (sp) { if (sp.done > e.step && !has(sp.fk)) mkTask(e, sp, wkShift(addDays(e.dates.A5, sp.d))); });
+  var base = e.dates[e.weg + e.step];
+  if (base) (AUTO[e.weg + e.step] || []).forEach(function (sp) { if (sp.done > e.step && !has(sp.fk)) mkTask(e, sp, sp.wd ? addWD(base, sp.wd) : wkShift(addDays(base, sp.d))); });
+}
+function armBtn(cls, label, run) {
+  var armed = false, b = h('button', { class: cls, type: 'button', text: label });
+  b.addEventListener('click', function () { if (!armed) { armed = true; b.textContent = 'Nochmal tippen'; setTimeout(function () { armed = false; b.textContent = label; }, 3000); return; } run(); });
+  return b;
+}
+function restart(e, weg) { var snap = snapshot(); switchWeg(e, weg, today()); changed(); toast(e.name + ': ' + stepName(e.weg, 1), function () { restore(snap); }); }
 
-/* ───────── Plan-Kunden (59-€-Plan) ───────── */
-var cMode = 'winter';
-function mkCheckin(p, k) { return normTask({ id: uid(), title: 'Check-in Woche ' + k + ' · ' + p.name, due: addDays(p.date, 7 * k), done: false, group: PLAN_CAT, note: '', doneAt: '', plan: p.id, ck: k }); }
-function ensureCheckins(p) {
-  [3, 6].forEach(function (k) { if (!state.tasks.some(function (t) { return t.plan === p.id && t.ck === k; })) state.tasks.push(mkCheckin(p, k)); });
-  ensureCats(state);
+function showSheet(title, nodes) {
+  closeSheet();
+  var sheet = h('div', { class: 'sheet', role: 'dialog', 'aria-modal': 'true' }, h('div', { class: 'grab' }), h('h3', { text: title }), nodes,
+    h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:10px', text: 'Schließen', onclick: closeSheet }));
+  var ov = h('div', { class: 'ov', onclick: function (ev) { if (ev.target === ov) closeSheet(); } }, sheet);
+  document.getElementById('layer').appendChild(ov);
 }
-function dropOpenCheckins(id) { state.tasks = state.tasks.filter(function (t) { return !(t.plan === id && !t.done); }); }
-function syncPlan(p, old) {
-  if (p.status === 'abgeschlossen') { dropOpenCheckins(p.id); return; }
-  if (old.status === 'abgeschlossen') ensureCheckins(p);
-  state.tasks.forEach(function (t) {
-    if (t.plan !== p.id || !t.ck) return;
-    if (old.name !== p.name && t.title === 'Check-in Woche ' + t.ck + ' · ' + old.name) t.title = 'Check-in Woche ' + t.ck + ' · ' + p.name;
-    if (old.date !== p.date && !t.done && t.due === addDays(old.date, 7 * t.ck)) t.due = addDays(p.date, 7 * t.ck);
-  });
+function stepTpls(e) {
+  var ids = [], add = function (s) { (STEP_TPL[e.weg + s] || []).forEach(function (id) { if (ids.indexOf(id) < 0) ids.push(id); }); };
+  add(e.step); if (e.step < 8) add(e.step + 1);
+  return ids.map(tplById).filter(Boolean);
 }
-function editPlan(c) {
-  var isNew = !c; c = c || { id: uid(), name: '', date: today(), source: '', status: 'aktiv' };
-  openSheet({ title: isNew ? 'Neuer Plan-Kunde' : 'Plan-Kunde', values: c, fields: [
-    { key: 'name', label: 'Name', type: 'text', req: true, ph: 'Spieler', cap: 'words', hint: 'Nur Name, Kaufdatum, Quelle und Status. Keine Gesundheitsdaten, Beschwerden oder Diagnosen.' },
-    { key: 'date', label: 'Kaufdatum', type: 'date', req: true, chips: [{ l: 'Heute', n: 0 }, { l: 'Gestern', n: -1 }] },
-    { key: 'source', label: 'Quelle', type: 'text', chips: SOURCES },
-    { key: 'status', label: 'Status', type: 'choice', cols: 1, options: PLAN_STATUS.map(function (s) { return { v: s, l: s.charAt(0).toUpperCase() + s.slice(1) }; }) }
-  ], actions: isNew ? [] : [{ label: 'Löschen (offene Check-ins entfallen)', danger: true, run: function () { state.planKunden = state.planKunden.filter(function (x) { return x.id !== c.id; }); dropOpenCheckins(c.id); changed(); } }],
+function textsSheet(e) {
+  var list = stepTpls(e);
+  showSheet('Texte für ' + e.name, [h('div', { class: 'note', text: 'Für ' + stepName(e.weg, e.step) + (e.step < 8 ? ' und den nächsten Schritt' : '') + '. [Name] wird beim Kopieren ersetzt, andere [Klammern] selbst anpassen.' }),
+    list.length ? list.map(function (t) {
+      return h('div', { class: 'card quiet' }, h('div', { class: 'title', text: t.title }),
+        h('div', { class: 'meta', style: 'white-space:pre-wrap;margin-top:6px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden', text: fillTpl(t.text, e) }),
+        h('div', { class: 'actions', style: 'margin-top:10px' }, h('button', { class: 'btn blue flex', type: 'button', text: 'Kopieren', onclick: function () { copyText(fillTpl(t.text, e)); } })));
+    }) : h('div', { class: 'empty', text: 'Für diesen Schritt gibt es keine Vorlage.' })]);
+}
+function editEntry(e, weg) {
+  var isNew = !e; weg = e ? e.weg : weg;
+  var fields = [{ key: 'name', label: 'Name', type: 'text', req: true, ph: 'Spieler', cap: 'words', hint: 'Keine Gesundheitsdaten, Beschwerden oder Diagnosen. Dafür gibt es nur das Flag „Klärung offen“.' }];
+  if (isNew) fields.push({ key: 'date', label: 'Anfrage am', type: 'date', req: true, chips: [{ l: 'Heute', n: 0 }, { l: 'Gestern', n: -1 }] });
+  fields.push({ key: 'source', label: 'Quelle („Woher kennst du mich?“)', type: 'text', chips: SOURCES });
+  if (weg === 'B') fields.push({ key: 'u18', label: 'Unter 18?', type: 'choice', cols: 2, options: [{ v: '0', l: 'Nein' }, { v: '1', l: 'Ja (Eltern)' }] });
+  openSheet({ title: isNew ? (weg === 'A' ? 'Neue Plan-Anfrage' : 'Neue 1:1-Anfrage') : e.name, values: e ? { name: e.name, source: e.source, u18: e.u18 ? '1' : '0' } : { date: today(), u18: '0' }, fields: fields,
     onSave: function (v) {
-      var n = normPlan(Object.assign({}, c, v));
-      if (isNew) { state.planKunden.push(n); if (n.status !== 'abgeschlossen') ensureCheckins(n); }
-      else { var old = { name: c.name, date: c.date, status: c.status }; Object.assign(c, n); syncPlan(c, old); }
-      changed();
+      if (isNew) {
+        var n = normPlan({ id: uid(), name: v.name, weg: weg, step: 1, dates: {}, source: v.source, u18: v.u18 === '1' });
+        var dup = state.planKunden.filter(function (x) { return x.name.toLowerCase() === n.name.toLowerCase(); })[0];
+        state.planKunden.push(n); goStep(n, 1, isoOk(v.date) ? v.date : today()); changed();
+        toast(dup ? 'Achtung: ' + n.name + ' gibt es schon (' + WEG[dup.weg] + '). Ein Interessent, ein Weg: besser dort „Weg wechseln“.' : n.name + ': ' + stepName(weg, 1) + '. To-do angelegt.'); return;
+      }
+      var old = e.name; e.name = str(v.name, 80) || old; e.source = str(v.source, 120); if (weg === 'B') e.u18 = v.u18 === '1';
+      renameTasks(e, old); changed();
     } });
 }
-function planCard(c) {
-  var t = today(), lines = [3, 6].map(function (k) {
-    var tk = state.tasks.filter(function (x) { return x.plan === c.id && x.ck === k; })[0];
-    if (!tk) return h('div', { class: 'meta', text: 'Woche ' + k + ': kein To-do' });
-    if (tk.done) return h('div', { class: 'meta', text: 'Woche ' + k + ': erledigt' + (tk.doneAt ? ' ' + fmtS(tk.doneAt) : '') });
-    var late = tk.due && tk.due < t;
-    return h('div', { class: 'meta' + (late ? ' red' : ''), text: 'Woche ' + k + ': fällig ' + fmt(tk.due) + ' (' + rel(tk.due) + ')' });
-  });
-  return h('div', { class: 'card' + (c.status === 'abgeschlossen' ? ' quiet' : '') },
-    h('div', { class: 'row' },
-      h('div', { class: 'grow', onclick: function () { editPlan(c); } },
-        h('div', { class: 'title', text: c.name }),
-        h('div', { class: 'meta', text: 'Gekauft ' + fmt(c.date) + ' ' + c.date.slice(0, 4) + (c.source ? ' · Quelle: ' + c.source : '') }),
-        c.status === 'abgeschlossen' ? null : lines),
-      h('span', { class: 'pill p-' + c.status, text: c.status })));
+function invSheet(e) {
+  openSheet({ title: 'Rechnung erfassen', values: { date: today() }, fields: [
+    { key: 'nr', label: 'Rechnungsnummer (aus Finom)', type: 'text', cap: 'none' },
+    { key: 'date', label: 'Rechnungsdatum', type: 'date', req: true, chips: [{ l: 'Heute', n: 0 }] }
+  ], onSave: function (v) { e.inv.push({ nr: str(v.nr, 40), date: isoOk(v.date) ? v.date : today(), paid: '' }); changed(); flowSheet(e); } });
 }
-function viewPlan() {
-  var out = [h('div', { class: 'sub', text: '59-€-Plan · Check-ins nach 3 und 6 Wochen' })];
-  var by = function (st) { return state.planKunden.filter(function (x) { return x.status === st; }).sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; }); };
-  out.push(h('div', { class: 'card quiet' },
-    PLAN_STATUS.map(function (st) { return h('div', { class: 'kv' }, h('span', { text: st.charAt(0).toUpperCase() + st.slice(1) }), h('b', { text: String(by(st).length) })); })));
-  if (!state.planKunden.length) out.push(h('div', { class: 'note', text: 'Noch keine Plan-Kunden. Tippe auf +, um den ersten anzulegen. Dabei entstehen zwei To-dos (Woche 3 und Woche 6) in der Kategorie „' + PLAN_CAT + '“.' }));
-  PLAN_STATUS.forEach(function (st) {
-    var list = by(st); if (!list.length) return;
-    out.push(h('h2', { text: st.charAt(0).toUpperCase() + st.slice(1) + ' · ' + list.length }));
-    list.forEach(function (c) { out.push(planCard(c)); });
+function flowSheet(e) {
+  var other = e.weg === 'A' ? 'B' : 'A', nodes = [];
+  nodes.push(h('div', { class: 'meta', text: WEG[e.weg] + (e.u18 ? ' · unter 18 (Eltern)' : '') + (e.source ? ' · Quelle: ' + e.source : '') }));
+  nodes.push(h('button', { class: 'btn' + (e.klaer ? ' pri' : ''), type: 'button', style: 'width:100%;margin-top:12px', text: e.klaer ? 'Freigabe da: Klärung beenden' : 'Klärung offen setzen (stoppt den Ablauf)', onclick: function () { closeSheet(); setKlaer(e, !e.klaer); } }));
+  nodes.push(h('h2', { text: 'Ablauf' }));
+  nodes.push(h('div', { class: 'card quiet' }, STEPS[e.weg].map(function (nm, i) {
+    var s = i + 1, d = e.dates[e.weg + s], cur = s === e.step;
+    return h('div', { class: 'kv' }, h('span', { style: cur ? 'color:var(--acc);font-weight:700' : (s > e.step ? 'color:var(--dim)' : ''), text: e.weg + s + ' ' + nm }), h('b', { text: d ? fmtS(d) + d.slice(2, 4) : (cur ? 'aktuell' : '–') }));
+  })));
+  if (e.weg === 'B' && e.step === 7) nodes.push(h('div', { class: 'note', text: 'Kündigung: monatlich, 7 Tage vor Ende des Coaching-Monats (Monat läuft ab Startdatum).' }));
+  nodes.push(h('h2', { text: 'Rechnungen · ' + e.inv.length }));
+  e.inv.slice().reverse().forEach(function (i) {
+    nodes.push(h('div', { class: 'kv' }, h('span', { text: (i.nr ? 'Nr. ' + i.nr : 'ohne Nr.') + (i.date ? ' · ' + fmtS(i.date) + i.date.slice(2, 4) : '') }),
+      h('button', { class: 'pill ' + (i.paid ? 'p-aktiv' : 'p-Coaching-Interesse'), type: 'button', text: i.paid ? 'bezahlt ' + fmtS(i.paid) : 'offen', onclick: function () { i.paid = i.paid ? '' : today(); changed(); flowSheet(e); } })));
   });
+  nodes.push(h('button', { class: 'btn ghost', type: 'button', style: 'width:100%', text: '+ Rechnung erfassen', onclick: function () { invSheet(e); } }));
+  if (e.hist.length) { nodes.push(h('h2', { text: 'Verlauf' })); e.hist.slice().reverse().forEach(function (x) { nodes.push(h('div', { class: 'meta', text: (x.d ? fmtS(x.d) + x.d.slice(2, 4) + ' · ' : '') + x.t })); }); }
+  var del = h('button', { class: 'btn ghost danger', type: 'button', style: 'width:100%;margin-top:8px', text: 'Löschen (offene To-dos entfallen)' }), armed = false;
+  del.addEventListener('click', function () {
+    if (!armed) { armed = true; del.textContent = 'Nochmal tippen zum Löschen'; return; }
+    var snap = snapshot(); closeSheet(); dropOpen(e); state.planKunden = state.planKunden.filter(function (x) { return x.id !== e.id; }); changed();
+    toast(e.name + ' gelöscht', function () { restore(snap); });
+  });
+  nodes.push(h('div', { class: 'foot' },
+    h('button', { class: 'btn flex', type: 'button', text: 'Bearbeiten', onclick: function () { editEntry(e); } }),
+    h('button', { class: 'btn blue flex', type: 'button', text: 'Texte', onclick: function () { textsSheet(e); } })),
+    (function () { var b = armBtn('btn ghost', 'Weg wechseln → ' + WEG[other] + ' (' + other + '1)', function () { closeSheet(); restart(e, other); }); b.style.cssText = 'width:100%;margin-top:8px'; return b; })(), del);
+  showSheet(e.name, nodes);
+}
+function flowCard(e) {
+  var t = today(), why = blockReason(e);
+  var open = state.tasks.filter(function (x) { return x.plan === e.id && !x.done && x.due; }).sort(function (a, b) { return a.due < b.due ? -1 : 1; })[0];
+  var d = e.dates[e.weg + e.step];
+  var body = [h('div', { class: 'title', text: e.name }),
+    h('div', { class: 'meta', text: (d ? 'seit ' + fmt(d) : '') + (e.source ? (d ? ' · ' : '') + 'Quelle: ' + e.source : '') + (e.u18 ? ' · unter 18' : '') }),
+    open ? h('div', { class: 'meta' + (open.due < t ? ' red' : open.due === t ? ' amber' : ''), text: 'Nächstes To-do: ' + open.title.split(' · ')[0] + ', ' + fmt(open.due) + ' (' + rel(open.due) + ')' }) : null,
+    e.klaer ? h('div', { class: 'meta amber', text: 'Klärung offen · Ablauf gestoppt' }) : null,
+    e.step === 8 && e.end === 'coaching' ? h('div', { class: 'meta amber', text: 'Coaching-Interesse' }) : null];
+  var extra = null;
+  if (e.weg === 'B' && e.step === 3) {
+    var docs = [['fb', 'Fragebogen'], ['an', 'Anamnese'], ['bv', 'Vereinbarung']].concat(e.u18 ? [['el', 'Eltern']] : []);
+    extra = h('div', { class: 'mini' }, docs.map(function (x) { return h('button', { type: 'button', class: e.docs[x[0]] ? 'on' : '', text: (e.docs[x[0]] ? '✓ ' : '') + x[1], onclick: function () { e.docs[x[0]] = !e.docs[x[0]]; changed(); } }); }));
+  }
+  var btns = [];
+  if (e.klaer) btns.push(h('button', { class: 'btn pri flex', type: 'button', text: 'Freigabe da', onclick: function () { setKlaer(e, false); } }));
+  else if (e.weg === 'B' && e.step === 5 && !paidOk(e)) btns.push(h('button', { class: 'btn pri flex', type: 'button', text: 'Zahlung da ✓', onclick: function () { markPaid(e); } }));
+  else if (e.step < 8) btns.push(h('button', { class: 'btn flex' + (why ? '' : ' pri'), type: 'button', text: 'Weiter: ' + STEPS[e.weg][e.step], onclick: function () { advanceSheet(e); } }));
+  if (e.step === 8) {
+    if (e.weg === 'A') btns.push(armBtn('btn flex', 'Neuer Plan', function () { restart(e, 'A'); }), armBtn('btn blue flex', '→ 1:1', function () { restart(e, 'B'); }));
+    else btns.push(armBtn('btn flex', 'Plan als Anschluss', function () { restart(e, 'A'); }));
+  }
+  if (stepTpls(e).length) btns.push(h('button', { class: 'btn blue', type: 'button', text: 'Texte', onclick: function () { textsSheet(e); } }));
+  return h('div', { class: 'card' + (e.step === 8 ? ' quiet' : ''), style: e.klaer ? 'border-left-color:var(--amber)' : null },
+    h('div', { class: 'row' }, h('div', { class: 'grow', style: 'cursor:pointer', onclick: function () { flowSheet(e); } }, body),
+      h('span', { class: 'pill' + (e.step === 8 ? ' p-abgeschlossen' : ' fmt'), text: e.weg + e.step + ' ' + STEPS[e.weg][e.step - 1] })),
+    extra, h('div', { class: 'actions' }, btns));
+}
+function viewFlow(weg) {
+  var list = state.planKunden.filter(function (x) { return x.weg === weg; });
+  var kl = list.filter(function (x) { return x.klaer && x.step < 8; }), run = list.filter(function (x) { return !x.klaer && x.step < 8; }), end = list.filter(function (x) { return x.step === 8; });
+  run.sort(function (a, b) { return b.step - a.step || (a.name < b.name ? -1 : 1); });
+  end.sort(function (a, b) { var x = a.dates[weg + 8] || '', y = b.dates[weg + 8] || ''; return x < y ? 1 : x > y ? -1 : 0; });
+  var out = [h('div', { class: 'sub', text: weg === 'A' ? '59 € · Vorkasse · Check-ins Woche 3 und 6' : '150 €/Monat · Zahlung zu Beginn jedes Coaching-Monats · kündbar 7 Tage vor Ende des Coaching-Monats' })];
+  out.push(h('div', { class: 'card quiet' }, [['Läuft', run.length], ['Klärung offen', kl.length], [weg === 'A' ? 'Ende' : 'Beendet', end.length]].map(function (x) { return h('div', { class: 'kv' }, h('span', { text: x[0] }), h('b', { text: String(x[1]) })); })));
+  if (!list.length) out.push(h('div', { class: 'note', text: 'Noch niemand auf diesem Weg. Tippe auf +, sobald eine Anfrage kommt. Dabei entsteht automatisch das erste To-do.' }));
+  if (kl.length) { out.push(h('h2', { text: 'Klärung offen · ' + kl.length })); kl.forEach(function (e) { out.push(flowCard(e)); }); }
+  if (run.length) { out.push(h('h2', { text: 'Läuft · ' + run.length })); run.forEach(function (e) { out.push(flowCard(e)); }); }
+  if (end.length) out.push(h('details', null, h('summary', { text: (weg === 'A' ? 'Ende' : 'Beendet') + ' · ' + end.length + ' anzeigen' }), end.map(flowCard)));
   return out;
 }
 function viewCoaching() {
-  var w = viewWinter();
-  var seg = h('div', { class: 'seg' },
-    h('button', { class: cMode === 'winter' ? 'on' : '', type: 'button', text: 'Winter-Coaching', onclick: function () { cMode = 'winter'; render(); } }),
-    h('button', { class: cMode === 'plan' ? 'on' : '', type: 'button', text: 'Plan-Kunden', onclick: function () { cMode = 'plan'; render(); } }));
-  if (cMode === 'plan') return [h('h1', { text: 'Plan-Kunden' }), seg].concat(viewPlan());
-  return [w[0], seg].concat(w.slice(1));
+  var seg = h('div', { class: 'seg' }, [['plan', 'Plan 59 €'], ['one', '1:1-Coaching']].map(function (x) {
+    return h('button', { class: cMode === x[0] ? 'on' : '', type: 'button', text: x[1], onclick: function () { cMode = x[0]; render(); } });
+  }));
+  return [h('h1', { text: 'Coaching' }), seg].concat(viewFlow(cMode === 'one' ? 'B' : 'A'));
+}
+var DROP_TPL = { mark: 'rm-winter-2026-11', ids: ['vl-2', 'vl-5', 'vl-7', 'vl-8'] };
+function seedTpl(st) {
+  var ch = false;
+  if (st.seeded.indexOf(DROP_TPL.mark) < 0) { st.seeded.push(DROP_TPL.mark); ch = true; st.templates = st.templates.filter(function (t) { return DROP_TPL.ids.indexOf(t.id) < 0; }); }
+  FLOW_TPL.forEach(function (x) {
+    if (st.seeded.indexOf(x.id) >= 0) return;
+    st.seeded.push(x.id); ch = true;
+    if (!st.templates.some(function (t) { return t.id === x.id; })) st.templates.push({ id: x.id, title: x.title, text: x.text });
+  });
+  return ch;
+}
+function initFlows() {
+  var before = snapshot(), ch = seedTpl(state);
+  state.planKunden.forEach(function (e) {
+    // bereits abgehakte Check-ins (auch aus der Zeit vor den Abläufen) nachziehen
+    [[5, 3], [6, 6]].forEach(function (x) {
+      var t = state.tasks.filter(function (k) { return k.plan === e.id && k.ck === x[1] && k.done && (k.doneAt || k.due) >= (e.dates.A5 || ''); })[0];
+      if (t && e.weg === 'A' && e.step === x[0] && !e.klaer) goStep(e, x[0] + 1, t.doneAt || t.due || today());
+    });
+    ensureRec(e);
+  });
+  ensureCats(state);
+  if (ch || snapshot() !== before) save();
 }
 
 /* ───────── Bausteine ───────── */
@@ -563,7 +881,17 @@ function rel(date) {
   if (d === 0) return 'heute'; if (d === 1) return 'morgen'; if (d === -1) return 'seit gestern';
   return d < 0 ? 'seit ' + (-d) + ' Tagen' : 'in ' + d + ' Tagen';
 }
-function toggleTask(t) { t.done = !t.done; t.doneAt = t.done ? today() : ''; changed(); if (t.done) toast('Erledigt', function () { t.done = false; t.doneAt = ''; changed(); }); }
+function toggleTask(t) {
+  var snap = snapshot(), msg = 'Erledigt', e = t.plan ? entryById(t.plan) : null;
+  t.done = !t.done; t.doneAt = t.done ? today() : '';
+  if (e) {
+    // Check-in abgehakt → Status rückt nach (A5 → A6, A6 → A7)
+    if (t.done && e.weg === 'A' && t.ck && !e.klaer && e.step === (t.ck === 3 ? 5 : 6)) { goStep(e, t.ck === 3 ? 6 : 7, today()); msg = 'Erledigt · ' + e.name + ': ' + stepName('A', e.step); }
+    if (REC[t.fk]) { if (t.done) ensureRec(e, t.id); else state.tasks = state.tasks.filter(function (x) { return !(x.prev === t.id && !x.done); }); }
+  }
+  changed();
+  if (t.done) toast(msg, function () { restore(snap); });
+}
 function togglePost(p) { p.done = !p.done; changed(); if (p.done) toast('Als gepostet markiert', function () { p.done = false; changed(); }); }
 
 function taskCard(t, quiet) {
@@ -575,7 +903,32 @@ function taskCard(t, quiet) {
       h('div', { class: 'grow', onclick: function () { editTask(t); } },
         h('div', { class: 'title' }, t.title, t.group ? h('span', { class: 'tag', style: cc ? 'color:' + cc + ';background:' + cc + '26' : null, text: t.group }) : null),
         h('div', { class: 'meta' + (late ? ' red' : ''), text: dueTxt }),
-        t.note ? h('div', { class: 'meta', style: 'white-space:pre-wrap;margin-top:4px', text: t.note.length > 140 ? t.note.slice(0, 140) + ' …' : t.note }) : null)));
+        t.note ? h('div', { class: 'meta', style: 'white-space:pre-wrap;margin-top:4px', text: t.note.length > 140 ? t.note.slice(0, 140) + ' …' : t.note }) : null)),
+    flowActions(t));
+}
+// Automatisch erzeugte To-dos (aus den Abläufen): Text kopieren + Kalender-Erinnerung
+function flowActions(t) {
+  if (!t.plan || t.done) return null;
+  var e = entryById(t.plan), tp = TASK_TPL[t.fk] ? tplById(TASK_TPL[t.fk]) : null, b = [];
+  if (tp) b.push(h('button', { class: 'btn blue flex', type: 'button', text: 'Text kopieren', onclick: function () { copyText(fillTpl(tp.text, e)); } }));
+  if (t.due) b.push(h('button', { class: 'btn flex', type: 'button', text: t.cal ? 'Kalender ✓' : 'In Kalender', onclick: function () { addToCal(t); } }));
+  return b.length ? h('div', { class: 'actions', style: 'margin-top:10px' }, b) : null;
+}
+function icsEsc(s) { return String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\r?\n/g, '\\n'); }
+// Termin 9:00–9:15 Uhr (Ortszeit) mit Erinnerung. Nur der To-do-Titel geht in den Kalender, nie die Notiz.
+function icsFor(t) {
+  var d = t.due.replace(/-/g, ''), now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//PERFORM//Hub//DE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'BEGIN:VEVENT',
+    'UID:' + t.id + '-' + d + '@perform-hub', 'DTSTAMP:' + now, 'DTSTART:' + d + 'T090000', 'DTEND:' + d + 'T091500',
+    'SUMMARY:' + icsEsc('PERFORM. ' + t.title), 'DESCRIPTION:' + icsEsc('Details im PERFORM. Hub unter To-do.'),
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + icsEsc('PERFORM. ' + t.title), 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n') + '\r\n';
+}
+function addToCal(t) {
+  var blob = new Blob([icsFor(t)], { type: 'text/calendar;charset=utf-8' }), url = URL.createObjectURL(blob);
+  var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var a = h('a', { href: url, download: ios ? null : 'PERFORM_' + t.due + '.ics' });
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 60000);
+  t.cal = true; save(); render(); toast('Kalenderdatei für ' + fmt(t.due) + ', 9:00 Uhr erstellt');
 }
 function postCard(p, quiet) {
   var late = p.date < today() && !p.done;
@@ -661,10 +1014,15 @@ function viewPipe() {
   return out;
 }
 
+var tplF = 'Alle';
+function tplGroup(t) { return /^Plan /.test(t.title) ? 'Plan' : /^1:1 /.test(t.title) ? '1:1' : /^Zahlung /.test(t.title) ? 'Zahlung' : 'Sonstige'; }
 function viewTplList() {
   var out = [h('div', { class: 'sub', text: 'Kopieren, Platzhalter [in Klammern] ersetzen, senden' })];
   if (!state.templates.length) out.push(h('div', { class: 'empty', text: 'Noch keine Vorlagen. Tippe auf +, um die erste anzulegen.' }));
-  state.templates.forEach(function (t) {
+  if (state.templates.length) out.push(h('div', { class: 'chips' }, ['Alle', 'Plan', '1:1', 'Sonstige'].map(function (g) {
+    return h('button', { class: 'chip' + (tplF === g ? ' on' : ''), type: 'button', text: g, onclick: function () { tplF = g; render(); } });
+  })));
+  state.templates.filter(function (t) { var g = tplGroup(t); return tplF === 'Alle' || g === tplF || (g === 'Zahlung' && tplF !== 'Sonstige'); }).forEach(function (t) {
     out.push(h('div', { class: 'card' },
       h('div', { class: 'grow', onclick: function () { editTpl(t); } },
         h('div', { class: 'title', text: t.title }),
@@ -749,45 +1107,6 @@ function viewTpl() {
     h('button', { class: nMode === 'tpl' ? 'on' : '', type: 'button', text: 'Vorlagen', onclick: function () { nMode = 'tpl'; render(); } }))];
   return out.concat(nMode === 'notes' ? viewNotes() : viewTplList());
 }
-function viewWinter() {
-  var w = state.winter, free = Math.max(0, w.total - w.taken), t = today(), dl = diff(w.deadline, t);
-  var out = [h('h1', { text: 'Winter-Coaching' }), h('div', { class: 'sub', text: 'Plätze, Anmeldeschluss, Warteliste' })];
-  out.push(h('div', { class: 'card' },
-    h('div', { class: 'big' }, String(free), h('small', { text: free === 1 ? 'Platz frei' : 'Plätze frei' })),
-    h('div', { class: 'prog' }, h('i', { style: 'width:' + (w.total ? Math.round(w.taken / w.total * 100) : 0) + '%' })),
-    h('div', { class: 'meta', text: w.taken + ' von ' + w.total + ' belegt' }),
-    h('div', { class: 'stepper' },
-      h('button', { type: 'button', text: '−', 'aria-label': 'Einen Platz weniger belegt', onclick: function () { if (w.taken > 0) { w.taken--; changed(); } } }),
-      h('div', { class: 'lbl', text: 'belegt' }),
-      h('button', { type: 'button', text: '+', 'aria-label': 'Einen Platz mehr belegt', onclick: function () { if (w.taken < w.total) { w.taken++; changed(); } } }))));
-  out.push(h('div', { class: 'card quiet' },
-    h('div', { class: 'kv' }, h('span', { text: 'Anmeldeschluss' }), h('b', { text: fmt(w.deadline) + ' ' + w.deadline.slice(0, 4) })),
-    h('div', { class: 'kv' }, h('span', { text: 'Stand' }), h('b', { style: dl < 0 ? 'color:var(--red)' : (dl <= 3 ? 'color:var(--amber)' : ''), text: dl > 1 ? 'noch ' + dl + ' Tage' : dl === 1 ? 'noch 1 Tag' : dl === 0 ? 'heute letzter Tag' : 'abgelaufen' })),
-    h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:6px', text: 'Plätze / Datum ändern', onclick: editWinter })));
-  out.push(h('h2', { text: 'Platzregel' }));
-  var ta = h('textarea', { placeholder: 'Noch nicht festgelegt', maxlength: 1000, 'aria-label': 'Platzregel' });
-  ta.value = w.rule; ta.addEventListener('blur', function () { var v = ta.value.trim(); if (v !== w.rule) { w.rule = v.slice(0, 1000); save(); } });
-  out.push(ta);
-  out.push(h('h2', { text: 'Warteliste · ' + w.waitlist.length }));
-  if (!w.waitlist.length) out.push(h('div', { class: 'note', text: 'Niemand auf der Warteliste.' }));
-  w.waitlist.forEach(function (x, i) {
-    out.push(h('div', { class: 'card quiet' }, h('div', { class: 'row' },
-      h('div', { class: 'grow' }, h('div', { class: 'title', text: (i + 1) + '. ' + x.name }), x.date ? h('div', { class: 'meta', text: 'Angefragt ' + fmt(x.date) }) : null),
-      h('button', { class: 'btn', type: 'button', text: 'Entfernen', 'aria-label': x.name + ' entfernen', onclick: function () { var idx = w.waitlist.indexOf(x); w.waitlist.splice(idx, 1); changed(); toast(x.name + ' entfernt', function () { w.waitlist.splice(idx, 0, x); changed(); }); } }))));
-  });
-  out.push(h('button', { class: 'btn blue', type: 'button', style: 'width:100%', text: '+ Warteliste', onclick: addWait }));
-  var ans = state.pipeline.filter(function (c) { return c.msgDate; }).length;
-  var gesp = state.pipeline.filter(function (c) { return c.status === 'Gespräch' || c.status === 'Zusage'; }).length;
-  var zus = state.pipeline.filter(function (c) { return c.status === 'Zusage'; }).length;
-  out.push(h('h2', { text: 'Ziele bis ' + fmtS(w.deadline) }));
-  out.push(h('div', { class: 'card quiet' },
-    h('div', { class: 'kv' }, h('span', { text: 'Ansprachen' }), h('b', { text: ans + ' / 15' })),
-    h('div', { class: 'kv' }, h('span', { text: 'Erstgespräche' }), h('b', { text: gesp + ' / 5' })),
-    h('div', { class: 'kv' }, h('span', { text: 'Neue Klienten (Zusagen)' }), h('b', { text: zus + ' / 2' }))));
-  out.push(h('div', { class: 'note', text: 'Aus den Kontakten berechnet. Die Zielwerte sind Annahmen, keine Prognose.' }));
-  return out;
-}
-
 function viewCal() {
   var t = today(), out = [h('h1', { text: 'Content' }), h('div', { class: 'sub', text: 'Reels Mo + Fr · Carousels Mi' })];
   out.push(h('div', { class: 'seg' },
@@ -805,18 +1124,26 @@ function viewCal() {
 }
 
 function exportJson() {
-  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates, cats: state.cats, notes: state.notes, planKunden: state.planKunden }, null, 1);
+  return JSON.stringify({ app: 'perform-hub', version: 1, exported: new Date().toISOString(), tasks: state.tasks, pipeline: state.pipeline, winter: state.winter, posts: state.posts, templates: state.templates, cats: state.cats, notes: state.notes, planKunden: state.planKunden, seeded: state.seeded }, null, 1);
 }
 function applyImport(text, replace) {
   var data = JSON.parse(text);
   if (!data || typeof data !== 'object' || !(data.tasks || data.pipeline || data.posts || data.winter || data.templates || data.notes || data.planKunden)) throw new Error('format');
   var inc = sanitize(data), has = function (k) { return Array.isArray(data[k]); };
   function merge(cur, add) { var ids = {}; add.forEach(function (x) { ids[x.id] = x; }); return cur.filter(function (x) { return !ids[x.id]; }).concat(add); }
+  if (has('planKunden') && !replace) {
+    // Einträge aus Backups vor den Abläufen (ohne step) überschreiben keinen Kunden, der schon im Ablauf geführt wird
+    var oldIds = {}; data.planKunden.forEach(function (x) { if (x && typeof x === 'object' && !(x.step >= 1)) oldIds[x.id] = 1; });
+    inc.planKunden = inc.planKunden.filter(function (x) { return !(oldIds[x.id] && state.planKunden.some(function (y) { return y.id === x.id; })); });
+  }
   ['tasks', 'pipeline', 'posts', 'templates', 'cats', 'notes', 'planKunden'].forEach(function (k) { if (has(k)) state[k] = replace ? inc[k] : merge(state[k], inc[k]); });
+  if (replace && has('templates') && !Array.isArray(data.seeded)) state.seeded = []; // Ablauf-Vorlagen wieder ergänzen
   ensureCats(state);
-  state.planKunden.forEach(function (c) { if (c.status === 'abgeschlossen') dropOpenCheckins(c.id); });
+  if (Array.isArray(data.seeded)) inc.seeded.forEach(function (x) { if (state.seeded.indexOf(x) < 0) state.seeded.push(x); });
+  state.planKunden.forEach(function (e) { if (e.step === 8) dropOpen(e); else { repairAuto(e); ensureRec(e); } });
+  seedTpl(state); ensureCats(state);
   if (data.winter && typeof data.winter === 'object') state.winter = normWinter(data.winter, state.winter);
-  return inc.tasks.length + ' Aufgaben, ' + inc.pipeline.length + ' Kontakte, ' + inc.posts.length + ' Posts' + (has('templates') ? ', ' + inc.templates.length + ' Vorlagen' : '') + (has('notes') ? ', ' + inc.notes.length + ' Notizen' : '') + (has('planKunden') ? ', ' + inc.planKunden.length + ' Plan-Kunden' : '');
+  return inc.tasks.length + ' Aufgaben, ' + inc.pipeline.length + ' Kontakte, ' + inc.posts.length + ' Posts' + (has('templates') ? ', ' + inc.templates.length + ' Vorlagen' : '') + (has('notes') ? ', ' + inc.notes.length + ' Notizen' : '') + (has('planKunden') ? ', ' + inc.planKunden.length + ' Kunden' : '');
 }
 function viewMore() {
   var out = [h('h1', { text: 'Mehr' }), h('div', { class: 'sub', text: 'Sicherung der Daten' })];
@@ -859,7 +1186,7 @@ function viewMore() {
   out.push(h('h2', { text: 'Wiederherstellen' }), imp,
     h('div', { class: 'actions' }, h('button', { class: 'btn blue flex', type: 'button', text: 'Zusammenführen', onclick: function () { run(false); } }), replaceBtn),
     h('button', { class: 'btn ghost', type: 'button', style: 'width:100%;margin-top:8px', text: 'Aus Datei laden', onclick: function () { fileIn.click(); } }), fileIn, msg2,
-    h('div', { class: 'note', text: 'Zusammenführen überschreibt Einträge mit gleicher Kennung und lässt den Rest unverändert. Plan-Kunden und ihre Check-in-To-dos werden mitgesichert. Ein älteres Backup ohne Plan-Kunden ersetzt die To-dos, dann fehlen die Check-ins. Die Daten liegen nur auf diesem Gerät, in dieser App. Wer das iPhone zurücksetzt oder die App löscht, verliert sie ohne Sicherung.' }));
+    h('div', { class: 'note', text: 'Zusammenführen überschreibt Einträge mit gleicher Kennung und lässt den Rest unverändert. Plan- und 1:1-Kunden mit Status, Daten, Rechnungsnummern und ihren To-dos werden mitgesichert. Ein älteres Backup ohne Kunden ersetzt bei „Alles ersetzen“ die To-dos, dann fehlen die Ablauf-To-dos. Die Daten liegen nur auf diesem Gerät, in dieser App. Wer das iPhone zurücksetzt oder die App löscht, verliert sie ohne Sicherung.' }));
   return out;
 }
 
@@ -875,13 +1202,14 @@ function render() {
       svg(t[2]), h('span', { text: t[1] }), t[0] === 'today' && n ? h('span', { class: 'badge', text: String(n) }) : null));
   });
   var fab = document.getElementById('fab'); fab.textContent = ''; fab.appendChild(svg(IC.plus));
-  var act = { today: editTask, pipe: editContact, winter: function () { if (cMode === 'plan') editPlan(); else addWait(); }, tpl: function () { if (nMode === 'notes') editNote(); else editTpl(); }, cal: editPost }[tab];
+  var act = { today: editTask, pipe: editContact, winter: function () { editEntry(null, cMode === 'one' ? 'B' : 'A'); }, tpl: function () { if (nMode === 'notes') editNote(); else editTpl(); }, cal: editPost }[tab];
   fab.style.display = act ? 'grid' : 'none'; fab.onclick = act ? function () { act(); } : null;
-  fab.setAttribute('aria-label', { today: 'Aufgabe hinzufügen', pipe: 'Kontakt hinzufügen', winter: cMode === 'plan' ? 'Plan-Kunde hinzufügen' : 'Auf die Warteliste', tpl: nMode === 'notes' ? 'Notiz hinzufügen' : 'Vorlage hinzufügen', cal: 'Post hinzufügen' }[tab] || 'Hinzufügen');
+  fab.setAttribute('aria-label', { today: 'Aufgabe hinzufügen', pipe: 'Kontakt hinzufügen', winter: cMode === 'one' ? '1:1-Anfrage hinzufügen' : 'Plan-Anfrage hinzufügen', tpl: nMode === 'notes' ? 'Notiz hinzufügen' : 'Vorlage hinzufügen', cal: 'Post hinzufügen' }[tab] || 'Hinzufügen');
   window.scrollTo(0, y);
 }
 document.addEventListener('visibilitychange', function () { if (!document.hidden && !document.getElementById('layer').firstChild) render(); });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeSheet(); });
+initFlows();
 render();
 window.__hub = { get state() { return state; }, render: render };
 })();
