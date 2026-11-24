@@ -378,8 +378,8 @@ function form(ctl, p, t) {
   if (on(t, 'cmj')) c.appendChild(grp('Countermovement Jump', 'Bester von 3 Versuchen, Hände an der Hüfte. My Jump oder Zeitlupe.', ['cmj'], 'cmj'));
   if (on(t, 'sj')) c.appendChild(grp('Squat Jump', 'Aus 90°-Position, 2 s halten, ohne Ausholbewegung. Bester von 3.', ['sj'], 'sj'));
   if (on(t, 'dj')) c.appendChild(grp('Drop Jump (ca. 30 cm)', 'Anweisung immer gleich: „so kurz wie möglich am Boden, dann so hoch wie möglich“. Flug- und Kontaktzeit des besten Versuchs (My Jump oder 240-fps-Video).', ['ft', 'ct'], 'dj'));
-  if (on(t, 'slhb')) c.appendChild(grp('Single Leg Hamstring Bridge', 'Ferse auf Box (ca. 60 cm), Wdh. bis Technikabbruch (Becken kippt/sinkt), Tempo gleich je Seite.', ['slhbL', 'slhbR'], 'slhb'));
-  if (on(t, 'sls')) c.appendChild(grp('Single Leg Squat auf Box', 'Gleiche Boxhöhe bei jedem Termin notieren. Wdh. bis Technikabbruch (Knie fällt nach innen, Absetzen, Hände).', ['slsL', 'slsR'], 'sls'));
+  if (on(t, 'slhb')) c.appendChild(grp('Single Leg Hamstring Bridge', 'Ferse auf derselben Box wie beim SL Squat (ca. 50 cm), Knie leicht gebeugt. Wdh. bis Technikabbruch (Becken kippt/sinkt), Tempo gleich je Seite.', ['slhbL', 'slhbR'], 'slhb'));
+  if (on(t, 'sls')) c.appendChild(grp('Single Leg Box Squat (ca. 50 cm)', 'Box ca. 50 cm, bei jedem Termin dieselbe Box. Antippen statt absetzen. Wdh. bis Technikabbruch (Knie fällt nach innen, Absetzen, Hände).', ['slsL', 'slsR'], 'sls'));
   ctl.appendChild(c);
 
   ctl.appendChild(h('div', { class: 'cols' },
@@ -471,7 +471,7 @@ function draw() {
   if (on(t, 'dj')) row('Drop Jump (Flug / Kontakt)', g.ft && g.ct ? Math.round(g.ft) + ' / ' + Math.round(g.ct) + ' ms' : '–', q.ft && q.ct ? Math.round(q.ft) + ' / ' + Math.round(q.ct) : '–', cmp(r.rsi, pr && pr.rsi, 2, 'RSI'), 'dj');
   function lr(a, b) { return a == null && b == null ? '–' : 'L ' + (a == null ? '–' : a) + ' · R ' + (b == null ? '–' : b); }
   if (on(t, 'slhb')) row('SL Hamstring Bridge (Wdh.)', lr(g.slhbL, g.slhbR), lr(q.slhbL, q.slhbR), pr ? h('span', null, 'L ', cmp(g.slhbL, q.slhbL, 0), ' · R ', cmp(g.slhbR, q.slhbR, 0)) : '', 'slhb');
-  if (on(t, 'sls')) row('SL Squat auf Box (Wdh.)', lr(g.slsL, g.slsR), lr(q.slsL, q.slsR), pr ? h('span', null, 'L ', cmp(g.slsL, q.slsL, 0), ' · R ', cmp(g.slsR, q.slsR, 0)) : '', 'sls');
+  if (on(t, 'sls')) row('SL Box Squat ca. 50 cm (Wdh.)', lr(g.slsL, g.slsR), lr(q.slsL, q.slsR), pr ? h('span', null, 'L ', cmp(g.slsL, q.slsL, 0), ' · R ', cmp(g.slsR, q.slsR, 0)) : '', 'sls');
   pg.appendChild(h('table', null, h('thead', null, h('tr', null, h('th', null, 'Test'), h('th', { class: 'n' }, 'Heute'),
     pr ? h('th', { class: 'n' }, 'Vorher') : null, pr ? h('th', { class: 'n' }, 'Veränderung') : null, h('th', null, 'Technik'))), tb));
 
