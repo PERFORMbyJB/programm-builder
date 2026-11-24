@@ -507,8 +507,8 @@ var AUTO = {
 var DONE_AT = {};
 Object.keys(AUTO).forEach(function (k) { AUTO[k].forEach(function (s) { DONE_AT[s.fk] = s.done; }); });
 var REC = { Bw: 'Montags-Rückmeldung da? → Plan anpassen', Bm: 'Rechnung', Br: 'Re-Test' };
-var TASK_TPL = { Bw: 'ab-bw', A1n: 'ab-a1n', A3z: 'ab-zr', ck3: 'ab-a6', ck6: 'ab-a7', B1n: 'ab-b1n', B3s: 'ab-b3', B3u: 'ab-b3n', B5z: 'ab-zr', Bm: 'ab-b5', Br: 'ab-b6' };
-var STEP_TPL = { A1: ['ab-a1', 'ab-a1n'], A2: ['ab-a2k'], A3: ['ab-a3', 'ab-zr'], A5: ['ab-a5'], A6: ['ab-a6'], A7: ['ab-a7'],
+var TASK_TPL = { Bw: 'ab-bw', A1n: 'ab-a1n', A3z: 'ab-zr', A4p: 'ab-pdf', ck3: 'ab-a6', ck6: 'ab-a7', B1n: 'ab-b1n', B3s: 'ab-b3', B3u: 'ab-b3n', B5z: 'ab-zr', Bm: 'ab-b5', Br: 'ab-b6' };
+var STEP_TPL = { A1: ['ab-a1', 'ab-a1n'], A2: ['ab-a2k'], A3: ['ab-a3', 'ab-zr'], A4: ['ab-pdf'], A5: ['ab-a5'], A6: ['ab-a6'], A7: ['ab-a7'],
   B1: ['ab-b1', 'ab-b1n'], B2: ['ab-b2'], B3: ['ab-b3', 'ab-b3n'], B5: ['ab-b5', 'ab-zr'], B6: ['ab-b6'], B7: ['ab-b7', 'ab-bw'], B8: ['ab-b8'] };
 // #n = eigene WhatsApp-Nummer, damit „In WhatsApp senden“ direkt an Justus geht (Kundendaten stehen nie im Link)
 var PB = 'https://performbyjb.github.io/programm-builder/', WAN = '#n=491605951455';
@@ -551,6 +551,11 @@ var FLOW_TPL = [
   { id: 'ab-zr', title: 'Zahlung · freundliche Erinnerung', text: [
     'Hey [Name], kurze Frage: Ist die Überweisung für [den Plan / den Monat] schon raus? Bei mir ist noch nichts angekommen.', '',
     'Manchmal dauert es ein, zwei Tage, dann ignorier die Nachricht einfach. 🙂'].join('\n') },
+  { id: 'ab-pdf', title: 'Plan A4 · Allgemeine Hinweise fürs Plan-PDF (ins Builder-Feld)', text: [
+    'Lieferumfang: Plan als PDF. Verständnisfragen während der 6 Wochen per Nachricht, Antwort innerhalb von 2 Werktagen. Check-in in Woche 3 und 6. Keine individuelle Anpassung.', '',
+    'Start-Test: Mach vor Woche 1 den Broad Jump (Anleitung bekommst du per Nachricht) und schick mir deinen Wert. Nach Woche 6 testen wir noch einmal.', '',
+    'Längere Pause wegen Krankheit oder Verletzung: Bevor du weitertrainierst, melde dich kurz bei mir. Dann sprechen wir ab, wie du sinnvoll wieder einsteigst.', '',
+    'Schmerz = Stopp: Übung sofort abbrechen. Bei Schmerzen, die bleiben oder wiederkommen: Arzt oder Physio. Der Plan ersetzt keine medizinische Behandlung.'].join('\n') },
   { id: 'ab-a5', title: 'Plan A5 · So startest du + Broad Jump', text: [
     'Hey [Name], hier ist dein 6-Wochen-Plan! 💪', '',
     'So startest du:',
