@@ -501,13 +501,13 @@ var AUTO = {
   A4: [{ fk: 'A4p', t: 'Plan liefern', wd: 2, done: 5 }],
   A5: [{ fk: 'ck3', ck: 3, t: 'Check-in Woche 3', d: 21, done: 6 }, { fk: 'ck6', ck: 6, t: 'Abschluss Woche 6', d: 42, done: 7 }],
   B1: [{ fk: 'B1n', t: 'Nachfassen', d: 3, done: 2 }],
-  B3: [{ fk: 'B3u', t: 'Unterlagen prüfen', d: 5, done: 4 }],
+  B3: [{ fk: 'B3s', t: 'Zusage-Mail + Anamnese + Vereinbarung senden', d: 0, same: true, done: 4 }, { fk: 'B3u', t: 'Unterlagen prüfen', d: 5, done: 4 }],
   B5: [{ fk: 'B5z', t: 'Zahlung prüfen', d: 7, done: 6 }]
 };
 var DONE_AT = {};
 Object.keys(AUTO).forEach(function (k) { AUTO[k].forEach(function (s) { DONE_AT[s.fk] = s.done; }); });
 var REC = { Bw: 'Montags-Rückmeldung da? → Plan anpassen', Bm: 'Rechnung', Br: 'Re-Test' };
-var TASK_TPL = { Bw: 'ab-bw', A1n: 'ab-a1n', A3z: 'ab-zr', ck3: 'ab-a6', ck6: 'ab-a7', B1n: 'ab-b1n', B3u: 'ab-b3n', B5z: 'ab-zr', Bm: 'ab-b5', Br: 'ab-b6' };
+var TASK_TPL = { Bw: 'ab-bw', A1n: 'ab-a1n', A3z: 'ab-zr', ck3: 'ab-a6', ck6: 'ab-a7', B1n: 'ab-b1n', B3s: 'ab-b3', B3u: 'ab-b3n', B5z: 'ab-zr', Bm: 'ab-b5', Br: 'ab-b6' };
 var STEP_TPL = { A1: ['ab-a1', 'ab-a1n'], A2: ['ab-a2k'], A3: ['ab-a3', 'ab-zr'], A5: ['ab-a5'], A6: ['ab-a6'], A7: ['ab-a7'],
   B1: ['ab-b1', 'ab-b1n'], B2: ['ab-b2'], B3: ['ab-b3', 'ab-b3n'], B5: ['ab-b5', 'ab-zr'], B6: ['ab-b6'], B7: ['ab-b7', 'ab-bw'], B8: ['ab-b8'] };
 // #n = eigene WhatsApp-Nummer, damit „In WhatsApp senden“ direkt an Justus geht (Kundendaten stehen nie im Link)
@@ -642,7 +642,7 @@ function dropOpen(e) { state.tasks = state.tasks.filter(function (t) { return !(
 function createAuto(e, base) {
   (AUTO[e.weg + e.step] || []).forEach(function (s) {
     if (state.tasks.some(function (t) { return t.plan === e.id && t.fk === s.fk && !t.done; })) return;
-    mkTask(e, s, s.wd ? addWD(base, s.wd) : wkShift(addDays(base, s.d)));
+    mkTask(e, s, s.same ? base : s.wd ? addWD(base, s.wd) : wkShift(addDays(base, s.d)));
   });
 }
 // 1:1 aktiv: immer genau ein offenes To-do je Rhythmus (wöchentlich Rückmeldung, monatlich Rechnung am 1., alle 6 Wochen Re-Test)
@@ -717,7 +717,7 @@ function repairAuto(e) {
   var has = function (fk) { return state.tasks.some(function (t) { return t.plan === e.id && t.fk === fk; }); };
   if (e.weg === 'A' && (e.step === 5 || e.step === 6) && e.dates.A5) AUTO.A5.forEach(function (sp) { if (sp.done > e.step && !has(sp.fk)) mkTask(e, sp, wkShift(addDays(e.dates.A5, sp.d))); });
   var base = e.dates[e.weg + e.step];
-  if (base) (AUTO[e.weg + e.step] || []).forEach(function (sp) { if (sp.done > e.step && !has(sp.fk)) mkTask(e, sp, sp.wd ? addWD(base, sp.wd) : wkShift(addDays(base, sp.d))); });
+  if (base) (AUTO[e.weg + e.step] || []).forEach(function (sp) { if (sp.done > e.step && !has(sp.fk)) mkTask(e, sp, sp.same ? base : sp.wd ? addWD(base, sp.wd) : wkShift(addDays(base, sp.d))); });
 }
 function armBtn(cls, label, run) {
   var armed = false, b = h('button', { class: cls, type: 'button', text: label });
