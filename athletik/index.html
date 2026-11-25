@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <meta name="theme-color" content="#1C1F26">
 <link rel="icon" type="image/png" href="apple-touch-icon.png">
 <title>PERFORM. Athletik-Check</title>
@@ -62,11 +62,11 @@ input.bad{border-color:var(--red)}
 .tabs2{display:flex;gap:6px;margin-bottom:4px}
 .tabs2 button{flex:1;min-height:42px;border-radius:12px;background:var(--card2);color:var(--muted);font-weight:700;font-size:13px}
 .tabs2 button.on{background:var(--acc);color:#0f1218}
-.page .rh{background:#3a2a1a;border-left:2mm solid #F5B041;border-radius:3mm;padding:3mm 4mm;font-size:8.3pt;line-height:1.45;margin-bottom:4mm}
+.page .rh{background:#3a2a1a;border-left:2mm solid #F5B041;border-radius:3mm;padding:3mm 4mm;font-size:8.3pt;line-height:1.45;margin-bottom:3mm}
 
 /* ───────── Report-Seite (A4) ───────── */
-.page{overflow-wrap:anywhere;width:210mm;min-height:297mm;margin:0 auto 14px;background:#1C1F26;color:#F0F4FF;padding:13mm 14mm 11mm;box-shadow:0 0 0 1px #34405A;display:flex;flex-direction:column}
-.page .ph{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1D4579;padding-bottom:4.5mm;margin-bottom:5mm}
+.page{overflow-wrap:anywhere;width:210mm;min-height:297mm;margin:0 auto 14px;background:#1C1F26;color:#F0F4FF;padding:10mm 13mm 9mm;box-shadow:0 0 0 1px #34405A;display:flex;flex-direction:column}
+.page .ph{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1D4579;padding-bottom:3.5mm;margin-bottom:4mm}
 .page .pl{font-weight:700;letter-spacing:4px;font-size:15pt}
 .page .pl span{color:#4B8EF0}
 .page .pl small{display:block;font-size:6.5pt;letter-spacing:2.5px;color:#9BA8C0;margin-top:1mm}
@@ -74,12 +74,12 @@ input.bad{border-color:var(--red)}
 .page .pt .k{font-size:7pt;font-weight:700;letter-spacing:2px;color:#4B8EF0;text-transform:uppercase}
 .page .pt .t{font-size:17pt;font-weight:700;line-height:1.15;margin-top:1mm}
 .page .pt .m{font-size:8.5pt;color:#9BA8C0;margin-top:1mm}
-.page h3{font-size:7.5pt;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#4B8EF0;margin:5mm 0 2.2mm}
+.page h3{font-size:7.5pt;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:#4B8EF0;margin:4mm 0 2mm}
 .page .vd{background:#262B35;border-radius:3mm;padding:4mm 5mm;border-left:2mm solid #4B8EF0}
 .page .vd .k{font-size:6.5pt;font-weight:700;letter-spacing:1.5px;color:#9BA8C0;text-transform:uppercase}
 .page .vd .v{font-size:16pt;font-weight:700;text-transform:uppercase;margin:1mm 0}
 .page .vd p{margin:0;font-size:9pt;line-height:1.45}
-.page .kp{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-top:4mm}
+.page .kp{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-top:3mm}
 .page .kp div{background:#262B35;border-radius:3mm;padding:3mm 3.5mm}
 .page .kp b{display:block;font-size:15pt;line-height:1.1}
 .page .kp b small{font-size:7.5pt;color:#9BA8C0;margin-left:1mm;font-weight:600}
@@ -87,11 +87,14 @@ input.bad{border-color:var(--red)}
 .page .kp em{display:block;font-style:normal;font-size:7pt;color:#9BA8C0;margin-top:1mm}
 .page .dot{display:inline-block;width:2.2mm;height:2.2mm;border-radius:50%;margin-right:1.2mm;vertical-align:middle}
 .page table{width:100%;border-collapse:collapse;font-size:8.5pt}
-.page th{font-size:6.3pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#9BA8C0;text-align:left;padding:1.6mm 2mm;border-bottom:1px solid #34405A}
-.page td{padding:1.5mm 2mm;border-bottom:1px solid #2D333E;vertical-align:top}
+.page th{font-size:6.3pt;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:#9BA8C0;text-align:left;padding:1.2mm 2mm;border-bottom:1px solid #34405A}
+.page td{padding:1.1mm 2mm;border-bottom:1px solid #2D333E;vertical-align:top}
 .page td.n,.page th.n{text-align:right;white-space:nowrap}
 .page td.dim,.page .dim{color:#6C7890}
 .page td.w{white-space:normal}
+.page .ein{margin:0;padding-left:4mm}
+.page .ein li{margin:0 0 1.5mm;font-size:8.8pt;line-height:1.45}
+.page .ein li:last-child{margin-bottom:0}
 .page .tq{font-size:7.5pt;font-weight:700;white-space:nowrap}
 .page .tq.t1{color:#4ADE80}.page .tq.t2{color:#F5B041}.page .tq.t3{color:#F87171}
 .page .box{background:#262B35;border-radius:3mm;padding:3.5mm 5mm;font-size:9pt;line-height:1.5}
@@ -99,6 +102,8 @@ input.bad{border-color:var(--red)}
 .page .emp{counter-reset:e;margin:0;padding:0;list-style:none}
 .page .emp li{counter-increment:e;display:flex;gap:3mm;margin:0 0 2mm;font-size:8.8pt;line-height:1.42}
 .page .emp li:before{content:counter(e);flex:none;width:5.5mm;height:5.5mm;border-radius:50%;background:#1D4579;color:#fff;font-weight:700;font-size:7.5pt;display:flex;align-items:center;justify-content:center}
+.page .cond.fn{margin-top:auto;padding-top:3mm;font-size:6.6pt;line-height:1.45}
+.page .fn + .pf{margin-top:0}
 .page .cond{font-size:7.2pt;color:#9BA8C0;line-height:1.5}
 .page .pf{margin-top:auto;padding-top:4mm;display:flex;justify-content:space-between;font-size:6.8pt;color:#6C7890;border-top:1px solid #262B35}
 .page .pf b{color:#9BA8C0}
@@ -109,7 +114,7 @@ input.bad{border-color:var(--red)}
   .np{display:none!important}
   #app{padding:0;max-width:none}
   .pv{padding:0;overflow:visible}
-  .page{margin:0;box-shadow:none;width:210mm;height:297mm;break-after:page;page-break-after:always;min-height:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{margin:0;box-shadow:none;width:210mm;height:auto;min-height:0;break-after:page;page-break-after:always;min-height:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .page *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .page:last-child{break-after:auto;page-break-after:auto}
 }
@@ -398,7 +403,7 @@ function form(ctl, p, t) {
         Array.prototype.forEach.call(box.children, function (b, i) { b.classList.toggle('on', t.tq[key] === i + 1); });
         save(); draw(); } }, TQ[q]));
     });
-    return h('div', null, h('label', { class: 'f' }, 'Technik'), box);
+    return h('div', null, h('label', { class: 'f' }, 'Technik (optional)'), box);
   }
   function grp(title, hint, fields, key) {
     var g = h('div', { class: 'grp' }, h('div', { class: 'gt' }, title));
@@ -450,15 +455,16 @@ function form(ctl, p, t) {
 
   ctl.appendChild(h('div', { class: 'cols' },
     h('div', null, h('h2', null, 'Coach-Notiz'), h('div', { class: 'card' },
-      h('textarea', { maxlength: 700, placeholder: 'Dein Gesamtbild in 3–5 Sätzen: Was sehe ich, was heißt das fürs Training? Keine Versprechen, keine Diagnosen. Gesundheitsangaben nur bei Reha-Kunden mit Einwilligung.', oninput: function (e) { t.note = clean(e.target.value, 700); save(); draw(); } }, t.note))),
+      h('textarea', { maxlength: 700, placeholder: 'Dein Gesamtbild in 3–5 Sätzen, inkl. Technikhinweisen (z. B. Landung rechts instabil): Was sehe ich, was heißt das fürs Training? Keine Versprechen, keine Diagnosen. Gesundheitsangaben nur bei Reha-Kunden mit Einwilligung.', oninput: function (e) { t.note = clean(e.target.value, 700); save(); draw(); } }, t.note))),
     h('div', null, h('h2', null, 'Empfehlungen (eine pro Zeile)'), h('div', { class: 'card' },
       h('textarea', { id: 'empTa', maxlength: 1500, placeholder: 'Leer = automatische Vorschläge zur Priorität', oninput: function (e) { t.emp = clean(e.target.value, 1500); save(); draw(); } }, t.emp),
       h('div', { class: 'row', style: 'margin-top:8px' },
         h('button', { class: 'btn sm', onclick: function () { t.emp = recText(calc(t), t); document.getElementById('empTa').value = t.emp; save(); draw(); } }, 'Vorschläge zur Priorität einsetzen'))))));
 
   ctl.appendChild(h('div', { class: 'row', style: 'margin:14px 0 4px' },
-    h('button', { class: 'btn pri', onclick: function () { window.print(); } }, 'PDF speichern / drucken')));
-  ctl.appendChild(h('div', { style: 'font-size:11.5px;color:var(--dim)' }, 'Im Druckdialog „Als PDF speichern“, Ränder „Keine“, Hintergrundgrafiken an.'));
+    h('button', { class: 'btn pri', id: 'pdfBtn', onclick: function (e) { makePdf(p, t, e.currentTarget); } }, 'PDF erstellen'),
+    h('button', { class: 'btn', onclick: function () { window.print(); } }, 'Drucken'), h('span', { id: 'pdfLink', style: 'font-size:13px;font-weight:700' })));
+  ctl.appendChild(h('div', { id: 'pdfInfo', style: 'font-size:11.5px;color:var(--dim)' }, '„PDF erstellen“ erzeugt das PDF randlos, danach „PDF teilen“ (am Handy z. B. WhatsApp). „Drucken“ nur am Laptop: Ränder „Keine“, Hintergrundgrafiken an.'));
 }
 
 function importSelbsttest(raw) {
@@ -485,6 +491,75 @@ function importSelbsttest(raw) {
   alert('Übernommen.\nBoxhöhe: ' + (m['boxhöhe'] || '–') + ' · Zeitlupe: ' + (m.zeitlupe || '–') + (m['unter 18'] ? ' · Unter 18: ' + m['unter 18'] : '') + (m.notiz ? '\nNotiz: ' + m.notiz : '') + '\n\nJetzt CMJ und SJ aus den Videos (My Jump) eintragen.');
 }
 
+function loadLib(src) {
+  return new Promise(function (ok, no) {
+    if (document.querySelector('script[data-lib="' + src + '"]')) { ok(); return; }
+    var s = document.createElement('script'); s.src = src; s.setAttribute('data-lib', src);
+    s.onload = function () { ok(); }; s.onerror = function () { no(new Error('Bibliothek ' + src + ' nicht geladen')); };
+    document.head.appendChild(s);
+  });
+}
+var pdfReady = null; /* { file, url, name } – wird bei jeder Änderung am Report verworfen */
+function pdfReset() {
+  if (pdfReady && pdfReady.url) URL.revokeObjectURL(pdfReady.url);
+  pdfReady = null;
+  var b = document.getElementById('pdfBtn'); if (b) { b.textContent = 'PDF erstellen'; b.disabled = false; }
+  var l = document.getElementById('pdfLink'); if (l) l.textContent = '';
+}
+function makePdf(p, t, btn) {
+  var info = document.getElementById('pdfInfo');
+  function msg(m) { if (info) info.textContent = m; }
+  /* 2. Tipp: Teilen direkt im Klick (iPhone verlangt eine frische Geste) */
+  if (pdfReady) {
+    var f = pdfReady.file;
+    if (f && navigator.canShare && navigator.canShare({ files: [f] })) {
+      navigator.share({ files: [f], title: pdfReady.name }).then(function () { msg('PDF geteilt: ' + pdfReady.name); },
+        function (e) { msg(e && e.name === 'AbortError' ? 'Teilen abgebrochen.' : 'Teilen nicht möglich (' + (e && e.name || e) + '). Unten „PDF öffnen“ nutzen.'); });
+    } else {
+      var a = document.createElement('a'); a.href = pdfReady.url; a.download = pdfReady.name; document.body.appendChild(a); a.click(); a.remove();
+      msg('PDF gespeichert: ' + pdfReady.name);
+    }
+    return;
+  }
+  /* 1. Tipp: PDF erzeugen */
+  btn.disabled = true; btn.textContent = 'PDF wird erstellt …';
+  Promise.all([loadLib('lib/html2canvas.min.js'), loadLib('lib/jspdf.umd.min.js')])
+    .then(function () { return document.fonts && document.fonts.ready ? document.fonts.ready : null; })
+    .then(function () {
+      var pages = Array.prototype.slice.call(pvBox.querySelectorAll('.page'));
+      if (!pages.length) throw new Error('Kein Report vorhanden');
+      pvBox.scrollLeft = 0;
+      var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4', compress: true });
+      var chain = Promise.resolve();
+      pages.forEach(function (pg, i) {
+        chain = chain.then(function () {
+          return window.html2canvas(pg, { scale: 2, backgroundColor: '#1C1F26', logging: false, windowWidth: 1100,
+            scrollX: 0, scrollY: -window.scrollY, width: pg.offsetWidth, height: pg.offsetHeight });
+        }).then(function (cv) {
+          if (i) doc.addPage();
+          doc.setFillColor(28, 31, 38); doc.rect(0, 0, 210, 297, 'F');
+          var w = 210, hh = cv.height / cv.width * 210;
+          if (hh > 297) { w = 297 * cv.width / cv.height; hh = 297; }
+          doc.addImage(cv.toDataURL('image/jpeg', 0.92), 'JPEG', (210 - w) / 2, 0, w, hh);
+          cv.width = cv.height = 0;
+        });
+      });
+      return chain.then(function () { return doc; });
+    })
+    .then(function (doc) {
+      var name = 'PERFORM_' + (t.mode === 'reha' ? 'Reha-Verlauf' : 'Athletik-Check') + '_' + ((p.name || 'Spieler').replace(/[^A-Za-z0-9ÄÖÜäöüß]+/g, '_')) + '_' + t.date + '.pdf';
+      var blob = doc.output('blob'), file = null;
+      try { file = new File([blob], name, { type: 'application/pdf' }); } catch (e) {}
+      pdfReady = { file: file, url: URL.createObjectURL(blob), name: name };
+      btn.disabled = false;
+      btn.textContent = file && navigator.canShare && navigator.canShare({ files: [file] }) ? 'PDF teilen' : 'PDF speichern';
+      var l = document.getElementById('pdfLink');
+      if (l) { l.textContent = ''; l.appendChild(h('a', { href: pdfReady.url, target: '_blank', rel: 'noopener', style: 'color:var(--acc)' }, 'PDF öffnen')); }
+      msg('PDF fertig (' + Math.round(blob.size / 1024) + ' KB). Jetzt „' + btn.textContent + '“ antippen.');
+    })
+    .catch(function (e) { btn.disabled = false; btn.textContent = 'PDF erstellen'; msg('PDF konnte nicht erstellt werden (' + (e && e.message || e) + '). Alternativ „Drucken“ am Laptop.'); });
+}
+
 function exportJson() {
   var blob = new Blob([JSON.stringify({ app: 'perform-athletik', v: 1, exportiert: new Date().toISOString(), players: D.players }, null, 1)], { type: 'application/json' });
   var a = h('a', { href: URL.createObjectURL(blob), download: 'PERFORM_Athletik-Check_Backup_' + today() + '.json' });
@@ -495,6 +570,7 @@ function exportJson() {
 function draw() {
   if (!pvBox) return;
   pvBox.textContent = '';
+  if (pdfReady) pdfReset();
   var p = curP(), t = curT(p);
   if (!p || !t) return;
   var ao = document.getElementById('autoOpt'); if (ao) ao.textContent = autoLabel(calc(t), t);
@@ -556,9 +632,11 @@ function draw() {
   }
   if (nTiles) pg.appendChild(kp);
 
-  pg.appendChild(h('h3', null, 'Testergebnisse & Technik'));
+  pg.appendChild(h('h3', null, t.tests.some(function (k) { return t.tq[k]; }) ? 'Testergebnisse & Technik' : 'Testergebnisse'));
   var tb = h('tbody');
   var hasLR = SIDES.some(function (k) { return on(t, k); });
+  /* Technikspalte nur, wenn mindestens ein gewählter Test bewertet ist */
+  var hasTq = t.tests.some(function (k) { return t.tq[k]; });
   function row(name, val, prevVal, diff, key) {
     var q = t.tq[key], pc = null, calcRow = key === 'eur' || key === 'rsi' || key === 'eur1';
     if (hasLR) {
@@ -567,7 +645,7 @@ function draw() {
     }
     tb.appendChild(h('tr', null, h('td', null, name), h('td', { class: 'n' }, val),
       pr ? h('td', { class: 'n dim w' }, prevVal) : null, pr ? h('td', { class: 'n w' }, diff) : null, pc,
-      h('td', null, calcRow ? '' : q ? h('span', { class: 'tq t' + q }, TQ[q]) : h('span', { class: 'tq', style: 'color:#6C7890' }, '–'))));
+      hasTq ? h('td', null, calcRow || !q ? '' : h('span', { class: 'tq t' + q }, TQ[q])) : null));
   }
   function cmp(a, b, d, u) {
     if (a == null || b == null) return h('span', { class: 'dim' }, '–');
@@ -594,30 +672,39 @@ function draw() {
   function lrc(k, d) { var a = r.lr[k], b = pr ? pr.lr[k] : [null, null]; return pr ? h('span', null, 'L ', cmp(a[0], b[0], d), ' · R ', cmp(a[1], b[1], d)) : ''; }
   var sideLbl = t.mode === 'reha' && t.side ? 'LSI' : 'Seiten %';
   pg.appendChild(h('table', null, h('thead', null, h('tr', null, h('th', null, 'Test'), h('th', { class: 'n' }, 'Heute'),
-    pr ? h('th', { class: 'n' }, 'Vorher') : null, pr ? h('th', { class: 'n' }, 'Veränderung') : null, hasLR ? h('th', { class: 'n' }, sideLbl) : null, h('th', null, 'Technik'))), tb));
+    pr ? h('th', { class: 'n' }, 'Vorher') : null, pr ? h('th', { class: 'n' }, 'Veränderung') : null, hasLR ? h('th', { class: 'n' }, sideLbl) : null, hasTq ? h('th', null, 'Technik') : null)), tb));
   var needSide = t.mode === 'reha' && !t.side && hasLR;
 
   var splitEl = null;
+  var ein = [];
+  function gain(e) { return Math.round((e - 1) * 100); }
+  function pctS(e) { var v = gain(e); return (v > 0 ? '+' : '') + v + ' %'; }
+  if (on(t, 'cmj') && on(t, 'sj') && r.eur) ein.push('EUR ' + fx(r.eur, 2) + ': ' + (r.eur >= 1.05 ? pctS(r.eur) + ' Sprunghöhe durch die Ausholbewegung' : r.eur > 0.95 ? 'mit und ohne Ausholen etwa gleich hoch' : 'mit Ausholen niedriger als aus der Hocke'));
+  if (on(t, 'slcmj') && on(t, 'slsj') && (r.eur1[0] || r.eur1[1])) ein.push('EUR einbeinig: L ' + (r.eur1[0] ? pctS(r.eur1[0]) : '–') + ' · R ' + (r.eur1[1] ? pctS(r.eur1[1]) : '–') + ' durch die Ausholbewegung');
+  if (on(t, 'dj') && r.rsi && g.ct) ein.push('RSI ' + fx(r.rsi, 2) + ': ' + Math.round(g.ct) + ' ms Bodenkontakt, ' + (g.ct < 250 ? 'schneller' : 'langsamer') + ' Dehnungs-Verkürzungs-Zyklus (Grenze ca. 250 ms)');
+  if (on(t, 'sldj') && (g.sldjcL || g.sldjcR)) ein.push('Drop Jump einbeinig: Bodenkontakt L ' + (g.sldjcL ? Math.round(g.sldjcL) + ' ms' : '–') + ' · R ' + (g.sldjcR ? Math.round(g.sldjcR) + ' ms' : '–'));
+  if (ein.length) {
+    splitEl = pg.appendChild(h('h3', { class: 'sec' }, 'Einordnung'));
+    pg.appendChild(h('div', { class: 'box' }, h('ul', { class: 'ein' }, ein.map(function (x) { return h('li', null, x); }))));
+  }
   if (t.note.trim()) {
-    splitEl = pg.appendChild(h('h3', null, 'Coach-Notiz'));
+    var cnH = pg.appendChild(h('h3', { class: 'sec' }, 'Coach-Notiz')); if (!splitEl) splitEl = cnH;
     pg.appendChild(h('div', { class: 'box' }, h('p', null, t.note.trim())));
   }
   var empAll = (t.emp.trim() ? t.emp : recText(r, t)).split('\n').map(function (x) { return x.trim(); }).filter(Boolean), emp = empAll.slice(0, 7);
-  var empH = pg.appendChild(h('h3', null, t.mode === 'reha' ? 'Hinweise' : 'Empfehlung für die nächsten 6–8 Wochen'));
+  var empH = pg.appendChild(h('h3', { class: 'sec' }, t.mode === 'reha' ? 'Hinweise' : 'Empfehlung für die nächsten 6–8 Wochen'));
   if (!splitEl) splitEl = empH;
   pg.appendChild(h('div', { class: 'box' }, h('ol', { class: 'emp' }, emp.map(function (x) { return h('li', null, h('span', null, x)); }))));
 
-  pg.appendChild(h('h3', null, 'So liest du die Werte'));
-  pg.appendChild(h('div', { class: 'cond' },
-    on(t, 'squat') ? 'Relative Kraft = geschätztes 1RM Kniebeuge ÷ Körpergewicht. Die Priorität folgt dem Phasenmodell von Suchomel et al. (2016): ab ca. 2 × Körpergewicht gute Kraftreserve, darunter hat Kraftaufbau meist Vorrang. Ein theoretisches Modell, kein validierter Grenzwert. ' : '',
+  pg.appendChild(h('div', { class: 'cond sec fn' },
+    on(t, 'squat') ? 'Relative Kraft = 1RM ÷ Körpergewicht; Priorität nach dem Modell von Suchomel et al. (2016), kein validierter Grenzwert. ' : '',
     on(t, 'cmj') && on(t, 'sj') ? 'EUR = CMJ ÷ Squat Jump. ' : '',
-    on(t, 'dj') ? 'RSI = Drop-Jump-Sprunghöhe (m) ÷ Kontaktzeit (s). ' : '',
-    (on(t, 'cmj') && on(t, 'sj')) || on(t, 'dj') ? 'Für Amateurfußballer gibt es dafür keine belastbaren Grenzwerte, deshalb ohne Bewertung; aussagekräftig ist die Veränderung. ' : '',
-    t.art === 'selbst' ? 'Selbsttest: vom Spieler nach PERFORM.-Protokoll durchgeführt; Sprünge von Justus aus Zeitlupen-Video ausgewertet (My Jump), Wiederholungen selbst gezählt' + (t.info && /Box/.test(t.info) ? ' (' + t.info.split(' · ').slice(0, 2).join(', ') + ')' : '') + '. ' : '',
-    hasLR ? (t.mode === 'reha' && t.side ? 'LSI = Wert der betroffenen Seite in % der gesunden Seite. ' : 'Seiten % = schwächere Seite in % der stärkeren. ') + 'Ohne Bewertung und ohne Grenzwert; aussagekräftig ist der Verlauf. ' : '',
-    pr ? 'Grau mit „(Schwankung)“: Veränderung unter 5 %, im Bereich der üblichen Messschwankung. ' : '',
-    t.mode === 'reha' ? 'Reha-Verlauf: Die Werte ersetzen keine medizinische Beurteilung und sind keine Freigabe für Training oder Spiel.' : 'Leistungstest für gesunde Spieler, kein Reha- oder Return-to-Sport-Test; Seitenvergleiche sind kein medizinischer Befund.',
-    ' ' + ' Feldtests liefern Hinweise, keine Diagnose. Kleine Veränderungen können Tagesform oder Messschwankung sein.' + (t.mode === 'reha' ? '' : ' Bei Schmerzen oder Verletzungen Training nur nach ärztlicher bzw. physiotherapeutischer Freigabe.')));
+    on(t, 'dj') || on(t, 'sldj') ? 'RSI = Sprunghöhe (m) ÷ Bodenkontakt (s). ' : '',
+    hasLR ? (t.mode === 'reha' && t.side ? 'LSI = betroffene Seite in % der gesunden. ' : 'Seiten % = schwächere Seite in % der stärkeren. ') : '',
+    'Keine Normwerte für Amateure: aussagekräftig ist der Verlauf. ',
+    pr ? 'Grau = Veränderung unter 5 % (Messschwankung). ' : '',
+    t.art === 'selbst' ? 'Selbsttest: Sprünge per Zeitlupen-Video ausgewertet (My Jump), Wiederholungen selbst gezählt' + (t.info && /Box/.test(t.info) ? ' (' + t.info.split(' · ').slice(0, 2).join(', ') + ')' : '') + '. ' : '',
+    t.mode === 'reha' ? 'Keine medizinische Beurteilung, keine Freigabe für Training oder Spiel.' : 'Leistungstest für gesunde Spieler, kein medizinischer Befund. Bei Schmerzen oder Verletzungen Training nur nach ärztlicher bzw. physiotherapeutischer Freigabe.'));
 
   pg.appendChild(h('div', { class: 'pf' },
     h('div', null, h('b', null, 'PERFORM. · Justus Böhm'), ' · perform.by.jb@gmail.com · WhatsApp 0160 5951455 · @perform.jb'),
@@ -625,19 +712,27 @@ function draw() {
   pvBox.appendChild(pg);
   /* Zu lang für eine Seite: ab Coach-Notiz/Empfehlungen auf Seite 2 umbrechen */
   var A4 = 1124, pg2 = null;
-  if (pg.offsetHeight > A4 && splitEl) {
+  var secs = Array.prototype.slice.call(pg.children).filter(function (x) { return x.classList && x.classList.contains('sec'); });
+  if (pg.offsetHeight > A4 && secs.length) {
+    /* von hinten Abschnitt für Abschnitt auf Seite 2 verschieben, bis Seite 1 passt */
     pg2 = h('div', { class: 'page' });
     pg2.appendChild(pg.firstChild.cloneNode(true));
-    var foot = pg.lastChild, n = splitEl;
-    while (n && n !== foot) { var nx = n.nextSibling; pg2.appendChild(n); n = nx; }
+    var foot = pg.lastChild, first = null;
     pg2.appendChild(foot.cloneNode(true));
     pvBox.appendChild(pg2);
+    for (var si = secs.length - 1; si >= 0 && pg.offsetHeight > A4; si--) {
+      var move = [], n = secs[si];
+      while (n && n !== foot) { move.push(n); n = n.nextSibling; }
+      var at = first || pg2.lastChild;
+      move.forEach(function (x) { pg2.insertBefore(x, at); });
+      first = move[0];
+    }
   }
 
   ovBox.textContent = '';
   if (needSide) ovBox.appendChild(h('div', { class: 'banner red' }, 'Reha-Test: betroffene Seite auswählen, sonst wird der Seitenvergleich als schwächere ÷ stärkere Seite gerechnet.'));
   if (pg.offsetHeight > A4 || (pg2 && pg2.offsetHeight > A4)) ovBox.appendChild(h('div', { class: 'banner red' }, 'Eine Report-Seite ist länger als A4 und würde im PDF abgeschnitten. Tests abwählen oder Notiz/Empfehlungen kürzen.'));
-  else if (pg2) ovBox.appendChild(h('div', { class: 'banner' }, 'Report hat 2 Seiten (Coach-Notiz und Empfehlungen auf Seite 2).'));
+  else if (pg2) ovBox.appendChild(h('div', { class: 'banner' }, 'Report hat 2 Seiten.'));
   if (empAll.length > 7) ovBox.appendChild(h('div', { class: 'banner red' }, 'Nur die ersten 7 Empfehlungen kommen in den Report (' + empAll.length + ' eingetragen).'));
 }
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { draw(); });
