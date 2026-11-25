@@ -104,13 +104,14 @@ input.bad{border-color:var(--red)}
 .page .pf b{color:#9BA8C0}
 
 @media print{
-  @page{size:A4;margin:0}
-  html,body{background:#1C1F26}
+  @page{size:210mm 297mm;margin:0}
+  html,body{margin:0!important;padding:0!important;background:#1C1F26!important;width:210mm;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .np{display:none!important}
   #app{padding:0;max-width:none}
   .pv{padding:0;overflow:visible}
-  .page{margin:0;box-shadow:none;height:297mm;min-height:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{margin:0;box-shadow:none;width:210mm;height:297mm;break-after:page;page-break-after:always;min-height:0;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .page *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page:last-child{break-after:auto;page-break-after:auto}
 }
 </style>
 </head>
@@ -149,8 +150,7 @@ var F = {
   sldjcR:['DJ 1-beinig Kontakt rechts', 'ms', 80, 900]
 };
 var TESTS = [
-  ['squat', 'Kniebeuge'], ['cmj', 'CMJ'], ['sj', 'Squat Jump'], ['dj', 'Drop Jump'], ['bj', 'Broad Jump'], ['slhb', 'SL Hamstring Bridge'], ['sls', 'SL Squat'],
-  ['slbj', 'Broad Jump 1-beinig'], ['slsj', 'SJ 1-beinig'], ['slcmj', 'CMJ 1-beinig'], ['sldj', 'Drop Jump 1-beinig']
+  ['squat', 'Kniebeuge'], ['cmj', 'CMJ'], ['slcmj', 'CMJ 1-beinig'], ['sj', 'Squat Jump'], ['slsj', 'SJ 1-beinig'], ['dj', 'Drop Jump'], ['sldj', 'Drop Jump 1-beinig'], ['bj', 'Broad Jump'], ['slbj', 'Broad Jump 1-beinig'], ['slhb', 'SL Hamstring Bridge'], ['sls', 'SL Squat']
 ];
 var TQ = { 1: 'sauber', 2: 'ausbaufähig', 3: 'Fokus' };
 
@@ -272,6 +272,7 @@ function calc(t, ctx) {
     slhb: [g.slhbL, g.slhbR], sls: [g.slsL, g.slsR], slbj: [g.slbjL, g.slbjR], slsj: [g.slsjL, g.slsjR],
     slcmj: [g.slcmjL, g.slcmjR], sldj: [rsi1(g.sldjhL, g.sldjcL), rsi1(g.sldjhR, g.sldjcR)]
   };
+  r.eur1 = [g.slcmjL && g.slsjL ? g.slcmjL / g.slsjL : null, g.slcmjR && g.slsjR ? g.slcmjR / g.slsjR : null];
   r.pct = {};
   var md = ctx ? ctx.mode : t.mode, sd = ctx ? ctx.side : t.side;
   var reha = md === 'reha' && (sd === 'L' || sd === 'R');
@@ -436,15 +437,15 @@ function form(ctl, p, t) {
   if (!t.tests.length) c.appendChild(h('div', { class: 'hint' }, 'Mindestens einen Test auswählen.'));
   if (on(t, 'squat')) c.appendChild(grp('Kniebeuge (3–5 Wdh. knapp vor Technikabbruch)', 'Immer gleiche Tiefe (z. B. Box auf Parallelhöhe). 1RM nach Brzycki, am genauesten bei 3–5 Wdh.', ['load', 'reps'], 'squat'));
   if (on(t, 'cmj')) c.appendChild(grp('Countermovement Jump', 'Bester von 3 Versuchen, Hände an der Hüfte. My Jump oder Zeitlupe.', ['cmj'], 'cmj'));
+  if (on(t, 'slcmj')) c.appendChild(grp('CMJ einbeinig', 'Hände an der Hüfte, schnelle Ausholbewegung, auf demselben Bein landen. Höhe aus My Jump. Bester von 3 je Bein.', ['slcmjL', 'slcmjR'], 'slcmj'));
   if (on(t, 'sj')) c.appendChild(grp('Squat Jump', 'Aus 90°-Position, 2 s halten, ohne Ausholbewegung. Bester von 3.', ['sj'], 'sj'));
+  if (on(t, 'slsj')) c.appendChild(grp('Squat Jump einbeinig', 'Hände an der Hüfte, Hocke ca. 90° Knie, 2 s halten, ohne Ausholen springen. Höhe aus My Jump. Bester von 3 je Bein.', ['slsjL', 'slsjR'], 'slsj'));
   if (on(t, 'dj')) c.appendChild(grp('Drop Jump (ca. 30 cm)', 'Anweisung immer gleich: „so kurz wie möglich am Boden, dann so hoch wie möglich“. Sprunghöhe und Kontaktzeit desselben (besten) Versuchs. Die 30 cm sind nur die Fallhöhe und gehen nicht in den RSI ein, sie müssen aber immer gleich bleiben. Flugzeit nur eintragen, wenn du keine Höhe hast (My Jump oder 240-fps-Video).', ['djh', 'ct', 'ft'], 'dj'));
+  if (on(t, 'sldj')) c.appendChild(grp('Drop Jump einbeinig', 'Niedrige Box (z. B. 20 cm, immer gleich), mit einem Bein abtreten, auf demselben Bein landen und sofort hochspringen. Höhe und Kontaktzeit desselben Versuchs aus My Jump, bester RSI je Bein.', ['sldjhL', 'sldjcL', 'sldjhR', 'sldjcR'], 'sldj'));
   if (on(t, 'bj')) c.appendChild(grp('Broad Jump (Standweitsprung)', 'Beidbeinig aus dem Stand, Armschwung erlaubt, Landung stehen bleiben. Gemessen von der Startlinie bis zur hinteren Ferse. Bester von 3, immer gleicher Untergrund und gleiche Schuhe.', ['bj'], 'bj'));
+  if (on(t, 'slbj')) c.appendChild(grp('Broad Jump einbeinig', 'Auf einem Bein abspringen und auf demselben Bein landen, Landung 2 s halten, sonst ungültig. Startlinie bis Ferse. Bester von 3 je Bein.', ['slbjL', 'slbjR'], 'slbj'));
   if (on(t, 'slhb')) c.appendChild(grp('Single Leg Hamstring Bridge', 'Ferse auf derselben Box wie beim SL Squat (ca. 50 cm), Knie leicht gebeugt. Wdh. bis Technikabbruch (Becken kippt/sinkt), Tempo gleich je Seite.', ['slhbL', 'slhbR'], 'slhb'));
   if (on(t, 'sls')) c.appendChild(grp('Single Leg Box Squat (ca. 50 cm)', 'Box ca. 50 cm, bei jedem Termin dieselbe Box. Antippen statt absetzen. Wdh. bis Technikabbruch (Knie fällt nach innen, Absetzen, Hände).', ['slsL', 'slsR'], 'sls'));
-  if (on(t, 'slbj')) c.appendChild(grp('Broad Jump einbeinig', 'Auf einem Bein abspringen und auf demselben Bein landen, Landung 2 s halten, sonst ungültig. Startlinie bis Ferse. Bester von 3 je Bein.', ['slbjL', 'slbjR'], 'slbj'));
-  if (on(t, 'slsj')) c.appendChild(grp('Squat Jump einbeinig', 'Hände an der Hüfte, Hocke ca. 90° Knie, 2 s halten, ohne Ausholen springen. Höhe aus My Jump. Bester von 3 je Bein.', ['slsjL', 'slsjR'], 'slsj'));
-  if (on(t, 'slcmj')) c.appendChild(grp('CMJ einbeinig', 'Hände an der Hüfte, schnelle Ausholbewegung, auf demselben Bein landen. Höhe aus My Jump. Bester von 3 je Bein.', ['slcmjL', 'slcmjR'], 'slcmj'));
-  if (on(t, 'sldj')) c.appendChild(grp('Drop Jump einbeinig', 'Niedrige Box (z. B. 20 cm, immer gleich), mit einem Bein abtreten, auf demselben Bein landen und sofort hochspringen. Höhe und Kontaktzeit desselben Versuchs aus My Jump, bester RSI je Bein.', ['sldjhL', 'sldjcL', 'sldjhR', 'sldjcR'], 'sldj'));
   ctl.appendChild(c);
 
   ctl.appendChild(h('div', { class: 'cols' },
@@ -559,14 +560,14 @@ function draw() {
   var tb = h('tbody');
   var hasLR = SIDES.some(function (k) { return on(t, k); });
   function row(name, val, prevVal, diff, key) {
-    var q = t.tq[key], pc = null;
+    var q = t.tq[key], pc = null, calcRow = key === 'eur' || key === 'rsi' || key === 'eur1';
     if (hasLR) {
       var cur = r.pct[key], old = pr && pr.pct ? pr.pct[key] : null;
       pc = h('td', { class: 'n w' }, SIDES.indexOf(key) < 0 || cur == null ? '' : Math.round(cur) + ' %', old != null && cur != null ? h('span', { class: 'dim' }, ' (vorher ' + Math.round(old) + ' %)') : null);
     }
     tb.appendChild(h('tr', null, h('td', null, name), h('td', { class: 'n' }, val),
       pr ? h('td', { class: 'n dim w' }, prevVal) : null, pr ? h('td', { class: 'n w' }, diff) : null, pc,
-      h('td', null, q ? h('span', { class: 'tq t' + q }, TQ[q]) : h('span', { class: 'tq', style: 'color:#6C7890' }, '–'))));
+      h('td', null, calcRow ? '' : q ? h('span', { class: 'tq t' + q }, TQ[q]) : h('span', { class: 'tq', style: 'color:#6C7890' }, '–'))));
   }
   function cmp(a, b, d, u) {
     if (a == null || b == null) return h('span', { class: 'dim' }, '–');
@@ -576,29 +577,34 @@ function draw() {
   var g = r.g, q = pr ? pr.g : {};
   if (on(t, 'squat')) row('Kniebeuge', g.load && g.reps ? fx(g.load, 1) + ' kg × ' + g.reps : '–', q.load && q.reps ? fx(q.load, 1) + ' × ' + q.reps : '–', cmp(r.orm, pr && pr.orm, 0, 'kg 1RM'), 'squat');
   if (on(t, 'cmj')) row('Countermovement Jump', fx(g.cmj, 1) + ' cm', fx(q.cmj, 1), cmp(g.cmj, q.cmj, 1, 'cm'), 'cmj');
+  if (on(t, 'slcmj')) row('CMJ 1-beinig (cm)', lrf(g.slcmjL, g.slcmjR, 1), lrf(q.slcmjL, q.slcmjR, 1), lrc('slcmj', 1), 'slcmj');
   if (on(t, 'sj')) row('Squat Jump', fx(g.sj, 1) + ' cm', fx(q.sj, 1), cmp(g.sj, q.sj, 1, 'cm'), 'sj');
-  if (on(t, 'dj')) row('Drop Jump (Höhe / Kontakt)', r.djH && g.ct ? fx(r.djH * 100, 1) + ' cm / ' + Math.round(g.ct) + ' ms' : '–', pr && pr.djH && q.ct ? fx(pr.djH * 100, 1) + ' / ' + Math.round(q.ct) : '–', cmp(r.rsi, pr && pr.rsi, 2, 'RSI'), 'dj');
+  if (on(t, 'cmj') && on(t, 'sj')) row('EUR (CMJ ÷ SJ)', fx(r.eur, 2), pr ? fx(pr.eur, 2) : '', cmp(r.eur, pr && pr.eur, 2), 'eur');
+  if (on(t, 'slsj')) row('Squat Jump 1-beinig (cm)', lrf(g.slsjL, g.slsjR, 1), lrf(q.slsjL, q.slsjR, 1), lrc('slsj', 1), 'slsj');
+  if (on(t, 'slcmj') && on(t, 'slsj')) row('EUR 1-beinig', lrf(r.eur1[0], r.eur1[1], 2), pr ? lrf(pr.eur1[0], pr.eur1[1], 2) : '', pr ? h('span', null, 'L ', cmp(r.eur1[0], pr.eur1[0], 2), ' · R ', cmp(r.eur1[1], pr.eur1[1], 2)) : '', 'eur1');
+  if (on(t, 'dj')) row('Drop Jump (Höhe / Kontakt)', r.djH && g.ct ? fx(r.djH * 100, 1) + ' cm / ' + Math.round(g.ct) + ' ms' : '–', pr && pr.djH && q.ct ? fx(pr.djH * 100, 1) + ' / ' + Math.round(q.ct) : '–', cmp(r.djH ? r.djH * 100 : null, pr && pr.djH ? pr.djH * 100 : null, 1, 'cm'), 'dj');
+  if (on(t, 'dj')) row('RSI Drop Jump', fx(r.rsi, 2), pr ? fx(pr.rsi, 2) : '', cmp(r.rsi, pr && pr.rsi, 2), 'rsi');
+  if (on(t, 'sldj')) row('Drop Jump 1-beinig (RSI)', lrf(r.lr.sldj[0], r.lr.sldj[1], 2), pr ? lrf(pr.lr.sldj[0], pr.lr.sldj[1], 2) : '', lrc('sldj', 2), 'sldj');
   if (on(t, 'bj')) row('Broad Jump', fx(g.bj, 0) + ' cm', fx(q.bj, 0), cmp(g.bj, q.bj, 0, 'cm'), 'bj');
-  function lr(a, b) { return a == null && b == null ? '–' : 'L ' + (a == null ? '–' : a) + ' · R ' + (b == null ? '–' : b); }
+  if (on(t, 'slbj')) row('Broad Jump 1-beinig (cm)', lrf(g.slbjL, g.slbjR, 0), lrf(q.slbjL, q.slbjR, 0), lrc('slbj', 0), 'slbj');
   if (on(t, 'slhb')) row('SL Hamstring Bridge (Wdh.)', lr(g.slhbL, g.slhbR), lr(q.slhbL, q.slhbR), pr ? h('span', null, 'L ', cmp(g.slhbL, q.slhbL, 0), ' · R ', cmp(g.slhbR, q.slhbR, 0)) : '', 'slhb');
   if (on(t, 'sls')) row('SL Box Squat ca. 50 cm (Wdh.)', lr(g.slsL, g.slsR), lr(q.slsL, q.slsR), pr ? h('span', null, 'L ', cmp(g.slsL, q.slsL, 0), ' · R ', cmp(g.slsR, q.slsR, 0)) : '', 'sls');
+  function lr(a, b) { return a == null && b == null ? '–' : 'L ' + (a == null ? '–' : a) + ' · R ' + (b == null ? '–' : b); }
   function lrf(a, b, d) { return a == null && b == null ? '–' : 'L ' + fx(a, d) + ' · R ' + fx(b, d); }
   function lrc(k, d) { var a = r.lr[k], b = pr ? pr.lr[k] : [null, null]; return pr ? h('span', null, 'L ', cmp(a[0], b[0], d), ' · R ', cmp(a[1], b[1], d)) : ''; }
-  if (on(t, 'slbj')) row('Broad Jump 1-beinig (cm)', lrf(g.slbjL, g.slbjR, 0), lrf(q.slbjL, q.slbjR, 0), lrc('slbj', 0), 'slbj');
-  if (on(t, 'slsj')) row('Squat Jump 1-beinig (cm)', lrf(g.slsjL, g.slsjR, 1), lrf(q.slsjL, q.slsjR, 1), lrc('slsj', 1), 'slsj');
-  if (on(t, 'slcmj')) row('CMJ 1-beinig (cm)', lrf(g.slcmjL, g.slcmjR, 1), lrf(q.slcmjL, q.slcmjR, 1), lrc('slcmj', 1), 'slcmj');
-  if (on(t, 'sldj')) row('Drop Jump 1-beinig (RSI)', lrf(r.lr.sldj[0], r.lr.sldj[1], 2), pr ? lrf(pr.lr.sldj[0], pr.lr.sldj[1], 2) : '', lrc('sldj', 2), 'sldj');
   var sideLbl = t.mode === 'reha' && t.side ? 'LSI' : 'Seiten %';
   pg.appendChild(h('table', null, h('thead', null, h('tr', null, h('th', null, 'Test'), h('th', { class: 'n' }, 'Heute'),
     pr ? h('th', { class: 'n' }, 'Vorher') : null, pr ? h('th', { class: 'n' }, 'Veränderung') : null, hasLR ? h('th', { class: 'n' }, sideLbl) : null, h('th', null, 'Technik'))), tb));
   var needSide = t.mode === 'reha' && !t.side && hasLR;
 
+  var splitEl = null;
   if (t.note.trim()) {
-    pg.appendChild(h('h3', null, 'Coach-Notiz'));
+    splitEl = pg.appendChild(h('h3', null, 'Coach-Notiz'));
     pg.appendChild(h('div', { class: 'box' }, h('p', null, t.note.trim())));
   }
   var empAll = (t.emp.trim() ? t.emp : recText(r, t)).split('\n').map(function (x) { return x.trim(); }).filter(Boolean), emp = empAll.slice(0, 7);
-  pg.appendChild(h('h3', null, t.mode === 'reha' ? 'Hinweise' : 'Empfehlung für die nächsten 6–8 Wochen'));
+  var empH = pg.appendChild(h('h3', null, t.mode === 'reha' ? 'Hinweise' : 'Empfehlung für die nächsten 6–8 Wochen'));
+  if (!splitEl) splitEl = empH;
   pg.appendChild(h('div', { class: 'box' }, h('ol', { class: 'emp' }, emp.map(function (x) { return h('li', null, h('span', null, x)); }))));
 
   pg.appendChild(h('h3', null, 'So liest du die Werte'));
@@ -617,10 +623,21 @@ function draw() {
     h('div', null, h('b', null, 'PERFORM. · Justus Böhm'), ' · perform.by.jb@gmail.com · WhatsApp 0160 5951455 · @perform.jb'),
     h('div', null, t.mode === 'reha' ? 'Nächster Test nach Absprache' : 'Re-Test empfohlen nach 6–8 Wochen')));
   pvBox.appendChild(pg);
+  /* Zu lang für eine Seite: ab Coach-Notiz/Empfehlungen auf Seite 2 umbrechen */
+  var A4 = 1124, pg2 = null;
+  if (pg.offsetHeight > A4 && splitEl) {
+    pg2 = h('div', { class: 'page' });
+    pg2.appendChild(pg.firstChild.cloneNode(true));
+    var foot = pg.lastChild, n = splitEl;
+    while (n && n !== foot) { var nx = n.nextSibling; pg2.appendChild(n); n = nx; }
+    pg2.appendChild(foot.cloneNode(true));
+    pvBox.appendChild(pg2);
+  }
 
   ovBox.textContent = '';
   if (needSide) ovBox.appendChild(h('div', { class: 'banner red' }, 'Reha-Test: betroffene Seite auswählen, sonst wird der Seitenvergleich als schwächere ÷ stärkere Seite gerechnet.'));
-  if (pg.offsetHeight > 1124) ovBox.appendChild(h('div', { class: 'banner red' }, 'Report ist länger als eine A4-Seite und würde im PDF abgeschnitten. Notiz oder Empfehlungen kürzen.'));
+  if (pg.offsetHeight > A4 || (pg2 && pg2.offsetHeight > A4)) ovBox.appendChild(h('div', { class: 'banner red' }, 'Eine Report-Seite ist länger als A4 und würde im PDF abgeschnitten. Tests abwählen oder Notiz/Empfehlungen kürzen.'));
+  else if (pg2) ovBox.appendChild(h('div', { class: 'banner' }, 'Report hat 2 Seiten (Coach-Notiz und Empfehlungen auf Seite 2).'));
   if (empAll.length > 7) ovBox.appendChild(h('div', { class: 'banner red' }, 'Nur die ersten 7 Empfehlungen kommen in den Report (' + empAll.length + ' eingetragen).'));
 }
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { draw(); });
