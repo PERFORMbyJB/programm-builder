@@ -293,7 +293,7 @@ function calc(t, ctx) {
   return r;
 }
 function noise(a, b) { return a != null && b != null && b !== 0 && Math.abs(a - b) / Math.abs(b) < 0.05; }
-function recText(r, t) { if (t && t.mode === 'reha') return ['Belastungssteigerung nur in Abstimmung mit Physio/Arzt', 'Nächster Test unter gleichen Bedingungen nach Absprache'].join('\n'); return (r.prio ? RECS[r.prio] : ['Training nach den Schwerpunkten aus der Coach-Notiz']).concat(['Re-Test nach 6–8 Wochen unter gleichen Bedingungen']).join('\n'); }
+function recText(r, t) { if (t && t.mode === 'reha') return ['Belastung schrittweise und am Verlauf orientiert steigern', 'Nächster Test unter gleichen Bedingungen nach Absprache'].join('\n'); return (r.prio ? RECS[r.prio] : ['Training nach den Schwerpunkten aus der Coach-Notiz']).concat(['Re-Test nach 6–8 Wochen unter gleichen Bedingungen']).join('\n'); }
 
 /* ───────── Ansicht ───────── */
 var app = document.getElementById('app'), pvBox, ovBox;
@@ -303,7 +303,7 @@ function render() {
   app.appendChild(ctl);
   ctl.appendChild(h('div', { class: 'logo' }, 'PERFORM', h('span', null, '.'), h('small', null, 'PERFORMANCE THAT LASTS.')));
   ctl.appendChild(h('h1', null, 'Athletik-Check'));
-  ctl.appendChild(h('p', { class: 'sub' }, 'Einzelcheck mit dir: Tests wählen, Werte und Technik eintragen, Verlauf und Report als PDF. Daten bleiben nur in diesem Browser. Reha-Test nur als Verlaufsdokumentation für Physio/Arzt, keine Freigaben.'));
+  ctl.appendChild(h('p', { class: 'sub' }, 'Einzelcheck mit dir: Tests wählen, Werte und Technik eintragen, Verlauf und Report als PDF. Daten bleiben nur in diesem Browser. Reha-Test nur als Verlaufsdokumentation, keine Freigaben.'));
   if (!saveOk) ctl.appendChild(h('div', { class: 'banner red' }, 'Speichern im Browser fehlgeschlagen. Bitte Backup exportieren.'));
 
   /* Spieler & Termin */
@@ -410,7 +410,7 @@ function form(ctl, p, t) {
     return h('button', { class: t.mode === x[0] ? 'on' : '', onclick: function () { t.mode = x[0]; if (t.mode === 'normal') t.side = ''; save(); render(); } }, x[1]);
   })));
   if (t.mode === 'reha') {
-    c.appendChild(h('div', { class: 'banner red', style: 'margin:10px 0 0' }, 'Reha-Test: nur mit Freigabe von Arzt/Physio für die jeweiligen Tests. Der Report ist Verlaufsdokumentation für Physio/Arzt, keine Freigabe- oder Return-to-Sport-Entscheidung.'));
+    c.appendChild(h('div', { class: 'banner red', style: 'margin:10px 0 0' }, 'Reha-Test: Der Report ist Verlaufsdokumentation, keine Freigabe- oder Return-to-Sport-Entscheidung.'));
     c.appendChild(h('label', { class: 'f' }, 'Betroffene Seite'));
     c.appendChild(h('div', { class: 'chips' }, [['L', 'Links'], ['R', 'Rechts']].map(function (x) {
       return h('button', { class: t.side === x[0] ? 'on' : '', onclick: function () { t.side = t.side === x[0] ? '' : x[0]; save(); render(); } }, x[1]);
@@ -509,7 +509,7 @@ function draw() {
       h('div', { class: 't' }, p.name || 'Ohne Namen'),
       h('div', { class: 'm' }, [p.team, fmtD(t.date), r.g.bw ? fx(r.g.bw, 1) + ' kg' : ''].filter(Boolean).join(' · ') + (pt ? ' · Vergleich mit ' + fmtD(pt.date) : '')))));
 
-  if (t.mode === 'reha') pg.appendChild(h('div', { class: 'rh' }, h('b', null, 'Verlaufsdokumentation für die Zusammenarbeit mit Physio/Arzt. '),
+  if (t.mode === 'reha') pg.appendChild(h('div', { class: 'rh' }, h('b', null, 'Verlaufsdokumentation. '),
     'Keine Freigabe- oder Return-to-Sport-Entscheidung.' + (t.side ? ' Betroffene Seite: ' + (t.side === 'L' ? 'links' : 'rechts') + '.' : ' Betroffene Seite nicht angegeben, Seiten % = schwächere ÷ stärkere Seite.')));
   if (t.mode === 'reha') { /* keine Trainingspriorität im Reha-Verlauf */ }
   else if (r.prio) pg.appendChild(h('div', { class: 'vd' },
@@ -598,7 +598,7 @@ function draw() {
     pg.appendChild(h('div', { class: 'box' }, h('p', null, t.note.trim())));
   }
   var empAll = (t.emp.trim() ? t.emp : recText(r, t)).split('\n').map(function (x) { return x.trim(); }).filter(Boolean), emp = empAll.slice(0, 7);
-  pg.appendChild(h('h3', null, t.mode === 'reha' ? 'Hinweise (in Abstimmung mit Physio/Arzt)' : 'Empfehlung für die nächsten 6–8 Wochen'));
+  pg.appendChild(h('h3', null, t.mode === 'reha' ? 'Hinweise' : 'Empfehlung für die nächsten 6–8 Wochen'));
   pg.appendChild(h('div', { class: 'box' }, h('ol', { class: 'emp' }, emp.map(function (x) { return h('li', null, h('span', null, x)); }))));
 
   pg.appendChild(h('h3', null, 'So liest du die Werte'));
@@ -610,12 +610,12 @@ function draw() {
     t.art === 'selbst' ? 'Selbsttest: vom Spieler nach PERFORM.-Protokoll durchgeführt; Sprünge von Justus aus Zeitlupen-Video ausgewertet (My Jump), Wiederholungen selbst gezählt' + (t.info && /Box/.test(t.info) ? ' (' + t.info.split(' · ').slice(0, 2).join(', ') + ')' : '') + '. ' : '',
     hasLR ? (t.mode === 'reha' && t.side ? 'LSI = Wert der betroffenen Seite in % der gesunden Seite. ' : 'Seiten % = schwächere Seite in % der stärkeren. ') + 'Ohne Bewertung und ohne Grenzwert; aussagekräftig ist der Verlauf. ' : '',
     pr ? 'Grau mit „(Schwankung)“: Veränderung unter 5 %, im Bereich der üblichen Messschwankung. ' : '',
-    t.mode === 'reha' ? 'Reha-Verlauf: Tests nur nach Freigabe durch Arzt/Physio; die Werte ersetzen keine medizinische Beurteilung und sind keine Freigabe für Training oder Spiel.' : 'Leistungstest für gesunde Spieler, kein Reha- oder Return-to-Sport-Test; Seitenvergleiche sind kein medizinischer Befund.',
-    ' ' + ' Feldtests liefern Hinweise, keine Diagnose. Kleine Veränderungen können Tagesform oder Messschwankung sein. Bei Schmerzen oder Verletzungen Training nur nach ärztlicher bzw. physiotherapeutischer Freigabe.'));
+    t.mode === 'reha' ? 'Reha-Verlauf: Die Werte ersetzen keine medizinische Beurteilung und sind keine Freigabe für Training oder Spiel.' : 'Leistungstest für gesunde Spieler, kein Reha- oder Return-to-Sport-Test; Seitenvergleiche sind kein medizinischer Befund.',
+    ' ' + ' Feldtests liefern Hinweise, keine Diagnose. Kleine Veränderungen können Tagesform oder Messschwankung sein.' + (t.mode === 'reha' ? '' : ' Bei Schmerzen oder Verletzungen Training nur nach ärztlicher bzw. physiotherapeutischer Freigabe.')));
 
   pg.appendChild(h('div', { class: 'pf' },
     h('div', null, h('b', null, 'PERFORM. · Justus Böhm'), ' · perform.by.jb@gmail.com · WhatsApp 0160 5951455 · @perform.jb'),
-    h('div', null, t.mode === 'reha' ? 'Nächster Test nach Absprache mit Physio/Arzt' : 'Re-Test empfohlen nach 6–8 Wochen')));
+    h('div', null, t.mode === 'reha' ? 'Nächster Test nach Absprache' : 'Re-Test empfohlen nach 6–8 Wochen')));
   pvBox.appendChild(pg);
 
   ovBox.textContent = '';
