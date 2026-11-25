@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<meta name="theme-color" content="#1C1F26">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>PERFORM. Selbsttest</title>
+<style>
+@font-face{font-family:"Montserrat";font-weight:400;font-display:swap;src:url(fonts/m400.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-display:swap;src:url(fonts/m600.woff2) format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:700;font-display:swap;src:url(fonts/m700.woff2) format("woff2")}
+:root{
+  color-scheme:dark;
+  --bg:#1C1F26; --card:#262B34; --card2:#2D333E; --line:#34405A;
+  --blue:#1D4579; --acc:#4B8EF0; --text:#F0F4FF; --muted:#9BA8C0; --dim:#6C7890;
+  --red:#F87171; --amber:#F5B041; --green:#4ADE80;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Montserrat",-apple-system,system-ui,sans-serif;font-size:14.5px;line-height:1.45}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none;padding:0}
+#app{max-width:720px;margin:0 auto;padding:20px 16px 90px}
+.logo{font-size:15px;font-weight:700;letter-spacing:3px}
+.logo span{color:var(--acc)}
+.logo small{display:block;font-size:10.5px;letter-spacing:2px;color:var(--muted);font-weight:600;margin-top:1px}
+h1{font-size:24px;font-weight:700;margin:14px 0 2px}
+.sub{color:var(--muted);font-size:13px;margin:0 0 14px}
+h2{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--acc);margin:24px 2px 10px}
+h3{font-size:15px;margin:0 0 6px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px}
+.card p{margin:0 0 8px}
+.card p:last-child{margin-bottom:0}
+.card ol,.card ul{margin:0;padding-left:20px}
+.card li{margin:4px 0}
+.btn{min-height:44px;border-radius:12px;padding:0 16px;font-weight:700;font-size:14px;background:var(--card2);color:var(--text)}
+.btn.pri{background:var(--acc);color:#0f1218}
+.btn.danger{color:var(--red)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.banner{background:#22385c;color:#cfe0fb;border-radius:12px;padding:10px 14px;font-size:13px;margin:10px 0}
+.banner.red{background:#4a2227;color:#f4a3a3}
+.banner.ok{background:#1d3b2c;color:#a7f0c3}
+.tabs{display:flex;gap:6px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.tabs button{flex:1;min-height:42px;border-radius:12px;background:var(--card);color:var(--muted);font-weight:700;font-size:13px}
+.tabs button.on{background:var(--blue);color:var(--text)}
+label.f{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin:12px 0 4px}
+input[type=text],input[type=date],select,textarea{width:100%;background:var(--card2);border:1px solid transparent;border-radius:12px;padding:0 12px;min-height:44px;font-size:15px;outline:none}
+textarea{padding:10px 12px;min-height:150px;font-size:12.5px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+input.bad{border-color:var(--red)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;margin-top:12px;cursor:pointer}
+.chk input{width:22px;height:22px;flex:none;margin:0;accent-color:var(--acc)}
+.tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;background:var(--blue);color:var(--text);border-radius:6px;padding:2px 7px;margin-right:6px;vertical-align:1px}
+.stop{color:var(--red);font-weight:700}
+.foot{font-size:11.5px;color:var(--dim);text-align:center;margin-top:30px}
+.foot a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+'use strict';
+
+var KEY = 'perform_selbsttest_v1';
+var WA = 'https://wa.me/491605951455';
+var FPS = ['', '240 Bilder/s', '120 Bilder/s', 'weiß ich nicht'];
+
+/* ───────── Helfer ───────── */
+function h(tag, props) {
+  var e = document.createElement(tag);
+  if (props) for (var k in props) {
+    var v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'value') e.value = v;
+    else if (k === 'checked') e.checked = !!v;
+    else if (k.slice(0, 2) === 'on') e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v === true ? '' : v);
+  }
+  (function add(list) {
+    for (var j = 0; j < list.length; j++) {
+      var c = list[j];
+      if (c == null || c === false) continue;
+      if (Array.isArray(c)) add(c);
+      else e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+    }
+  })(Array.prototype.slice.call(arguments, 2));
+  return e;
+}
+function clean(v, max) {
+  if (typeof v !== 'string') return '';
+  return v.replace(/[\u0000-\u001F\u007F‪-‮⁦-⁩|]/g, '').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function pad(n) { return String(n).padStart(2, '0'); }
+function today() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function fmtD(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '.' + m[2] + '.' + m[1] : ''; }
+function reps(v) { v = String(v || '').trim(); if (!v) return null; return /^\d{1,2}$/.test(v) ? parseInt(v, 10) : NaN; }
+
+/* ───────── Zustand ───────── */
+var FIELDS = ['name', 'datum', 'box', 'fps', 'slsL', 'slsR', 'slhbL', 'slhbR', 'notiz'];
+var S = (function () {
+  var d = { name: '', datum: today(), box: '50', fps: '', slsL: '', slsR: '', slhbL: '', slhbR: '', notiz: '', u18: false, eltern: false, einw: false, videos: false };
+  try {
+    var o = JSON.parse(lsGet(KEY));
+    if (o && typeof o === 'object') {
+      FIELDS.forEach(function (k) { if (typeof o[k] === 'string') d[k] = o[k].slice(0, k === 'notiz' ? 300 : 40); });
+      ['u18', 'eltern', 'einw', 'videos'].forEach(function (k) { d[k] = o[k] === true; });
+      if (FPS.indexOf(d.fps) < 0) d.fps = FPS[0];
+    }
+  } catch (e) {}
+  return d;
+})();
+var tab = lsGet(KEY + '_tab') || 'vorbereitung';
+function save() { lsSet(KEY, JSON.stringify(S)); }
+function go(t) { tab = t; lsSet(KEY + '_tab', t); render(); window.scrollTo(0, 0); }
+
+/* ───────── Prüfen + Nachricht ───────── */
+function check() {
+  var p = [];
+  if (!clean(S.name, 40)) p.push('Vorname fehlt.');
+  if (!fmtD(S.datum)) p.push('Datum fehlt.');
+  if (!/^\d{2,3}$/.test(String(S.box).trim())) p.push('Boxhöhe in cm eintragen.');
+  if (!S.fps) p.push('Zeitlupe auswählen (Bildrate).');
+  ['slsL', 'slsR', 'slhbL', 'slhbR'].forEach(function (k) { if (reps(S[k]) == null || isNaN(reps(S[k]))) p.push(LBL[k] + ': Wiederholungen eintragen (Zahl).'); });
+  if (!S.videos) p.push('Bestätigen, dass die 6 Sprungvideos aufgenommen sind.');
+  if (!S.einw) p.push('Einverständnis fehlt.');
+  if (S.u18 && !S.eltern) p.push('Unter 18: Einverständnis der Eltern fehlt.');
+  return p;
+}
+var LBL = { slsL: 'SL Box Squat links', slsR: 'SL Box Squat rechts', slhbL: 'SL Bridge links', slhbR: 'SL Bridge rechts' };
+function message() {
+  return ['PERFORM. SELBSTTEST v1',
+    'Name: ' + clean(S.name, 40),
+    'Datum: ' + fmtD(S.datum),
+    'Boxhöhe: ' + String(S.box).trim() + ' cm',
+    'Zeitlupe: ' + S.fps,
+    'SL Box Squat: L ' + reps(S.slsL) + ' | R ' + reps(S.slsR),
+    'SL Bridge: L ' + reps(S.slhbL) + ' | R ' + reps(S.slhbR),
+    'Unter 18: ' + (S.u18 ? 'ja, Eltern einverstanden' : 'nein'),
+    'Einverständnis: bestätigt',
+    clean(S.notiz, 300) ? 'Notiz: ' + clean(S.notiz, 300) : null,
+    'Videos: 3× CMJ + 3× Squat Jump folgen als Dokument'].filter(Boolean).join('\n');
+}
+
+/* ───────── Ansicht ───────── */
+var app = document.getElementById('app');
+function render() {
+  app.textContent = '';
+  app.appendChild(h('div', { class: 'logo' }, 'PERFORM', h('span', null, '.'), h('small', null, 'PERFORMANCE THAT LASTS.')));
+  app.appendChild(h('h1', null, 'Athletik-Selbsttest'));
+  app.appendChild(h('p', { class: 'sub' }, 'Du misst zu Hause oder im Gym, ich werte aus und schicke dir deinen Report. Dauer ca. 30 Minuten.'));
+  app.appendChild(h('div', { class: 'tabs' },
+    [['vorbereitung', '1 · Vorbereitung'], ['tests', '2 · Tests'], ['senden', '3 · Senden']].map(function (t) {
+      return h('button', { class: tab === t[0] ? 'on' : '', onclick: function () { go(t[0]); } }, t[1]);
+    })));
+  if (tab === 'vorbereitung') vorbereitung();
+  else if (tab === 'tests') tests();
+  else senden();
+  app.appendChild(h('div', { class: 'foot' }, 'Fragen? WhatsApp an Justus: ', h('a', { href: WA, target: '_blank', rel: 'noopener' }, '0160 5951455'),
+    h('br'), 'Deine Eingaben bleiben auf diesem Gerät, bis du sie sendest. Kein medizinischer Test. ',
+    h('a', { href: '../impressum/', target: '_blank', rel: 'noopener' }, 'Impressum & Datenschutz')));
+}
+
+function vorbereitung() {
+  app.appendChild(h('div', { class: 'banner red' }, h('b', null, 'Nur wenn du beschwerdefrei bist. '), 'Bei Schmerzen, Verletzung oder wenn du gerade nicht voll trainierst: nicht testen, kurz bei mir melden. Schmerz während des Tests = sofort Stopp.'));
+
+  app.appendChild(h('h2', null, 'Das brauchst du'));
+  app.appendChild(h('div', { class: 'card' }, h('ul', null,
+    h('li', null, h('b', null, 'Handy mit Zeitlupe. '), 'iPhone: Einstellungen → Kamera → Slo-Mo aufnehmen → 240 fps. Android: Zeitlupe mit der höchsten Bildrate.'),
+    h('li', null, h('b', null, 'Stabile Box, Bank oder Stuhl, ca. 50 cm hoch. '), 'An die Wand stellen, keine Rollen, kein Klappstuhl. Bei jedem Test (auch beim Re-Test) dieselbe.'),
+    h('li', null, h('b', null, 'Ebener, rutschfester Boden, '), 'Sportschuhe, kurze oder enge Hose (Füße und Knie gut sichtbar).'),
+    h('li', null, h('b', null, 'Eine zweite Person '), 'zum Filmen und Zählen. Ohne Helfer: Handy aufstellen und vor einem Spiegel testen, damit du deine Knie siehst.'),
+    h('li', null, h('b', null, 'Helles Licht '), '(Tageslicht oder gut beleuchteter Raum), sonst wird die Zeitlupe dunkel oder flackert.'))));
+
+  app.appendChild(h('h2', null, 'So filmst du die Sprünge'));
+  app.appendChild(h('div', { class: 'card' }, h('ol', null,
+    h('li', null, 'Handy ', h('b', null, 'quer'), ' auf den Boden legen oder ganz unten anlehnen, ca. 1,5–2 m vor dir.'),
+    h('li', null, h('b', null, 'Deine Füße müssen komplett im Bild sein'), ', vor dem Absprung, in der Luft und bei der Landung.'),
+    h('li', null, 'Handy nicht bewegen, nicht zoomen. Kein Gegenlicht.'),
+    h('li', null, 'Aufnahme starten, ', h('b', null, 'bevor'), ' du in die Hocke gehst, und erst stoppen, wenn du nach der Landung stehst.'),
+    h('li', null, h('b', null, 'Ein Video pro Sprung'), ' in Zeitlupe, also 6 Videos insgesamt.'))));
+
+  app.appendChild(h('h2', null, 'Aufwärmen (10 min, jedes Mal gleich)'));
+  app.appendChild(h('div', { class: 'card' }, h('ol', null,
+    h('li', null, '3–4 min locker bewegen: auf der Stelle laufen, Hampelmann, Seilspringen.'),
+    h('li', null, '10 Ausfallschritte, 10 Beinschwünge je Bein, 10 Kniebeugen.'),
+    h('li', null, '2 × 10 kleine Hüpfer auf der Stelle.'),
+    h('li', null, '3 Probesprünge nach oben, steigernd: locker, mittel, fast voll.'))));
+
+  app.appendChild(h('div', { class: 'row', style: 'margin-top:16px' }, h('button', { class: 'btn pri', onclick: function () { go('tests'); } }, 'Weiter zu den Tests')));
+}
+
+function testCard(nr, title, items, extra) {
+  return h('div', { class: 'card' }, h('h3', null, h('span', { class: 'tag' }, 'Test ' + nr), title), h('ol', null, items.map(function (i) { return h('li', null, i); })), extra);
+}
+function repInput(k) {
+  return h('div', null, h('label', { class: 'f' }, k.slice(-1) === 'L' ? 'Links (Wdh.)' : 'Rechts (Wdh.)'),
+    h('input', { type: 'text', inputmode: 'numeric', maxlength: 2, value: S[k], class: isNaN(reps(S[k])) ? 'bad' : '', oninput: function (e) { S[k] = e.target.value; e.target.classList.toggle('bad', isNaN(reps(S[k]))); save(); } }));
+}
+
+function tests() {
+  app.appendChild(h('div', { class: 'banner' }, 'Reihenfolge einhalten. Zwischen den Versuchen 30–60 s Pause, zwischen den Tests 2 min.'));
+
+  app.appendChild(testCard(1, 'Countermovement Jump (CMJ)', [
+    'Hände an die Hüfte, die bleiben dort während des ganzen Sprungs.',
+    h('span', null, 'Schnell in die Hocke (so tief, wie es sich natürlich anfühlt) und sofort ', h('b', null, 'so hoch wie möglich'), ' springen.'),
+    'In der Luft Beine und Füße gestreckt lassen. Auf den Fußballen landen, die Knie erst nach dem Bodenkontakt beugen. Auf derselben Stelle landen.',
+    h('span', null, h('b', null, '3 Versuche'), ', jeder als eigenes Zeitlupen-Video.')]));
+
+  app.appendChild(testCard(2, 'Squat Jump (SJ)', [
+    'Hände an die Hüfte.',
+    h('span', null, 'Langsam in die Hocke (Knie ca. 90°), ', h('b', null, '2 Sekunden halten.')),
+    h('span', null, 'Dann aus der Position ', h('b', null, 'so hoch wie möglich'), ' springen, ', h('b', null, 'ohne vorher noch einmal runterzugehen'), '. Genau das sehe ich im Video.'),
+    'Beine und Füße in der Luft gestreckt, auf den Fußballen landen, Knie erst nach dem Bodenkontakt beugen.',
+    h('span', null, h('b', null, '3 Versuche'), ', jeder als eigenes Zeitlupen-Video.')]));
+
+  app.appendChild(testCard(3, 'Single Leg Box Squat', [
+    'Vor die Box stellen, Box ca. 50 cm. Auf einem Bein stehen, das andere leicht nach vorn halten. Arme vor der Brust verschränkt.',
+    'Kontrolliert nach hinten unten setzen, bis der Po die Box nur antippt, nicht absetzen. Wieder hochdrücken.',
+    'Gleichmäßiges Tempo, ca. 1 Wiederholung pro 2–3 Sekunden.',
+    h('span', null, h('b', null, 'So viele saubere Wiederholungen wie möglich. '), 'Stopp, wenn das Knie nach innen fällt, du dich absetzt, die Hände hilfst oder das andere Bein den Boden berührt.'),
+    'Erst links, 2 min Pause, dann rechts.'],
+    h('div', { class: 'g2' }, repInput('slsL'), repInput('slsR'))));
+
+  app.appendChild(testCard(4, 'Single Leg Hamstring Bridge', [
+    'Rückenlage, eine Ferse auf derselben Box (ca. 50 cm), Knie leicht gebeugt (ca. 20°, also fast gestreckt). Das andere Bein senkrecht nach oben, Arme vor der Brust verschränkt.',
+    'Über die Ferse das Becken hochdrücken, bis Hüfte gestreckt ist. Wieder ablassen, bis der Po den Boden antippt.',
+    'Gleichmäßiges Tempo, ca. 1 Wiederholung pro 2 Sekunden.',
+    h('span', null, h('b', null, 'So viele saubere Wiederholungen wie möglich. '), 'Stopp, wenn das Becken kippt oder du nicht mehr ganz hochkommst.'),
+    'Erst links, 2 min Pause, dann rechts. Muskelbrennen durch Ermüdung ist normal. Bei stechendem Schmerz oder Krampf: sofort aufhören.'],
+    h('div', { class: 'g2' }, repInput('slhbL'), repInput('slhbR'))));
+
+  app.appendChild(h('div', { class: 'row', style: 'margin-top:16px' }, h('button', { class: 'btn pri', onclick: function () { go('senden'); } }, 'Weiter zum Senden')));
+}
+
+function senden() {
+  var c = h('div', { class: 'card' });
+  c.appendChild(h('div', { class: 'g2' },
+    h('div', null, h('label', { class: 'f', style: 'margin-top:0' }, 'Vorname'), h('input', { type: 'text', maxlength: 40, value: S.name, autocomplete: 'given-name', oninput: function (e) { S.name = e.target.value; save(); }, onchange: function () { render(); } })),
+    h('div', null, h('label', { class: 'f', style: 'margin-top:0' }, 'Datum'), h('input', { type: 'date', value: S.datum, onchange: function (e) { S.datum = e.target.value; save(); render(); } }))));
+  c.appendChild(h('div', { class: 'g2' },
+    h('div', null, h('label', { class: 'f' }, 'Boxhöhe (cm)'), h('input', { type: 'text', inputmode: 'numeric', maxlength: 3, value: S.box, oninput: function (e) { S.box = e.target.value; save(); }, onchange: function () { render(); } })),
+    h('div', null, h('label', { class: 'f' }, 'Zeitlupe'), h('select', { onchange: function (e) { S.fps = e.target.value; save(); render(); } },
+      FPS.map(function (f) { var o = h('option', { value: f }, f || 'bitte wählen'); if (f === S.fps) o.selected = true; return o; })))));
+  c.appendChild(h('label', { class: 'f' }, 'Notiz (optional)'));
+  c.appendChild(h('input', { type: 'text', maxlength: 300, value: S.notiz, placeholder: 'z. B. Box war 48 cm, Kunstrasen statt Halle', oninput: function (e) { S.notiz = e.target.value; save(); }, onchange: function () { render(); } }));
+  c.appendChild(h('div', { style: 'font-size:12px;color:var(--dim);margin-top:6px' }, 'Bitte keine Angaben zu Beschwerden oder Verletzungen. Dafür lieber direkt schreiben.'));
+  app.appendChild(h('h2', null, 'Deine Angaben'));
+  app.appendChild(c);
+
+  app.appendChild(h('h2', null, 'Bestätigen'));
+  function box(key, text) {
+    return h('label', { class: 'chk' }, h('input', { type: 'checkbox', checked: S[key], onchange: function (e) { S[key] = e.target.checked; if (key === 'u18' && !S.u18) S.eltern = false; save(); render(); } }), h('span', null, text));
+  }
+  var b = h('div', { class: 'card' },
+    box('videos', 'Ich habe die 6 Sprungvideos (3× CMJ, 3× Squat Jump) in Zeitlupe aufgenommen.'),
+    box('einw', 'Ich bin einverstanden, dass Justus Böhm (PERFORM.) meine Videos und Werte zur Auswertung und für meinen Report nutzt. Die Übertragung läuft über WhatsApp (Meta). Die Videos werden nicht veröffentlicht und spätestens 4 Wochen nach meinem Report gelöscht.'),
+    box('u18', 'Ich bin unter 18.'));
+  if (S.u18) b.appendChild(box('eltern', 'Ein Elternteil hat Justus sein Einverständnis zum Test und zur Auswertung meiner Videos gegeben (z. B. per Nachricht bei der Bestellung).'));
+  app.appendChild(b);
+
+  var p = check();
+  if (p.length) app.appendChild(h('div', { class: 'banner red' }, h('b', null, 'Noch offen:'), h('ul', { style: 'margin:6px 0 0;padding-left:18px' }, p.map(function (x) { return h('li', null, x); }))));
+  var ok = !p.length, txt = ok ? message() : '', info = h('div');
+  app.appendChild(h('h2', null, 'Schritt 1 · Werte senden'));
+  app.appendChild(h('div', { class: 'row' },
+    h('button', { class: 'btn pri', disabled: !ok, onclick: function () { if (check().length) { render(); return; } send(message(), info); } }, 'An Justus senden'),
+    h('button', { class: 'btn', disabled: !ok, onclick: function () { if (check().length) { render(); return; } copy(message(), info); } }, 'Text kopieren')));
+  app.appendChild(info);
+  if (ok) app.appendChild(h('textarea', { readonly: true, 'aria-label': 'Nachricht', onfocus: function (e) { e.target.select(); } }, txt));
+
+  app.appendChild(h('h2', null, 'Schritt 2 · Videos senden'));
+  app.appendChild(h('div', { class: 'card' },
+    h('p', null, h('b', null, 'Wichtig: als Dokument senden, nicht als normales Video. '), 'Sonst verkleinert WhatsApp die Videos und die Zeitlupe ist für die Auswertung unbrauchbar.'),
+    h('p', null, h('b', null, 'iPhone: '), 'Chat mit Justus → + → Dokument → „Fotos & Videos auswählen“ → die 6 Videos markieren → senden.'),
+    h('p', null, h('b', null, 'Android: '), 'Chat mit Justus → Büroklammer → Dokument → „Durchsuchen“ bzw. Dateien → Ordner DCIM/Kamera → Videos per langem Tippen markieren → senden.'),
+    h('p', null, 'Alternative: alle 6 Videos in einen iCloud- oder Google-Drive-Ordner und den Link schicken.'),
+    h('div', { class: 'row', style: 'margin-top:4px' }, h('a', { class: 'btn', href: WA, target: '_blank', rel: 'noopener', style: 'display:inline-flex;align-items:center;text-decoration:none' }, 'Chat mit Justus öffnen'))));
+
+  app.appendChild(h('div', { class: 'card', style: 'margin-top:16px' },
+    h('p', { style: 'font-size:13px;color:var(--muted)' }, 'Deinen Report bekommst du nach der Auswertung per WhatsApp. Für einen späteren Re-Test die Werte hier löschen und unter gleichen Bedingungen neu testen.'),
+    h('button', { class: 'btn danger', onclick: function () {
+      if (!confirm('Alle Eingaben auf diesem Gerät löschen?')) return;
+      lsDel(KEY); location.reload(); } }, 'Eingaben löschen')));
+}
+
+function copy(txt, info) {
+  function done(ok) {
+    info.textContent = '';
+    info.appendChild(h('div', { class: 'banner' + (ok ? ' ok' : '') }, ok ? 'Kopiert. Jetzt WhatsApp öffnen und einfügen: ' : 'Kopieren hat nicht geklappt. Text unten markieren und kopieren, dann: ',
+      h('a', { href: WA, target: '_blank', rel: 'noopener', style: 'color:inherit;font-weight:700' }, 'Chat mit Justus öffnen')));
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { done(true); }, function () { done(false); });
+  else done(false);
+}
+function send(txt, info) {
+  if (navigator.share) {
+    navigator.share({ text: txt }).then(function () {
+      info.textContent = '';
+      info.appendChild(h('div', { class: 'banner ok' }, 'Geteilt. Bitte an Justus (0160 5951455) schicken, falls noch nicht geschehen. Dann Schritt 2.'));
+    }, function (e) { if (!e || e.name !== 'AbortError') copy(txt, info); });
+  } else copy(txt, info);
+}
+
+render();
+})();
+</script>
+</body>
+</html>

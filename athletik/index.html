@@ -202,9 +202,9 @@ function num(key, raw) {
 
 /* ───────── Daten ───────── */
 function newTermin(prev) {
-  return { id: uid(), date: today(), v: { bw: prev ? prev.v.bw : '' }, tq: {}, note: '', emp: '', focus: '', tests: prev ? prev.tests.slice() : ALL.slice() };
+  return { id: uid(), date: today(), v: { bw: prev ? prev.v.bw : '' }, tq: {}, note: '', emp: '', focus: '', tests: prev ? prev.tests.slice() : ALL.slice(), art: prev && prev.art === 'selbst' ? 'selbst' : 'vorort' };
 }
-function validDate(s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(s || '')) return false; var d = new Date(s + 'T00:00:00'); return !isNaN(d) && d.toISOString().slice(0, 10) === s; }
+function validDate(s) { if (!/^\d{4}-\d{2}-\d{2}$/.test(s || '')) return false; var d = new Date(s + 'T00:00:00Z'); return !isNaN(d) && d.toISOString().slice(0, 10) === s; }
 function dedupe(list) { var seen = {}; list.forEach(function (x) { while (seen[x.id]) x.id = uid(); seen[x.id] = true; }); return list; }
 function sanitize(o) {
   if (!o || typeof o !== 'object' || !Array.isArray(o.players)) return { players: [] };
@@ -215,7 +215,7 @@ function sanitize(o) {
         Object.keys(F).forEach(function (k) { if (t.v && (typeof t.v[k] === 'string' || typeof t.v[k] === 'number')) v[k] = String(t.v[k]).slice(0, 8); });
         TESTS.forEach(function (x) { if (t.tq && [1, 2, 3].indexOf(t.tq[x[0]]) >= 0) tq[x[0]] = t.tq[x[0]]; });
         var tests = Array.isArray(t.tests) ? ALL.filter(function (k) { return t.tests.indexOf(k) >= 0; }) : ALL.slice();
-        return { id: typeof t.id === 'string' ? t.id.slice(0, 20) : uid(), date: validDate(t.date) ? t.date : today(), v: v, tq: tq, note: clean(t.note, 700), emp: clean(t.emp, 1500), focus: FOCUS[t.focus] ? t.focus : '', tests: tests };
+        return { id: typeof t.id === 'string' ? t.id.slice(0, 20) : uid(), date: validDate(t.date) ? t.date : today(), v: v, tq: tq, note: clean(t.note, 700), emp: clean(t.emp, 1500), focus: FOCUS[t.focus] ? t.focus : '', tests: tests, art: t.art === 'selbst' ? 'selbst' : 'vorort', info: clean(t.info, 200) };
       }) };
   }) };
   dedupe(res.players); res.players.forEach(function (p) { dedupe(p.termine); });
@@ -304,6 +304,13 @@ function render() {
   if (p && t) form(ctl, p, t);
   else ctl.appendChild(h('div', { class: 'card', style: 'color:var(--muted)' }, p ? 'Dieser Spieler hat keinen Termin. „+ Re-Test (neuer Termin)“ anlegen.' : 'Spieler anlegen oder auswählen.'));
 
+  /* Selbsttest-Nachricht importieren */
+  var impTa = h('textarea', { placeholder: 'WhatsApp-Nachricht „PERFORM. SELBSTTEST v1 …“ hier einfügen', style: 'margin-top:8px' });
+  ctl.appendChild(h('details', { class: 'card' },
+    h('summary', { style: 'cursor:pointer;font-weight:700;font-size:13px' }, 'Selbsttest-Nachricht übernehmen'),
+    impTa,
+    h('button', { class: 'btn sm', style: 'margin-top:8px', onclick: function () { importSelbsttest(impTa.value); } }, 'Als neuen Termin anlegen')));
+
   /* Backup */
   ctl.appendChild(h('h2', null, 'Backup'));
   var fileIn = h('input', { type: 'file', accept: '.json,application/json', style: 'display:none', onchange: function (e) {
@@ -364,6 +371,11 @@ function form(ctl, p, t) {
     return g;
   }
   c.appendChild(h('div', { class: 'hint', style: 'margin-top:8px' }, 'Immer gleiches Aufwärmen vorher, gleiche Reihenfolge der Tests. Schmerz = sofort Stopp. Bei Spielern unter 18: Eltern-Zustimmung, Lasten altersgerecht.'));
+  c.appendChild(h('label', { class: 'f' }, 'Art'));
+  c.appendChild(h('div', { class: 'chips' }, [['vorort', 'Vor Ort mit mir'], ['selbst', 'Selbsttest (Video)']].map(function (x) {
+    return h('button', { class: t.art === x[0] ? 'on' : '', onclick: function () { t.art = x[0]; save(); render(); } }, x[1]);
+  })));
+  if (t.art === 'selbst' && t.info) c.appendChild(h('div', { class: 'hint' }, 'Aus der Nachricht: ' + t.info));
   c.appendChild(h('label', { class: 'f' }, 'Heute getestet'));
   c.appendChild(h('div', { class: 'chips' }, TESTS.map(function (x) {
     return h('button', { class: on(t, x[0]) ? 'on' : '', onclick: function () {
@@ -397,6 +409,30 @@ function form(ctl, p, t) {
   ctl.appendChild(h('div', { style: 'font-size:11.5px;color:var(--dim)' }, 'Im Druckdialog „Als PDF speichern“, Ränder „Keine“, Hintergrundgrafiken an.'));
 }
 
+function importSelbsttest(raw) {
+  var i0 = (raw || '').indexOf('PERFORM. SELBSTTEST');
+  if (i0 < 0) { alert('Kennung „PERFORM. SELBSTTEST“ nicht gefunden. Bitte die ganze Nachricht einfügen.'); return; }
+  var m = {};
+  raw.slice(i0).split(/\r?\n/).forEach(function (l) {
+    var x = /^\s*([^:]{2,20}):\s*(.*)$/.exec(l); if (x) m[x[1].trim().toLowerCase()] = x[2].trim();
+  });
+  function lr(s) { var x = /L\s*(\d{1,2})\s*\|\s*R\s*(\d{1,2})/.exec(s || ''); return x ? [x[1], x[2]] : null; }
+  var name = clean(m.name || '', 40).trim(), d = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(m.datum || ''), sls = lr(m['sl box squat']), slhb = lr(m['sl bridge']);
+  if (!name || !d || !sls || !slhb) { alert('Nachricht unvollständig (Name, Datum oder Wiederholungen fehlen).'); return; }
+  var date = d[3] + '-' + d[2] + '-' + d[1];
+  if (!validDate(date)) { alert('Datum in der Nachricht ist ungültig: ' + m.datum); return; }
+  var pl = D.players.filter(function (x) { return x.name.toLowerCase() === name.toLowerCase(); })[0];
+  if (pl && pl.termine.some(function (x) { return x.art === 'selbst' && x.date === date; }) && !confirm('Für „' + pl.name + '“ gibt es am ' + m.datum + ' schon einen Selbsttest. Trotzdem noch einmal anlegen?')) return;
+  if (pl && !confirm('„' + pl.name + '“ gibt es schon. Termin dort anlegen? (Abbrechen = neuen Spieler anlegen)')) pl = null;
+  if (!pl) { pl = { id: uid(), name: name, team: '', termine: [] }; D.players.push(pl); }
+  var prev = pl.termine.length ? sortedT(pl)[pl.termine.length - 1] : null, nt = newTermin(prev);
+  nt.date = date; nt.art = 'selbst';
+  nt.info = clean(['Box ' + (m['boxhöhe'] || '–'), 'Zeitlupe ' + (m.zeitlupe || '–'), m['unter 18'] && /^ja/i.test(m['unter 18']) ? 'U18, Eltern-Einverständnis bestätigt' : ''].filter(Boolean).join(' · '), 200); nt.tests = ['cmj', 'sj', 'slhb', 'sls'];
+  nt.v.slsL = sls[0]; nt.v.slsR = sls[1]; nt.v.slhbL = slhb[0]; nt.v.slhbR = slhb[1];
+  pl.termine.push(nt); sel.p = pl.id; sel.t = nt.id; save(); render();
+  alert('Übernommen.\nBoxhöhe: ' + (m['boxhöhe'] || '–') + ' · Zeitlupe: ' + (m.zeitlupe || '–') + (m['unter 18'] ? ' · Unter 18: ' + m['unter 18'] : '') + (m.notiz ? '\nNotiz: ' + m.notiz : '') + '\n\nJetzt CMJ und SJ aus den Videos (My Jump) eintragen.');
+}
+
 function exportJson() {
   var blob = new Blob([JSON.stringify({ app: 'perform-athletik', v: 1, exportiert: new Date().toISOString(), players: D.players }, null, 1)], { type: 'application/json' });
   var a = h('a', { href: URL.createObjectURL(blob), download: 'PERFORM_Athletik-Check_Backup_' + today() + '.json' });
@@ -418,7 +454,7 @@ function draw() {
   pg.appendChild(h('div', { class: 'ph' },
     h('div', { class: 'pl' }, 'PERFORM', h('span', null, '.'), h('small', null, 'PERFORMANCE THAT LASTS.')),
     h('div', { class: 'pt' },
-      h('div', { class: 'k' }, 'Athletik-Check' + (pt ? ' · Re-Test' : '')),
+      h('div', { class: 'k' }, 'Athletik-Check' + (t.art === 'selbst' ? ' · Selbsttest' : '') + (pt ? ' · Re-Test' : '')),
       h('div', { class: 't' }, p.name || 'Ohne Namen'),
       h('div', { class: 'm' }, [p.team, fmtD(t.date), r.g.bw ? fx(r.g.bw, 1) + ' kg' : ''].filter(Boolean).join(' · ') + (pt ? ' · Vergleich mit ' + fmtD(pt.date) : '')))));
 
@@ -496,6 +532,7 @@ function draw() {
     on(t, 'cmj') && on(t, 'sj') ? 'EUR = CMJ ÷ Squat Jump. ' : '',
     on(t, 'dj') ? 'RSI = Drop-Jump-Sprunghöhe (m) ÷ Kontaktzeit (s). ' : '',
     (on(t, 'cmj') && on(t, 'sj')) || on(t, 'dj') ? 'Für Amateurfußballer gibt es dafür keine belastbaren Grenzwerte, deshalb ohne Bewertung; aussagekräftig ist die Veränderung. ' : '',
+    t.art === 'selbst' ? 'Selbsttest: vom Spieler nach PERFORM.-Protokoll durchgeführt; Sprünge von Justus aus Zeitlupen-Video ausgewertet (My Jump), Wiederholungen selbst gezählt' + (t.info && /Box/.test(t.info) ? ' (' + t.info.split(' · ').slice(0, 2).join(', ') + ')' : '') + '. ' : '',
     pr ? 'Grau mit „(Schwankung)“: Veränderung unter 5 %, im Bereich der üblichen Messschwankung. ' : '',
     'Leistungstest für gesunde Spieler, kein Reha- oder Return-to-Sport-Test; Seitenvergleiche sind kein medizinischer Befund. Feldtests liefern Hinweise, keine Diagnose. Kleine Veränderungen können Tagesform oder Messschwankung sein. Bei Schmerzen oder Verletzungen Training nur nach ärztlicher bzw. physiotherapeutischer Freigabe.'));
 
