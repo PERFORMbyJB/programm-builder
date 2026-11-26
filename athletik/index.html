@@ -99,7 +99,7 @@ input.bad{border-color:var(--red)}
 .page .ein{margin:0;padding-left:4mm}
 .page .ein li{margin:0 0 1.5mm;font-size:8.5pt;line-height:1.45}
 .page .ein li:last-child{margin-bottom:0}
-.page .tq{font-size:7.5pt;font-weight:700;white-space:nowrap}
+.page .tq{font-size:7pt;font-weight:700;white-space:nowrap;margin-left:2.5mm}
 .page .tq.t1{color:#4ADE80}.page .tq.t2{color:#F5B041}.page .tq.t3{color:#F87171}
 .page .box{background:#262B35;border-radius:3mm;padding:3.5mm 5mm;font-size:9pt;line-height:1.5}
 .page .box p{margin:0;white-space:pre-wrap}
@@ -647,17 +647,14 @@ function draw() {
   pg.appendChild(h('h3', null, t.tests.some(function (k) { return t.tq[k]; }) ? 'Testergebnisse & Technik' : 'Testergebnisse'));
   var tb = h('tbody');
   var hasLR = SIDES.some(function (k) { return on(t, k); });
-  /* Technikspalte nur, wenn mindestens ein gewählter Test bewertet ist */
-  var hasTq = t.tests.some(function (k) { return t.tq[k]; });
   function row(name, val, prevVal, diff, key) {
     var q = t.tq[key], pc = null, calcRow = key === 'eur' || key === 'rsi' || key === 'eur1';
     if (hasLR) {
       var cur = r.pct[key], old = pr && pr.pct ? pr.pct[key] : null;
       pc = h('td', { class: 'n w' }, SIDES.indexOf(key) < 0 || cur == null ? '' : Math.round(cur) + ' %', old != null && cur != null ? h('span', { class: 'dim' }, ' (vorher ' + Math.round(old) + ' %)') : null);
     }
-    tb.appendChild(h('tr', null, h('td', null, name), h('td', { class: 'n' }, val),
-      pr ? h('td', { class: 'n dim w' }, prevVal) : null, pr ? h('td', { class: 'n w' }, diff) : null, pc,
-      hasTq ? h('td', null, calcRow || !q ? '' : h('span', { class: 'tq t' + q }, TQ[q])) : null));
+    tb.appendChild(h('tr', null, h('td', null, name, calcRow || !q ? null : h('span', { class: 'tq t' + q }, TQ[q])), h('td', { class: 'n' }, val),
+      pr ? h('td', { class: 'n dim w' }, prevVal) : null, pr ? h('td', { class: 'n w' }, diff) : null, pc));
   }
   function cmp(a, b, d, u) {
     if (a == null || b == null) return h('span', { class: 'dim' }, '–');
@@ -684,7 +681,7 @@ function draw() {
   function lrc(k, d) { var a = r.lr[k], b = pr ? pr.lr[k] : [null, null]; return pr ? h('span', null, 'L ', cmp(a[0], b[0], d), ' · R ', cmp(a[1], b[1], d)) : ''; }
   var sideLbl = t.mode === 'reha' && t.side ? 'LSI' : 'Seiten %';
   pg.appendChild(h('table', null, h('thead', null, h('tr', null, h('th', null, 'Test'), h('th', { class: 'n' }, 'Heute'),
-    pr ? h('th', { class: 'n' }, 'Vorher') : null, pr ? h('th', { class: 'n' }, 'Veränderung') : null, hasLR ? h('th', { class: 'n' }, sideLbl) : null, hasTq ? h('th', null, 'Technik') : null)), tb));
+    pr ? h('th', { class: 'n' }, 'Vorher') : null, pr ? h('th', { class: 'n' }, 'Veränderung') : null, hasLR ? h('th', { class: 'n' }, sideLbl) : null)), tb));
   var needSide = t.mode === 'reha' && !t.side && hasLR;
 
   var splitEl = null;
