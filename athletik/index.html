@@ -49,6 +49,10 @@ input.bad{border-color:var(--red)}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 10px}
 .grp{border-top:1px solid var(--line);margin-top:12px;padding-top:4px}
 .grp .gt{font-size:12px;font-weight:700;color:var(--acc);margin-top:8px}
+.nt{width:100%;border-collapse:collapse;font-size:11.5px;margin-top:6px;background:var(--card2);border-radius:10px}
+.nt th{text-align:left;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);padding:6px 8px}
+.nt td{vertical-align:top;padding:6px 8px;border-top:1px solid var(--line)}
+.nt td:first-child{font-weight:700;white-space:nowrap}
 .hint{font-size:11.5px;color:var(--dim);margin-top:4px}
 .pick{display:flex;gap:4px;margin-top:4px}
 .pick button{flex:1;min-height:32px;border-radius:9px;background:var(--card2);color:var(--muted);font-size:11px;font-weight:700}
@@ -444,6 +448,14 @@ function form(ctl, p, t) {
   if (on(t, 'cmj')) c.appendChild(grp('Countermovement Jump', 'Bester von 3 Versuchen, Hände an der Hüfte. My Jump oder Zeitlupe.', ['cmj'], 'cmj'));
   if (on(t, 'slcmj')) c.appendChild(grp('CMJ einbeinig', 'Hände an der Hüfte, schnelle Ausholbewegung, auf demselben Bein landen. Höhe aus My Jump. Bester von 3 je Bein.', ['slcmjL', 'slcmjR'], 'slcmj'));
   if (on(t, 'sj')) c.appendChild(grp('Squat Jump', 'Aus 90°-Position, 2 s halten, ohne Ausholbewegung. Bester von 3.', ['sj'], 'sj'));
+  if (on(t, 'cmj') && on(t, 'sj')) c.appendChild(h('div', { class: 'grp' }, h('div', { class: 'gt' }, 'EUR-Orientierung (nur für dich, nicht im Report)'),
+    h('table', { class: 'nt' },
+      h('tr', null, h('th', null, 'EUR'), h('th', null, 'Bedeutung'), h('th', null, 'Fokus')),
+      [['< 1,05 (oder < 1,0)', 'Geringe Nutzung der elastischen Energie, rein konzentrische Kraft dominiert.', 'Plyometrie & Reaktivkraft (Schnelligkeit, Sehnensteifigkeit)'],
+       ['1,10 – 1,15 (bis 1,20)', 'Optimaler Bereich. Ausgewogenes Verhältnis zwischen Maximalkraft und Elastizität.', 'Ausgewogener Mix (Komplextraining aus Kraft & Sprüngen)'],
+       ['> 1,15 – 1,20', 'Sehr hohe Nutzung des DVZ, aber im Verhältnis dazu zu wenig konzentrische Basiskraft.', 'Maximalkraft & Explosivkraft (schweres Krafttraining)']
+      ].map(function (x) { return h('tr', null, h('td', null, x[0]), h('td', null, x[1]), h('td', null, x[2])); })),
+    h('div', { class: 'hint' }, 'Orientierungswerte, Quelle nicht belegt. Die Bereiche überschneiden sich (1,15–1,20) und lassen 1,05–1,10 offen.')));
   if (on(t, 'slsj')) c.appendChild(grp('Squat Jump einbeinig', 'Hände an der Hüfte, Hocke ca. 90° Knie, 2 s halten, ohne Ausholen springen. Höhe aus My Jump. Bester von 3 je Bein.', ['slsjL', 'slsjR'], 'slsj'));
   if (on(t, 'dj')) c.appendChild(grp('Drop Jump (ca. 30 cm)', 'Anweisung immer gleich: „so kurz wie möglich am Boden, dann so hoch wie möglich“. Sprunghöhe und Kontaktzeit desselben (besten) Versuchs. Die 30 cm sind nur die Fallhöhe und gehen nicht in den RSI ein, sie müssen aber immer gleich bleiben. Flugzeit nur eintragen, wenn du keine Höhe hast (My Jump oder 240-fps-Video).', ['djh', 'ct', 'ft'], 'dj'));
   if (on(t, 'sldj')) c.appendChild(grp('Drop Jump einbeinig', 'Niedrige Box (z. B. 20 cm, immer gleich), mit einem Bein abtreten, auf demselben Bein landen und sofort hochspringen. Höhe und Kontaktzeit desselben Versuchs aus My Jump, bester RSI je Bein.', ['sldjhL', 'sldjcL', 'sldjhR', 'sldjcR'], 'sldj'));
@@ -701,7 +713,6 @@ function draw() {
     on(t, 'cmj') && on(t, 'sj') ? 'EUR = CMJ ÷ Squat Jump. ' : '',
     on(t, 'dj') || on(t, 'sldj') ? 'RSI = Sprunghöhe (m) ÷ Bodenkontakt (s). ' : '',
     hasLR ? (t.mode === 'reha' && t.side ? 'LSI = betroffene Seite in % der gesunden. ' : 'Seiten % = schwächere Seite in % der stärkeren. ') : '',
-    'Keine Normwerte für Amateure: aussagekräftig ist der Verlauf. ',
     pr ? 'Grau = Veränderung unter 5 % (Messschwankung). ' : '',
     t.art === 'selbst' ? 'Selbsttest: Sprünge per Zeitlupen-Video ausgewertet (My Jump), Wiederholungen selbst gezählt' + (t.info && /Box/.test(t.info) ? ' (' + t.info.split(' · ').slice(0, 2).join(', ') + ')' : '') + '. ' : '',
     t.mode === 'reha' ? 'Keine medizinische Beurteilung, keine Freigabe für Training oder Spiel.' : 'Leistungstest für gesunde Spieler, kein medizinischer Befund. Bei Schmerzen oder Verletzungen Training nur nach ärztlicher bzw. physiotherapeutischer Freigabe.'));
